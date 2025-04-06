@@ -25,11 +25,12 @@ ENTITY_DESCRIPTIONS = (
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
+    hass: HomeAssistant,
     entry: FireplusConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the switch platform."""
+    """
     async_add_entities(
         FireplusSwitch(
             coordinator=entry.runtime_data.coordinator,
@@ -37,6 +38,7 @@ async def async_setup_entry(
         )
         for entity_description in ENTITY_DESCRIPTIONS
     )
+    """
 
 
 class FireplusSwitch(FireplusEntity, SwitchEntity):

@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+)
 
 from .entity import FireplusEntity
 
@@ -17,9 +21,9 @@ if TYPE_CHECKING:
 
 ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
-        key="drooff_fireplus",
-        name="Fire+ Sensor",
-        icon="mdi:format-quote-close",
+        key="drooff_fireplus_temperature",
+        name="Fire+ Temperature",
+        icon="mdi:gauge",
     ),
 )
 
@@ -50,8 +54,10 @@ class FireplusSensor(FireplusEntity, SensorEntity):
         """Initialize the sensor class."""
         super().__init__(coordinator)
         self.entity_description = entity_description
+        self.device_class = SensorDeviceClass.TEMPERATURE
+        self.native_unit_of_measurement = "°C"
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> int | None:
         """Return the native value of the sensor."""
-        return self.coordinator.data.get("body")
+        return int(self.coordinator.data[2:-1].split("\\n")[5])
