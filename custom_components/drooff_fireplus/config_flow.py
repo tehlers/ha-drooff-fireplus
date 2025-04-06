@@ -1,17 +1,16 @@
-"""Adds config flow for Fireplus."""
+"""Adds config flow for Drooff Fire+."""
 
 from __future__ import annotations
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_HOST
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from slugify import slugify
 
 from .api import (
     FireplusApiClient,
-    FireplusApiClientAuthenticationError,
     FireplusApiClientCommunicationError,
     FireplusApiClientError,
 )
@@ -19,7 +18,7 @@ from .const import DOMAIN, LOGGER
 
 
 class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Fireplus."""
+    """Config flow for Drooff Fire+."""
 
     VERSION = 1
 
@@ -31,13 +30,9 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
         if user_input is not None:
             try:
-                await self._test_credentials(
-                    username=user_input[CONF_USERNAME],
-                    password=user_input[CONF_PASSWORD],
+                await self._test_host(
+                    host=user_input[CONF_HOST],
                 )
-            except FireplusApiClientAuthenticationError as exception:
-                LOGGER.warning(exception)
-                _errors["base"] = "auth"
             except FireplusApiClientCommunicationError as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
@@ -49,11 +44,11 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ## Do NOT use this in production code
                     ## The unique_id should never be something that can change
                     ## https://developers.home-assistant.io/docs/config_entries_config_flow_handler#unique-ids
-                    unique_id=slugify(user_input[CONF_USERNAME])
+                    unique_id=slugify(user_input[CONF_HOST])
                 )
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=user_input[CONF_USERNAME],
+                    title=user_input[CONF_HOST],
                     data=user_input,
                 )
 
@@ -62,16 +57,11 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_USERNAME,
-                        default=(user_input or {}).get(CONF_USERNAME, vol.UNDEFINED),
+                        CONF_HOST,
+                        default=(user_input or {}).get(CONF_HOST, vol.UNDEFINED),
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
-                        ),
-                    ),
-                    vol.Required(CONF_PASSWORD): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.PASSWORD,
                         ),
                     ),
                 },
@@ -79,11 +69,10 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
-    async def _test_credentials(self, username: str, password: str) -> None:
-        """Validate credentials."""
+    async def _test_host(self, host: str) -> None:
+        """Validate host."""
         client = FireplusApiClient(
-            username=username,
-            password=password,
+            host=host,
             session=async_create_clientsession(self.hass),
         )
         await client.async_get_data()
