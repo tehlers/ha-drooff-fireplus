@@ -51,7 +51,8 @@ class FireplusApiClient:
                     url=url,
                 )
                 response.raise_for_status()
-                return await response.text()
+                response_text = await response.text()
+                return FireplusData(response_text)
 
         except TimeoutError as exception:
             msg = f"Timeout error fetching information - {exception}"
@@ -68,3 +69,17 @@ class FireplusApiClient:
             raise FireplusApiClientError(
                 msg,
             ) from exception
+
+
+class FireplusData:
+    """Stores the metrics and data retrieved from the Drooff Fire+ API."""
+
+    temperature: int
+    draught: float
+
+    def __init__(self, panel_response: str) -> None:
+        """Metrics and data retrieved from the Drooff Fire+ API."""
+        panel_values = panel_response[2:-1].split("\\n")
+
+        self.temperature = int(panel_values[5])
+        self.draught = float(panel_values[7])

@@ -17,7 +17,6 @@ class FireplusEntity(CoordinatorEntity[FireplusDataUpdateCoordinator]):
     def __init__(self, coordinator: FireplusDataUpdateCoordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._attr_unique_id = coordinator.config_entry.entry_id
         self._attr_device_info = DeviceInfo(
             identifiers={
                 (

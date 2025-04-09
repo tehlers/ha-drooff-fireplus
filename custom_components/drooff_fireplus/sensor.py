@@ -19,14 +19,6 @@ if TYPE_CHECKING:
     from .coordinator import FireplusDataUpdateCoordinator
     from .data import FireplusConfigEntry
 
-ENTITY_DESCRIPTIONS = (
-    SensorEntityDescription(
-        key="drooff_fireplus_temperature",
-        name="Fire+ Temperature",
-        icon="mdi:gauge",
-    ),
-)
-
 
 async def async_setup_entry(
     hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
@@ -35,29 +27,56 @@ async def async_setup_entry(
 ) -> None:
     """Set up the sensor platform."""
     async_add_entities(
-        FireplusSensor(
-            coordinator=entry.runtime_data.coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in ENTITY_DESCRIPTIONS
+        [
+            FireplusTemperatureSensor(entry.runtime_data.coordinator),
+            FireplusDraughtSensor(entry.runtime_data.coordinator),
+        ]
     )
 
 
-class FireplusSensor(FireplusEntity, SensorEntity):
-    """drooff_fireplus Sensor class."""
+class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
+    """Drooff Fire+ combustion chamber temperature sensor."""
 
     def __init__(
         self,
         coordinator: FireplusDataUpdateCoordinator,
-        entity_description: SensorEntityDescription,
     ) -> None:
-        """Initialize the sensor class."""
+        """Initialize the temperature sensor."""
         super().__init__(coordinator)
-        self.entity_description = entity_description
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_temperature"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_temperature",
+            name="Fire+ Temperature",
+            icon="mdi:gauge",
+        )
         self.device_class = SensorDeviceClass.TEMPERATURE
         self.native_unit_of_measurement = "°C"
 
     @property
     def native_value(self) -> int | None:
         """Return the native value of the sensor."""
-        return int(self.coordinator.data[2:-1].split("\\n")[5])
+        return self.coordinator.data.temperature
+
+
+class FireplusDraughtSensor(FireplusEntity, SensorEntity):
+    """Drooff Fire+ chimney draught sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the draught sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_draught"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_draught",
+            name="Fire+ Chimney Draught",
+            icon="mdi:gauge",
+        )
+        self.device_class = SensorDeviceClass.PRESSURE
+        self.native_unit_of_measurement = "Pa"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.draught
