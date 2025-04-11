@@ -75,6 +75,7 @@ class FireplusData:
     """Stores the metrics and data retrieved from the Drooff fire+ API."""
 
     temperature: int
+    air_slider: float
     draught: float
 
     def __init__(self, panel_response: str) -> None:
@@ -82,4 +83,5 @@ class FireplusData:
         panel_values = panel_response[2:-1].split("\\n")
 
         self.temperature = int(panel_values[5])
+        self.air_slider = float(panel_values[6])
         self.draught = float(panel_values[7])

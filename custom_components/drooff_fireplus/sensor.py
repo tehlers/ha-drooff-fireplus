@@ -30,6 +30,7 @@ async def async_setup_entry(
         [
             FireplusTemperatureSensor(entry.runtime_data.coordinator),
             FireplusDraughtSensor(entry.runtime_data.coordinator),
+            FireplusAirSliderSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -46,7 +47,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         self._attr_unique_id = coordinator.config_entry.entry_id + "_temperature"
         self.entity_description = SensorEntityDescription(
             key="drooff_fireplus_temperature",
-            name="fire+ Temperature",
+            name="fire+ temperature",
             icon="mdi:gauge",
         )
         self.device_class = SensorDeviceClass.TEMPERATURE
@@ -70,7 +71,7 @@ class FireplusDraughtSensor(FireplusEntity, SensorEntity):
         self._attr_unique_id = coordinator.config_entry.entry_id + "_draught"
         self.entity_description = SensorEntityDescription(
             key="drooff_fireplus_draught",
-            name="fire+ Chimney Draught",
+            name="fire+ chimney draught",
             icon="mdi:gauge",
         )
         self.device_class = SensorDeviceClass.PRESSURE
@@ -80,3 +81,25 @@ class FireplusDraughtSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return the native value of the sensor."""
         return self.coordinator.data.draught
+
+
+class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ air slider position sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the air slider position sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_air_slider"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_air_slider",
+            name="fire+ air slider position",
+        )
+        self.native_unit_of_measurement = "%"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.air_slider
