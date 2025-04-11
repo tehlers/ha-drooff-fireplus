@@ -20,14 +20,14 @@ class FireplusApiClientCommunicationError(
 
 
 class FireplusApiClient:
-    """Drooff Fire+ API Client."""
+    """Drooff fire+ API Client."""
 
     def __init__(
         self,
         host: str,
         session: aiohttp.ClientSession,
     ) -> None:
-        """Drooff Fire+ API Client."""
+        """Drooff fire+ API Client."""
         self._host = host
         self._session = session
 
@@ -72,13 +72,13 @@ class FireplusApiClient:
 
 
 class FireplusData:
-    """Stores the metrics and data retrieved from the Drooff Fire+ API."""
+    """Stores the metrics and data retrieved from the Drooff fire+ API."""
 
     temperature: int
     draught: float
 
     def __init__(self, panel_response: str) -> None:
-        """Metrics and data retrieved from the Drooff Fire+ API."""
+        """Metrics and data retrieved from the Drooff fire+ API."""
         panel_values = panel_response[2:-1].split("\\n")
 
         self.temperature = int(panel_values[5])

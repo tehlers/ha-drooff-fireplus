@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 ENTITY_DESCRIPTIONS = (
     SwitchEntityDescription(
         key="drooff_fireplus",
-        name="Fire+ Switch",
+        name="fire+ Switch",
         icon="mdi:format-quote-close",
     ),
 )

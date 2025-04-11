@@ -35,7 +35,7 @@ async def async_setup_entry(
 
 
 class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
-    """Drooff Fire+ combustion chamber temperature sensor."""
+    """Drooff fire+ combustion chamber temperature sensor."""
 
     def __init__(
         self,
@@ -46,7 +46,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         self._attr_unique_id = coordinator.config_entry.entry_id + "_temperature"
         self.entity_description = SensorEntityDescription(
             key="drooff_fireplus_temperature",
-            name="Fire+ Temperature",
+            name="fire+ Temperature",
             icon="mdi:gauge",
         )
         self.device_class = SensorDeviceClass.TEMPERATURE
@@ -59,7 +59,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
 
 
 class FireplusDraughtSensor(FireplusEntity, SensorEntity):
-    """Drooff Fire+ chimney draught sensor."""
+    """Drooff fire+ chimney draught sensor."""
 
     def __init__(
         self,
@@ -70,7 +70,7 @@ class FireplusDraughtSensor(FireplusEntity, SensorEntity):
         self._attr_unique_id = coordinator.config_entry.entry_id + "_draught"
         self.entity_description = SensorEntityDescription(
             key="drooff_fireplus_draught",
-            name="Fire+ Chimney Draught",
+            name="fire+ Chimney Draught",
             icon="mdi:gauge",
         )
         self.device_class = SensorDeviceClass.PRESSURE

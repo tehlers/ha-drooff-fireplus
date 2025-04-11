@@ -1,4 +1,4 @@
-"""Adds config flow for Drooff Fire+."""
+"""Adds config flow for Drooff fire+."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from .const import DOMAIN, LOGGER
 
 
 class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Drooff Fire+."""
+    """Config flow for Drooff fire+."""
 
     VERSION = 1
 
@@ -48,7 +48,7 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 )
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=f"Drooff Fire+ at http://{user_input[CONF_HOST]}",
+                    title=f"Drooff fire+ at http://{user_input[CONF_HOST]}",
                     data=user_input,
                 )
 
