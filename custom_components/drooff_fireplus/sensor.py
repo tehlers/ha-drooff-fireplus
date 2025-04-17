@@ -8,6 +8,7 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
+    SensorStateClass,
 )
 
 from .entity import FireplusEntity
@@ -31,6 +32,7 @@ async def async_setup_entry(
             FireplusTemperatureSensor(entry.runtime_data.coordinator),
             FireplusDraughtSensor(entry.runtime_data.coordinator),
             FireplusAirSliderSensor(entry.runtime_data.coordinator),
+            FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -96,6 +98,7 @@ class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
         self.entity_description = SensorEntityDescription(
             key="drooff_fireplus_air_slider",
             name="fire+ air slider position",
+            icon="mdi:tune",
         )
         self.native_unit_of_measurement = "%"
 
@@ -103,3 +106,28 @@ class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return the native value of the sensor."""
         return self.coordinator.data.air_slider
+
+
+class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ operating time sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the draught sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_operating_time"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_operating_time",
+            name="fire+ operating time",
+            icon="mdi:history",
+        )
+        self.device_class = SensorDeviceClass.DURATION
+        self.state_class = SensorStateClass.TOTAL_INCREASING
+        self.native_unit_of_measurement = "s"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.operating_time

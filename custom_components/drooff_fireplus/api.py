@@ -33,9 +33,15 @@ class FireplusApiClient:
 
     async def async_get_data(self) -> Any:
         """Get data from the API."""
-        return await self._api_wrapper(
-            method="get",
-            url=f"http://{self._host}/php/easpanel.php",
+        return FireplusData(
+            await self._api_wrapper(
+                method="get",
+                url=f"http://{self._host}/php/easpanel.php",
+            ),
+            await self._api_wrapper(
+                method="get",
+                url=f"http://{self._host}/php/easkonfig.php",
+            ),
         )
 
     async def _api_wrapper(
@@ -51,8 +57,7 @@ class FireplusApiClient:
                     url=url,
                 )
                 response.raise_for_status()
-                response_text = await response.text()
-                return FireplusData(response_text)
+                return await response.text()
 
         except TimeoutError as exception:
             msg = f"Timeout error fetching information - {exception}"
@@ -77,11 +82,16 @@ class FireplusData:
     temperature: int
     air_slider: float
     draught: float
+    operating_time: int
 
-    def __init__(self, panel_response: str) -> None:
+    def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
         panel_values = panel_response[2:-1].split("\\n")
 
         self.temperature = int(panel_values[5])
         self.air_slider = float(panel_values[6])
         self.draught = float(panel_values[7])
+
+        configuration_values = configuration_response[2:-1].split("\\n")
+
+        self.operating_time = int(configuration_values[7])
