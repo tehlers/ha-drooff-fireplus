@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import socket
+from enum import Enum, auto
 from typing import Any
 
 import aiohttp
@@ -82,6 +83,7 @@ class FireplusData:
     temperature: int
     air_slider: float
     chimney_draught: float
+    operation_mode: FireplusOperationMode
     operating_time: int
     chimney_draught_available: bool
 
@@ -92,8 +94,39 @@ class FireplusData:
         self.temperature = int(panel_values[5])
         self.air_slider = float(panel_values[6])
         self.chimney_draught = float(panel_values[7])
+        self.operation_mode = _get_operation_mode(panel_values[8])
 
         configuration_values = configuration_response[2:-1].split("\\n")
 
         self.chimney_draught_available = configuration_values[4] == "1"
         self.operating_time = int(configuration_values[7])
+
+
+class FireplusOperationMode(Enum):
+    """Operation modes of the Drooff fire+ combustion control system."""
+
+    UNKNOWN = auto()
+    STANDBY = auto()
+    REGULAR = auto()
+    HEATING = auto()
+    WOOD_REQUIRED = auto()
+    WOOD_URGENTLY_REQUIRED = auto()
+    EMBER_PRESERVATION = auto()
+    EMBER_BURNDOWN = auto()
+
+
+# Map of LED states to operation modes
+_operation_mode_mapping = {
+    "aus": FireplusOperationMode.STANDBY,
+    "Gruen": FireplusOperationMode.REGULAR,
+    "Gruen blinkt": FireplusOperationMode.HEATING,
+    "Rot blinkt": FireplusOperationMode.HEATING,
+    "Gelb": FireplusOperationMode.WOOD_REQUIRED,
+    "Gelb blinkt": FireplusOperationMode.WOOD_URGENTLY_REQUIRED,
+    "Violett": FireplusOperationMode.EMBER_PRESERVATION,
+    "Orange": FireplusOperationMode.EMBER_BURNDOWN,
+}
+
+
+def _get_operation_mode(led_state: str) -> FireplusOperationMode:
+    return _operation_mode_mapping.get(led_state, FireplusOperationMode.UNKNOWN)

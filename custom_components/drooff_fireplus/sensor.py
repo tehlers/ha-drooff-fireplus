@@ -11,6 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
+from .api import FireplusOperationMode
 from .entity import FireplusEntity
 
 if TYPE_CHECKING:
@@ -32,6 +33,7 @@ async def async_setup_entry(
             FireplusTemperatureSensor(entry.runtime_data.coordinator),
             FireplusChimneyDraughtSensor(entry.runtime_data.coordinator),
             FireplusAirSliderSensor(entry.runtime_data.coordinator),
+            FireplusOperationModeSensor(entry.runtime_data.coordinator),
             FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
         ]
     )
@@ -111,6 +113,30 @@ class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return the native value of the sensor."""
         return self.coordinator.data.air_slider
+
+
+class FireplusOperationModeSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ operation mode sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the operation mode sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_operation_mode"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_operation_mode",
+            name="fire+ operation mode",
+            icon="mdi:fire",
+        )
+        self.device_class = SensorDeviceClass.ENUM
+        self.options = [om.name for om in FireplusOperationMode]
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.operation_mode.name
 
 
 class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
