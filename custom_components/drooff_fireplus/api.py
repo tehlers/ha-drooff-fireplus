@@ -81,8 +81,9 @@ class FireplusData:
 
     temperature: int
     air_slider: float
-    draught: float
+    chimney_draught: float
     operating_time: int
+    chimney_draught_available: bool
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
@@ -90,8 +91,9 @@ class FireplusData:
 
         self.temperature = int(panel_values[5])
         self.air_slider = float(panel_values[6])
-        self.draught = float(panel_values[7])
+        self.chimney_draught = float(panel_values[7])
 
         configuration_values = configuration_response[2:-1].split("\\n")
 
+        self.chimney_draught_available = configuration_values[4] == "1"
         self.operating_time = int(configuration_values[7])

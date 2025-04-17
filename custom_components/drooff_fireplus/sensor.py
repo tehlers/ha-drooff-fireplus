@@ -30,7 +30,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             FireplusTemperatureSensor(entry.runtime_data.coordinator),
-            FireplusDraughtSensor(entry.runtime_data.coordinator),
+            FireplusChimneyDraughtSensor(entry.runtime_data.coordinator),
             FireplusAirSliderSensor(entry.runtime_data.coordinator),
             FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
         ]
@@ -61,14 +61,14 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         return self.coordinator.data.temperature
 
 
-class FireplusDraughtSensor(FireplusEntity, SensorEntity):
+class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
     """Drooff fire+ chimney draught sensor."""
 
     def __init__(
         self,
         coordinator: FireplusDataUpdateCoordinator,
     ) -> None:
-        """Initialize the draught sensor."""
+        """Initialize the chimney draught sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_draught"
         self.entity_description = SensorEntityDescription(
@@ -80,9 +80,14 @@ class FireplusDraughtSensor(FireplusEntity, SensorEntity):
         self.native_unit_of_measurement = "Pa"
 
     @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.chimney_draught_available
+
+    @property
     def native_value(self) -> float | None:
         """Return the native value of the sensor."""
-        return self.coordinator.data.draught
+        return self.coordinator.data.chimney_draught
 
 
 class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
