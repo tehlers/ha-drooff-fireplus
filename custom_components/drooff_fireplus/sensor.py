@@ -35,6 +35,7 @@ async def async_setup_entry(
             FireplusAirSliderSensor(entry.runtime_data.coordinator),
             FireplusOperationModeSensor(entry.runtime_data.coordinator),
             FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
+            FireplusHeatingProgressSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -162,3 +163,31 @@ class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> int | None:
         """Return the native value of the sensor."""
         return self.coordinator.data.operating_time
+
+
+class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ heating progress sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the heating progress sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_heating_progress"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_heating_progress",
+            name="fire+ heating progress",
+            icon="mdi:progress-helper",
+        )
+        self.native_unit_of_measurement = "%"
+
+    @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.operation_mode == FireplusOperationMode.HEATING
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.heating_progress

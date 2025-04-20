@@ -86,6 +86,7 @@ class FireplusData:
     operation_mode: FireplusOperationMode
     operating_time: int
     chimney_draught_available: bool
+    heating_progress: float
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
@@ -100,6 +101,10 @@ class FireplusData:
 
         self.chimney_draught_available = configuration_values[4] == "1"
         self.operating_time = int(configuration_values[7])
+
+        self.heating_progress = (
+            int(panel_values[11]) / int(configuration_values[6])
+        ) * 100
 
 
 class FireplusOperationMode(Enum):
