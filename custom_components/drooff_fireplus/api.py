@@ -80,6 +80,7 @@ class FireplusApiClient:
 class FireplusData:
     """Stores the metrics and data retrieved from the Drooff fire+ API."""
 
+    brightness: int
     temperature: int
     air_slider: float
     chimney_draught: float
@@ -92,6 +93,7 @@ class FireplusData:
         """Metrics and data retrieved from the Drooff fire+ API."""
         panel_values = panel_response[2:-1].split("\\n")
 
+        self.brightness = int(panel_values[4])
         self.temperature = int(panel_values[5])
         self.air_slider = float(panel_values[6])
         self.chimney_draught = float(panel_values[7])

@@ -30,6 +30,7 @@ async def async_setup_entry(
     """Set up the sensor platform."""
     async_add_entities(
         [
+            FireplusBrightnessSensor(entry.runtime_data.coordinator),
             FireplusTemperatureSensor(entry.runtime_data.coordinator),
             FireplusChimneyDraughtSensor(entry.runtime_data.coordinator),
             FireplusAirSliderSensor(entry.runtime_data.coordinator),
@@ -38,6 +39,29 @@ async def async_setup_entry(
             FireplusHeatingProgressSensor(entry.runtime_data.coordinator),
         ]
     )
+
+
+class FireplusBrightnessSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ LED brightness sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the brightness sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_brightness"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_brightness",
+            name="fire+ LED brightness",
+            icon="mdi:brightness-5",
+        )
+        self.native_unit_of_measurement = "%"
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.brightness
 
 
 class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
