@@ -45,10 +45,32 @@ class FireplusApiClient:
             ),
         )
 
+    async def async_update_settings(
+        self,
+        volume: int | None = None,
+    ) -> None:
+        """Update settings of Drooff fire+."""
+        current_data = await self.async_get_data()
+
+        data = {
+            "Betrieb": current_data.firing_rate_0,
+            "Leistung": current_data.firing_rate_1,
+            "Helligkeit": current_data.brightness,
+            "Bedienung": int(current_data.web_controls_shown),
+            "AB": int(current_data.ember_burndown),
+            "Lautstaerke": volume if volume is not None else current_data.volume,
+            "CNT": (current_data.count + 1) % 100,
+        }
+
+        await self._api_wrapper(
+            method="post", url=f"http://{self._host}/php/easpanelW.php", data=data
+        )
+
     async def _api_wrapper(
         self,
         method: str,
         url: str,
+        data: dict | None = None,
     ) -> Any:
         """Get information from the API."""
         try:
@@ -56,6 +78,7 @@ class FireplusApiClient:
                 response = await self._session.request(
                     method=method,
                     url=url,
+                    data=data,
                 )
                 response.raise_for_status()
                 return await response.text()
@@ -81,23 +104,35 @@ class FireplusData:
     """Stores the metrics and data retrieved from the Drooff fire+ API."""
 
     brightness: int
+    volume: int
     temperature: int
     air_slider: float
     chimney_draught: float
     operation_mode: FireplusOperationMode
+    count: int
     operating_time: int
     chimney_draught_available: bool
+    ember_burndown: bool
     heating_progress: float
+    web_controls_shown: bool
+    firing_rate_0: int
+    firing_rate_1: int
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
         panel_values = panel_response[2:-1].split("\\n")
 
+        self.web_controls_shown = panel_values[1] == "1"
         self.brightness = int(panel_values[4])
+        self.volume = int(panel_values[12])
         self.temperature = int(panel_values[5])
         self.air_slider = float(panel_values[6])
         self.chimney_draught = float(panel_values[7])
         self.operation_mode = _get_operation_mode(panel_values[8])
+        self.ember_burndown = panel_values[10] == "1"
+        self.count = int(panel_values[16])
+        self.firing_rate_0 = int(panel_values[2])
+        self.firing_rate_1 = int(panel_values[3])
 
         configuration_values = configuration_response[2:-1].split("\\n")
 
