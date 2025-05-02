@@ -34,7 +34,7 @@ class FireplusApiClient:
 
     async def async_get_data(self) -> Any:
         """Get data from the API."""
-        return FireplusData(
+        return FireplusResponse(
             await self._api_wrapper(
                 method="get",
                 url=f"http://{self._host}/php/easpanel.php",
@@ -101,7 +101,7 @@ class FireplusApiClient:
             ) from exception
 
 
-class FireplusData:
+class FireplusResponse:
     """Stores the metrics and data retrieved from the Drooff fire+ API."""
 
     brightness: int
