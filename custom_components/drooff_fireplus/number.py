@@ -29,9 +29,44 @@ async def async_setup_entry(
     """Set up the number platform."""
     async_add_entities(
         [
+            FireplusBrightness(entry.runtime_data.coordinator),
             FireplusVolume(entry.runtime_data.coordinator),
         ]
     )
+
+
+class FireplusBrightness(FireplusEntity, NumberEntity):
+    """Drooff fire+ LED brightness."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the volume entity."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_brightness"
+        self.entity_description = NumberEntityDescription(
+            key="drooff_fireplus_brightness",
+            name="fire+ LED brightness",
+            icon="mdi:led-strip",
+        )
+        self.mode = NumberMode.SLIDER
+        self.native_step = 10.0
+        self.native_unit_of_measurement = "%"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the native value of the entity."""
+        return self.coordinator.data.brightness
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        await self.coordinator.config_entry.runtime_data.client.async_update_settings(
+            brightness=int(value)
+        )
+        # Give fire+ time to update value
+        await asyncio.sleep(1)
+        await self.coordinator.async_request_refresh()
 
 
 class FireplusVolume(FireplusEntity, NumberEntity):

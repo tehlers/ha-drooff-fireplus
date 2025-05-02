@@ -47,6 +47,7 @@ class FireplusApiClient:
 
     async def async_update_settings(
         self,
+        brightness: int | None = None,
         volume: int | None = None,
     ) -> None:
         """Update settings of Drooff fire+."""
@@ -55,7 +56,7 @@ class FireplusApiClient:
         data = {
             "Betrieb": current_data.firing_rate_0,
             "Leistung": current_data.firing_rate_1,
-            "Helligkeit": current_data.brightness,
+            "Helligkeit": brightness if brightness is not None else current_data.brightness,
             "Bedienung": int(current_data.web_controls_shown),
             "AB": int(current_data.ember_burndown),
             "Lautstaerke": volume if volume is not None else current_data.volume,
@@ -139,9 +140,7 @@ class FireplusData:
         self.chimney_draught_available = configuration_values[4] == "1"
         self.operating_time = int(configuration_values[7])
 
-        self.heating_progress = (
-            int(panel_values[11]) / int(configuration_values[6])
-        ) * 100
+        self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
 
 
 class FireplusOperationMode(Enum):
