@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
@@ -15,55 +16,55 @@ if TYPE_CHECKING:
     from .coordinator import FireplusDataUpdateCoordinator
     from .data import FireplusConfigEntry
 
-ENTITY_DESCRIPTIONS = (
-    SwitchEntityDescription(
-        key="drooff_fireplus",
-        name="fire+ Switch",
-        icon="mdi:format-quote-close",
-    ),
-)
-
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
     entry: FireplusConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the switch platform."""
-    """
     async_add_entities(
-        FireplusSwitch(
-            coordinator=entry.runtime_data.coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in ENTITY_DESCRIPTIONS
+        [
+            FireplusEmberBurndownSwitch(entry.runtime_data.coordinator),
+        ]
     )
-    """
 
 
-class FireplusSwitch(FireplusEntity, SwitchEntity):
-    """drooff_fireplus switch class."""
+class FireplusEmberBurndownSwitch(FireplusEntity, SwitchEntity):
+    """Switch to toggle between ember preservation and ember burndown."""
 
     def __init__(
         self,
         coordinator: FireplusDataUpdateCoordinator,
-        entity_description: SwitchEntityDescription,
     ) -> None:
         """Initialize the switch class."""
         super().__init__(coordinator)
-        self.entity_description = entity_description
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_ember_burndown"
+        self.entity_description = SwitchEntityDescription(
+            key="drooff_fireplus_ember_burndown",
+            name="fire+ ember burndown",
+        )
+
+    @property
+    def icon(self) -> str:
+        """Return icon that represents the state of the switch."""
+        return "mdi:toggle-switch" if self.is_on else "mdi:toggle-switch-off"
 
     @property
     def is_on(self) -> bool:
-        """Return true if the switch is on."""
-        return self.coordinator.data.get("title", "") == "foo"
+        """Return true if ember burndown is on."""
+        return self.coordinator.data.ember_burndown
 
     async def async_turn_on(self, **_: Any) -> None:
-        """Turn on the switch."""
-        await self.coordinator.config_entry.runtime_data.client.async_set_title("bar")
+        """Activate ember burndown."""
+        await self.coordinator.config_entry.runtime_data.client.async_update_settings(ember_burndown=True)
+        # Give fire+ time to update value
+        await asyncio.sleep(1)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **_: Any) -> None:
-        """Turn off the switch."""
-        await self.coordinator.config_entry.runtime_data.client.async_set_title("foo")
+        """Activate ember preservation."""
+        await self.coordinator.config_entry.runtime_data.client.async_update_settings(ember_burndown=False)
+        # Give fire+ time to update value
+        await asyncio.sleep(1)
         await self.coordinator.async_request_refresh()

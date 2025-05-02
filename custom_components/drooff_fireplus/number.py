@@ -61,9 +61,7 @@ class FireplusBrightness(FireplusEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(
-            brightness=int(value)
-        )
+        await self.coordinator.config_entry.runtime_data.client.async_update_settings(brightness=int(value))
         # Give fire+ time to update value
         await asyncio.sleep(1)
         await self.coordinator.async_request_refresh()
@@ -95,9 +93,7 @@ class FireplusVolume(FireplusEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(
-            volume=int(value)
-        )
+        await self.coordinator.config_entry.runtime_data.client.async_update_settings(volume=int(value))
         # Give fire+ time to update value
         await asyncio.sleep(1)
         await self.coordinator.async_request_refresh()

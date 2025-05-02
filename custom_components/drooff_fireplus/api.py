@@ -49,6 +49,7 @@ class FireplusApiClient:
         self,
         brightness: int | None = None,
         volume: int | None = None,
+        ember_burndown: bool | None = None,
     ) -> None:
         """Update settings of Drooff fire+."""
         current_data = await self.async_get_data()
@@ -58,14 +59,12 @@ class FireplusApiClient:
             "Leistung": current_data.firing_rate_1,
             "Helligkeit": brightness if brightness is not None else current_data.brightness,
             "Bedienung": int(current_data.web_controls_shown),
-            "AB": int(current_data.ember_burndown),
+            "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
             "Lautstaerke": volume if volume is not None else current_data.volume,
             "CNT": (current_data.count + 1) % 100,
         }
 
-        await self._api_wrapper(
-            method="post", url=f"http://{self._host}/php/easpanelW.php", data=data
-        )
+        await self._api_wrapper(method="post", url=f"http://{self._host}/php/easpanelW.php", data=data)
 
     async def _api_wrapper(
         self,
