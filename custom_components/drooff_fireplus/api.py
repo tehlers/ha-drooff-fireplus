@@ -50,13 +50,15 @@ class FireplusApiClient:
         brightness: int | None = None,
         volume: int | None = None,
         ember_burndown: bool | None = None,
+        burn_rate: int | None = None,
     ) -> None:
         """Update settings of Drooff fire+."""
         current_data = await self.async_get_data()
+        burn_rate_values = _get_values_for_burn_rate(burn_rate if burn_rate is not None else current_data.burn_rate)
 
         data = {
-            "Betrieb": current_data.firing_rate_0,
-            "Leistung": current_data.firing_rate_1,
+            "Betrieb": burn_rate_values[0],
+            "Leistung": burn_rate_values[1],
             "Helligkeit": brightness if brightness is not None else current_data.brightness,
             "Bedienung": int(current_data.web_controls_shown),
             "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
@@ -115,8 +117,7 @@ class FireplusResponse:
     ember_burndown: bool
     heating_progress: float
     web_controls_shown: bool
-    firing_rate_0: int
-    firing_rate_1: int
+    burn_rate: int
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
@@ -131,8 +132,7 @@ class FireplusResponse:
         self.operation_mode = _get_operation_mode(panel_values[8])
         self.ember_burndown = panel_values[10] == "1"
         self.count = int(panel_values[16])
-        self.firing_rate_0 = int(panel_values[2])
-        self.firing_rate_1 = int(panel_values[3])
+        self.burn_rate = _get_burn_rate(int(panel_values[2]), int(panel_values[3]))
 
         configuration_values = configuration_response[2:-1].split("\\n")
 
@@ -155,8 +155,8 @@ class FireplusOperationMode(Enum):
     EMBER_BURNDOWN = auto()
 
 
-# Map of LED states to operation modes
-_operation_mode_mapping = {
+# Lookup table of LED states to operation modes
+_OPERATION_MODE_LOOKUP = {
     "aus": FireplusOperationMode.STANDBY,
     "Gruen": FireplusOperationMode.REGULAR,
     "Gruen blinkt": FireplusOperationMode.HEATING,
@@ -169,4 +169,20 @@ _operation_mode_mapping = {
 
 
 def _get_operation_mode(led_state: str) -> FireplusOperationMode:
-    return _operation_mode_mapping.get(led_state, FireplusOperationMode.UNKNOWN)
+    return _OPERATION_MODE_LOOKUP.get(led_state, FireplusOperationMode.UNKNOWN)
+
+
+# Lookup table of burn rate to values for "Betrieb" and "Leistung"
+_BURN_RATE_LOOKUP = {1: (2, 4), 2: (3, 4), 3: (4, 4), 4: (2, 8), 5: (3, 8), 6: (4, 8)}
+
+
+def _get_values_for_burn_rate(burn_rate: int) -> (int, int):
+    return _BURN_RATE_LOOKUP.get(burn_rate, (2, 4))
+
+
+# Lookup table of values for "Betrieb" and "Leistung" to burn rate
+_DERIVED_BURN_RATE_LOOKUP = {value: key for key, value in _BURN_RATE_LOOKUP.items()}
+
+
+def _get_burn_rate(betrieb: int, leistung: int) -> int:
+    return _DERIVED_BURN_RATE_LOOKUP.get((betrieb, leistung), 1)

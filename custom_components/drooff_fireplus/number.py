@@ -29,6 +29,7 @@ async def async_setup_entry(
     """Set up the number platform."""
     async_add_entities(
         [
+            FireplusBurnRate(entry.runtime_data.coordinator),
             FireplusBrightness(entry.runtime_data.coordinator),
             FireplusVolume(entry.runtime_data.coordinator),
         ]
@@ -94,6 +95,39 @@ class FireplusVolume(FireplusEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
         await self.coordinator.config_entry.runtime_data.client.async_update_settings(volume=int(value))
+        # Give fire+ time to update value
+        await asyncio.sleep(1)
+        await self.coordinator.async_request_refresh()
+
+
+class FireplusBurnRate(FireplusEntity, NumberEntity):
+    """Drooff fire+ burn rate."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the volume entity."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_burn_rate"
+        self.entity_description = NumberEntityDescription(
+            key="drooff_fireplus_burn_rate",
+            name="fire+ burn rate",
+            icon="mdi:fire",
+        )
+        self.mode = NumberMode.SLIDER
+        self.native_step = 1.0
+        self.native_min_value = 1.0
+        self.native_max_value = 6.0
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the native value of the entity."""
+        return self.coordinator.data.burn_rate
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        await self.coordinator.config_entry.runtime_data.client.async_update_settings(burn_rate=int(value))
         # Give fire+ time to update value
         await asyncio.sleep(1)
         await self.coordinator.async_request_refresh()
