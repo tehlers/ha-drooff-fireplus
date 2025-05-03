@@ -108,6 +108,7 @@ class FireplusResponse:
     brightness: int
     volume: int
     temperature: int
+    max_temperature: int
     air_slider: float
     chimney_draught: float
     operation_mode: FireplusOperationMode
@@ -136,6 +137,7 @@ class FireplusResponse:
 
         configuration_values = configuration_response[2:-1].split("\\n")
 
+        self.max_temperature = int(configuration_values[1])
         self.chimney_draught_available = configuration_values[4] == "1"
         self.operating_time = int(configuration_values[7])
 

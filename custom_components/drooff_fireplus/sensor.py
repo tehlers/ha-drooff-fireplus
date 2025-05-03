@@ -69,6 +69,11 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         """Return the native value of the sensor."""
         return self.coordinator.data.temperature
 
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return additional attributes related to the temperature sensor."""
+        return {"max_temperature": self.coordinator.data.max_temperature}
+
 
 class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
     """Drooff fire+ chimney draught sensor."""
