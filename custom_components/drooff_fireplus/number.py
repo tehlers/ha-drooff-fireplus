@@ -72,6 +72,9 @@ class FireplusBrightness(FireplusEntity, NumberEntity):
 class FireplusVolume(FireplusEntity, NumberEntity):
     """Drooff fire+ volume."""
 
+    LOW_VOLUME = 30
+    MEDIUM_VOLUME = 70
+
     def __init__(
         self,
         coordinator: FireplusDataUpdateCoordinator,
@@ -82,7 +85,6 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         self.entity_description = NumberEntityDescription(
             key="drooff_fireplus_volume",
             name="fire+ volume",
-            icon="mdi:volume-medium",
         )
         self.mode = NumberMode.SLIDER
         self.native_step = 10.0
@@ -99,6 +101,17 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         # Give fire+ time to update value
         await asyncio.sleep(1)
         await self.coordinator.async_request_refresh()
+
+    @property
+    def icon(self) -> str:
+        """Return icon that changes based on the current volume."""
+        if self.native_value == 0:
+            return "mdi:volume-off"
+        if self.native_value <= FireplusVolume.LOW_VOLUME:
+            return "mdi:volume-low"
+        if self.native_value <= FireplusVolume.MEDIUM_VOLUME:
+            return "mdi:volume-medium"
+        return "mdi:volume-high"
 
 
 class FireplusBurnRate(FireplusEntity, NumberEntity):

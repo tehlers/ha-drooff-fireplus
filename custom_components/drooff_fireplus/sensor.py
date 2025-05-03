@@ -140,7 +140,6 @@ class FireplusOperationModeSensor(FireplusEntity, SensorEntity):
         self.entity_description = SensorEntityDescription(
             key="drooff_fireplus_operation_mode",
             name="fire+ operation mode",
-            icon="mdi:fire",
         )
         self.device_class = SensorDeviceClass.ENUM
         self.options = [om.name for om in FireplusOperationMode]
@@ -149,6 +148,15 @@ class FireplusOperationModeSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> str | None:
         """Return the native value of the sensor."""
         return self.coordinator.data.operation_mode.name
+
+    @property
+    def icon(self) -> str:
+        """Return icon that represents the state of the fireplace."""
+        return (
+            "mdi:fireplace-off"
+            if self.coordinator.data.operation_mode == FireplusOperationMode.STANDBY
+            else "mdi:fireplace"
+        )
 
 
 class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
