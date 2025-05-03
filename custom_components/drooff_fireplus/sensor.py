@@ -10,6 +10,12 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfPressure,
+    UnitOfTemperature,
+    UnitOfTime,
+)
 
 from .api import FireplusOperationMode
 from .entity import FireplusEntity
@@ -56,7 +62,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
             icon="mdi:gauge",
         )
         self.device_class = SensorDeviceClass.TEMPERATURE
-        self.native_unit_of_measurement = "°C"
+        self.native_unit_of_measurement = UnitOfTemperature.CELSIUS
 
     @property
     def native_value(self) -> int | None:
@@ -80,7 +86,7 @@ class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
             icon="mdi:gauge",
         )
         self.device_class = SensorDeviceClass.PRESSURE
-        self.native_unit_of_measurement = "Pa"
+        self.native_unit_of_measurement = UnitOfPressure.PA
 
     @property
     def available(self) -> bool | None:
@@ -108,7 +114,7 @@ class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
             name="fire+ air slider position",
             icon="mdi:tune",
         )
-        self.native_unit_of_measurement = "%"
+        self.native_unit_of_measurement = PERCENTAGE
 
     @property
     def native_value(self) -> float | None:
@@ -157,7 +163,7 @@ class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
         )
         self.device_class = SensorDeviceClass.DURATION
         self.state_class = SensorStateClass.TOTAL_INCREASING
-        self.native_unit_of_measurement = "s"
+        self.native_unit_of_measurement = UnitOfTime.SECONDS
 
     @property
     def native_value(self) -> int | None:
@@ -180,7 +186,7 @@ class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
             name="fire+ heating progress",
             icon="mdi:progress-helper",
         )
-        self.native_unit_of_measurement = "%"
+        self.native_unit_of_measurement = PERCENTAGE
 
     @property
     def available(self) -> bool | None:

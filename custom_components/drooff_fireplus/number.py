@@ -10,6 +10,7 @@ from homeassistant.components.number import (
     NumberEntityDescription,
     NumberMode,
 )
+from homeassistant.const import PERCENTAGE
 
 from .entity import FireplusEntity
 
@@ -53,7 +54,7 @@ class FireplusBrightness(FireplusEntity, NumberEntity):
         )
         self.mode = NumberMode.SLIDER
         self.native_step = 10.0
-        self.native_unit_of_measurement = "%"
+        self.native_unit_of_measurement = PERCENTAGE
 
     @property
     def native_value(self) -> float | None:
@@ -85,7 +86,7 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         )
         self.mode = NumberMode.SLIDER
         self.native_step = 10.0
-        self.native_unit_of_measurement = "%"
+        self.native_unit_of_measurement = PERCENTAGE
 
     @property
     def native_value(self) -> float | None:
