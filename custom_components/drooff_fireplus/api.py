@@ -153,6 +153,7 @@ class FireplusOperationMode(Enum):
     WOOD_URGENTLY_REQUIRED = auto()
     EMBER_PRESERVATION = auto()
     EMBER_BURNDOWN = auto()
+    ERROR = auto()
 
 
 # Lookup table of LED states to operation modes
@@ -160,11 +161,11 @@ _OPERATION_MODE_LOOKUP = {
     "aus": FireplusOperationMode.STANDBY,
     "Gruen": FireplusOperationMode.REGULAR,
     "Gruen blinkt": FireplusOperationMode.HEATING,
-    "Rot blinkt": FireplusOperationMode.HEATING,
     "Gelb": FireplusOperationMode.WOOD_REQUIRED,
     "Gelb blinkt": FireplusOperationMode.WOOD_URGENTLY_REQUIRED,
     "Violett": FireplusOperationMode.EMBER_PRESERVATION,
     "Orange": FireplusOperationMode.EMBER_BURNDOWN,
+    "Rot blinkt": FireplusOperationMode.ERROR,
 }
 
 
