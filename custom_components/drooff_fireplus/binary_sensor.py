@@ -10,6 +10,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 
+from .api import FireplusError
 from .entity import FireplusEntity
 
 if TYPE_CHECKING:
@@ -19,45 +20,38 @@ if TYPE_CHECKING:
     from .coordinator import FireplusDataUpdateCoordinator
     from .data import FireplusConfigEntry
 
-ENTITY_DESCRIPTIONS = (
-    BinarySensorEntityDescription(
-        key="drooff_fireplus",
-        name="fire+ Binary Sensor",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
-    ),
-)
-
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
     entry: FireplusConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the binary_sensor platform."""
-    """
     async_add_entities(
-        FireplusBinarySensor(
-            coordinator=entry.runtime_data.coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in ENTITY_DESCRIPTIONS
+        [
+            FireplusErrorSensor(entry.runtime_data.coordinator),
+        ]
     )
-    """
 
 
-class FireplusBinarySensor(FireplusEntity, BinarySensorEntity):
-    """drooff_fireplus binary_sensor class."""
+class FireplusErrorSensor(FireplusEntity, BinarySensorEntity):
+    """Drooff fire+ error sensor."""
 
     def __init__(
         self,
         coordinator: FireplusDataUpdateCoordinator,
-        entity_description: BinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary_sensor class."""
         super().__init__(coordinator)
-        self.entity_description = entity_description
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_error"
+        self.entity_description = BinarySensorEntityDescription(
+            key="drooff_fireplus_error",
+            name="fire+ error",
+            icon="mdi:alert",
+        )
+        self.device_class = BinarySensorDeviceClass.PROBLEM
 
     @property
     def is_on(self) -> bool:
-        """Return true if the binary_sensor is on."""
-        return self.coordinator.data.get("title", "") == "foo"
+        """Return true if the fire+ signals an error."""
+        return self.coordinator.data.error != FireplusError.NONE

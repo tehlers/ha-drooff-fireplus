@@ -112,6 +112,7 @@ class FireplusResponse:
     air_slider: float
     chimney_draught: float
     operation_mode: FireplusOperationMode
+    error: FireplusError
     count: int
     operating_time: int
     chimney_draught_available: bool
@@ -131,6 +132,7 @@ class FireplusResponse:
         self.air_slider = float(panel_values[6])
         self.chimney_draught = float(panel_values[7])
         self.operation_mode = _get_operation_mode(panel_values[8])
+        self.error = _get_error(int(panel_values[9]))
         self.ember_burndown = panel_values[10] == "1"
         self.count = int(panel_values[16])
         self.burn_rate = _get_burn_rate(int(panel_values[2]), int(panel_values[3]))
@@ -189,3 +191,38 @@ _DERIVED_BURN_RATE_LOOKUP = {value: key for key, value in _BURN_RATE_LOOKUP.item
 
 def _get_burn_rate(betrieb: int, leistung: int) -> int:
     return _DERIVED_BURN_RATE_LOOKUP.get((betrieb, leistung), 1)
+
+
+class FireplusError(Enum):
+    """Errors of the Drooff fire+ combustion control system."""
+
+    NONE = auto()
+    TEMPERATURE_SENSOR_DEFECTIVE = auto()
+    PRESSURE_MEASUREMENT_DEFECTIVE = auto()
+    AIR_SLIDER_DEFECTIVE = auto()
+    SERVICE_MODE_ENABLED = auto()
+    CHIMNEY_DRAUGHT_TOO_LOW = auto()
+    AIR_SLIDER_STUCK = auto()
+    NO_CHIMNEY_DRAUGHT = auto()
+    WRONG_MOTOR_DIRECTION = auto()
+    UNKNOWN = auto()
+
+
+# Lookup table of error codes to errors
+_ERROR_LOOKUP = {
+    0: FireplusError.NONE,
+    1: FireplusError.TEMPERATURE_SENSOR_DEFECTIVE,
+    2: FireplusError.PRESSURE_MEASUREMENT_DEFECTIVE,
+    3: FireplusError.AIR_SLIDER_DEFECTIVE,
+    4: FireplusError.SERVICE_MODE_ENABLED,
+    5: FireplusError.CHIMNEY_DRAUGHT_TOO_LOW,
+    6: FireplusError.AIR_SLIDER_STUCK,
+    7: FireplusError.TEMPERATURE_SENSOR_DEFECTIVE,
+    8: FireplusError.TEMPERATURE_SENSOR_DEFECTIVE,
+    9: FireplusError.NO_CHIMNEY_DRAUGHT,
+    10: FireplusError.WRONG_MOTOR_DIRECTION,
+}
+
+
+def _get_error(error_code: int) -> FireplusError:
+    return _ERROR_LOOKUP.get(error_code, FireplusError.UNKNOWN)
