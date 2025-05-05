@@ -165,7 +165,7 @@ _OPERATION_MODE_LOOKUP = {
     "Gruen blinkt": FireplusOperationMode.HEATING,
     "Gelb": FireplusOperationMode.WOOD_REQUIRED,
     "Gelb blinkt": FireplusOperationMode.WOOD_URGENTLY_REQUIRED,
-    "Violett": FireplusOperationMode.EMBER_PRESERVATION,
+    "Violett dunkel": FireplusOperationMode.EMBER_PRESERVATION,
     "Orange": FireplusOperationMode.EMBER_BURNDOWN,
     "Rot blinkt": FireplusOperationMode.ERROR,
 }
