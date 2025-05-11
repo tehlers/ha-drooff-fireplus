@@ -120,6 +120,7 @@ class FireplusResponse:
     heating_progress: float
     web_controls_shown: bool
     burn_rate: int
+    serial_number: str
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
@@ -140,6 +141,10 @@ class FireplusResponse:
         configuration_values = configuration_response[2:-1].split("\\n")
 
         self.max_temperature = int(configuration_values[1])
+        # In the source code of the fire+ webapp, the value is called 'hardware version'.
+        # As it looks more like a serial number, we use it as such for the time being, in
+        # particular to make it part of the unique id.
+        self.serial_number = configuration_values[3]
         self.chimney_draught_available = configuration_values[4] == "1"
         self.operating_time = int(configuration_values[7])
 

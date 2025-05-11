@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
-from slugify import slugify
 
 from .api import (
     FireplusApiClient,
@@ -30,7 +31,7 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
         if user_input is not None:
             try:
-                await self._test_host(
+                response = await self._test_host(
                     host=user_input[CONF_HOST],
                 )
             except FireplusApiClientCommunicationError as exception:
@@ -40,12 +41,10 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
-                await self.async_set_unique_id(
-                    ## Do NOT use this in production code
-                    ## The unique_id should never be something that can change
-                    ## https://developers.home-assistant.io/docs/config_entries_config_flow_handler#unique-ids
-                    unique_id=slugify(user_input[CONF_HOST])
-                )
+                # In the source code of the fire+ webapp, the value we use for `serial_number` is
+                # called 'hardware version'. As it looks more like a serial number, we use it as
+                # such for the time being, in particular to make it part of the unique id.
+                await self.async_set_unique_id(unique_id=f"{DOMAIN}_{response.serial_number}")
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
                     title=f"Drooff fire+ at http://{user_input[CONF_HOST]}",
@@ -69,10 +68,10 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
-    async def _test_host(self, host: str) -> None:
-        """Validate host."""
+    async def _test_host(self, host: str) -> Any:
+        """Validate host by calling the fire+ specific endpoints and returning the parsed result."""
         client = FireplusApiClient(
             host=host,
             session=async_create_clientsession(self.hass),
         )
-        await client.async_get_data()
+        return await client.async_get_data()
