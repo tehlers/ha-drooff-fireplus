@@ -17,5 +17,24 @@
         "abort": {
             "already_configured": "This entry is already configured."
         }
+    },
+    "entity": {
+        "sensor": {
+            "error_message": {
+                "name": "Error message",
+                "state": {
+                    "none": "No error",
+                    "temperature_sensor_defective": "Temperature sensor defective",
+                    "pressure_measurement_defective": "Pressure measurement defective",
+                    "air_slider_defective": "Air slider defective",
+                    "service_mode_enabled": "Service mode enabled",
+                    "chimney_draught_too_low": "Chimney draught too low",
+                    "air_slider_stuck": "Air slider stuck",
+                    "no_chimney_draught": "No chimney draught",
+                    "wrong_motor_direction": "Wrong motor direction",
+                    "unknown": "Unknown error"
+                }
+            }
+        }
     }
 }

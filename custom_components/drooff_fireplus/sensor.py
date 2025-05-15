@@ -42,6 +42,7 @@ async def async_setup_entry(
             FireplusOperationModeSensor(entry.runtime_data.coordinator),
             FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
             FireplusHeatingProgressSensor(entry.runtime_data.coordinator),
+            FireplusErrorMessageSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -210,3 +211,35 @@ class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return the native value of the sensor."""
         return self.coordinator.data.heating_progress
+
+
+class FireplusErrorMessageSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ error message sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the error message sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_error_message"
+        self.entity_description = SensorEntityDescription(
+            key="drooff_fireplus_error_message",
+            name="fire+ error message",
+            icon="mdi:alert",
+            translation_key="error_message",
+            has_entity_name=True,
+        )
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.error.name.lower()
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return additional attributes related to the error message."""
+        return {
+            "error": self.coordinator.data.error.name,
+            "error_code": self.coordinator.data.error_code,
+        }

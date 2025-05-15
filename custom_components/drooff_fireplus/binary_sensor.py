@@ -55,3 +55,11 @@ class FireplusErrorSensor(FireplusEntity, BinarySensorEntity):
     def is_on(self) -> bool:
         """Return true if the fire+ signals an error."""
         return self.coordinator.data.error != FireplusError.NONE
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return additional attributes related to the error."""
+        return {
+            "error": self.coordinator.data.error.name,
+            "error_code": self.coordinator.data.error_code,
+        }

@@ -113,6 +113,7 @@ class FireplusResponse:
     chimney_draught: float
     operation_mode: FireplusOperationMode
     error: FireplusError
+    error_code: int
     count: int
     operating_time: int
     chimney_draught_available: bool
@@ -134,6 +135,7 @@ class FireplusResponse:
         self.chimney_draught = float(panel_values[7])
         self.operation_mode = _get_operation_mode(panel_values[8])
         self.error = _get_error(int(panel_values[9]))
+        self.error_code = int(panel_values[9])
         self.ember_burndown = panel_values[10] == "1"
         self.count = int(panel_values[16])
         self.burn_rate = _get_burn_rate(int(panel_values[2]), int(panel_values[3]))
