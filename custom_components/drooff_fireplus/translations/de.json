@@ -1,0 +1,80 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Bitte geben Sie den Hostnamen Ihrer Drooff fire+ Webanwendung ein.",
+                "data": {
+                    "host": "Host"
+                },
+                "data_description": {
+                    "host": "Der Hostname oder die IP-Adresse der Drooff fire+ Webanwendung."
+                }
+            }
+        },
+        "error": {
+            "connection": "Es kann keine Verbindung zur Drooff fire+ Webanwendung hergestellt werden.",
+            "unknown": "Es ist ein unbekannter Fehler aufgetreten."
+        },
+        "abort": {
+            "already_configured": "Diese Eintrag ist bereits konfiguriert."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "error": {
+                "name": "Fehler"
+            }
+        },
+        "number": {
+            "brightness": {
+                "name": "Helligkeit"
+            },
+            "burn_rate": {
+                "name": "Brennleistung"
+            },
+            "volume": {
+                "name": "Lautstärke"
+            }
+        },
+        "sensor": {
+            "air_slider_position": {
+                "name": "Luftschieberposition"
+            },
+            "draught": {
+                "name": "Feinzug"
+            },
+            "error_message": {
+                "name": "Fehlermeldung",
+                "state": {
+                    "none": "Kein Fehler",
+                    "temperature_sensor_defective": "Temperatursensor defekt",
+                    "pressure_measurement_defective": "Druckmessung defekt",
+                    "air_slider_defective": "Luftschieber defekt",
+                    "service_mode_enabled": "Servicemodus aktiviert",
+                    "chimney_draught_too_low": "Kaminzug zu niedrig",
+                    "air_slider_stuck": "Luftschieber klemmt",
+                    "no_chimney_draught": "Kein Kaminzug",
+                    "wrong_motor_direction": "Motor dreht in die falsche Richtung",
+                    "unknown": "Unbekannter Fehler"
+                }
+            },
+            "heating_progress": {
+                "name": "Anheizenfortschritt"
+            },
+            "operation_status": {
+                "name": "Betriebsstatus"
+            },
+            "operating_time": {
+                "name": "Betriebszeit"
+            },
+            "temperature": {
+                "name": "Temperatur"
+            }
+        },
+        "switch": {
+            "ember_burndown": {
+                "name": "Glutabbrand"
+            }
+        }
+    }
+}
