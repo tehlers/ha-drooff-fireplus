@@ -48,7 +48,7 @@ class FireplusBrightness(FireplusEntity, NumberEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_brightness"
         self.entity_description = NumberEntityDescription(
-            key="drooff_fireplus_brightness",
+            key="brightness",
             name="fire+ LED brightness",
             icon="mdi:led-strip",
         )
@@ -83,7 +83,7 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_volume"
         self.entity_description = NumberEntityDescription(
-            key="drooff_fireplus_volume",
+            key="volume",
             name="fire+ volume",
         )
         self.mode = NumberMode.SLIDER
@@ -125,7 +125,7 @@ class FireplusBurnRate(FireplusEntity, NumberEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_burn_rate"
         self.entity_description = NumberEntityDescription(
-            key="drooff_fireplus_burn_rate",
+            key="burn_rate",
             name="fire+ burn rate",
             icon="mdi:fire",
         )

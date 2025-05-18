@@ -38,7 +38,7 @@ async def async_setup_entry(
         [
             FireplusTemperatureSensor(entry.runtime_data.coordinator),
             FireplusChimneyDraughtSensor(entry.runtime_data.coordinator),
-            FireplusAirSliderSensor(entry.runtime_data.coordinator),
+            FireplusAirSliderPositionSensor(entry.runtime_data.coordinator),
             FireplusOperationStatusSensor(entry.runtime_data.coordinator),
             FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
             FireplusHeatingProgressSensor(entry.runtime_data.coordinator),
@@ -58,7 +58,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_temperature"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_temperature",
+            key="temperature",
             name="fire+ temperature",
             icon="mdi:gauge",
         )
@@ -87,7 +87,7 @@ class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_draught"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_draught",
+            key="draught",
             name="fire+ chimney draught",
             icon="mdi:gauge",
         )
@@ -105,7 +105,7 @@ class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
         return self.coordinator.data.chimney_draught
 
 
-class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
+class FireplusAirSliderPositionSensor(FireplusEntity, SensorEntity):
     """Drooff fire+ air slider position sensor."""
 
     def __init__(
@@ -116,7 +116,7 @@ class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_air_slider"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_air_slider",
+            key="air_slider_position",
             name="fire+ air slider position",
             icon="mdi:tune",
         )
@@ -139,7 +139,7 @@ class FireplusOperationStatusSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_operation_status"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_operation_status",
+            key="operation_status",
             name="fire+ operation status",
         )
         self.device_class = SensorDeviceClass.ENUM
@@ -171,7 +171,7 @@ class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_operating_time"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_operating_time",
+            key="operating_time",
             name="fire+ operating time",
             icon="mdi:history",
         )
@@ -196,7 +196,7 @@ class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_heating_progress"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_heating_progress",
+            key="heating_progress",
             name="fire+ heating progress",
             icon="mdi:progress-helper",
         )
@@ -224,7 +224,7 @@ class FireplusErrorMessageSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_error_message"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_error_message",
+            key="error_message",
             name="fire+ error message",
             icon="mdi:alert",
             translation_key="error_message",
