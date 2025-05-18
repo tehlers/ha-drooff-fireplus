@@ -59,9 +59,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_temperature"
         self.entity_description = SensorEntityDescription(
-            key="temperature",
-            name="fire+ temperature",
-            icon="mdi:gauge",
+            key="temperature", translation_key="temperature", has_entity_name=True, icon="mdi:gauge"
         )
         self.device_class = SensorDeviceClass.TEMPERATURE
         self.native_unit_of_measurement = UnitOfTemperature.CELSIUS
@@ -88,9 +86,7 @@ class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_draught"
         self.entity_description = SensorEntityDescription(
-            key="draught",
-            name="fire+ chimney draught",
-            icon="mdi:gauge",
+            key="draught", translation_key="draught", has_entity_name=True, icon="mdi:gauge"
         )
         self.device_class = SensorDeviceClass.PRESSURE
         self.native_unit_of_measurement = UnitOfPressure.PA
@@ -117,9 +113,7 @@ class FireplusAirSliderPositionSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_air_slider"
         self.entity_description = SensorEntityDescription(
-            key="air_slider_position",
-            name="fire+ air slider position",
-            icon="mdi:tune",
+            key="air_slider_position", translation_key="air_slider_position", has_entity_name=True, icon="mdi:tune"
         )
         self.native_unit_of_measurement = PERCENTAGE
 
@@ -140,8 +134,7 @@ class FireplusOperationStatusSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_operation_status"
         self.entity_description = SensorEntityDescription(
-            key="operation_status",
-            name="fire+ operation status",
+            key="operation_status", translation_key="operation_status", has_entity_name=True
         )
         self.device_class = SensorDeviceClass.ENUM
         self.options = [om.name for om in FireplusOperationStatus]
@@ -173,7 +166,8 @@ class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
         self._attr_unique_id = coordinator.config_entry.entry_id + "_operating_time"
         self.entity_description = SensorEntityDescription(
             key="operating_time",
-            name="fire+ operating time",
+            translation_key="operating_time",
+            has_entity_name=True,
             icon="mdi:history",
             entity_category=EntityCategory.DIAGNOSTIC,
         )
@@ -198,9 +192,7 @@ class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_heating_progress"
         self.entity_description = SensorEntityDescription(
-            key="heating_progress",
-            name="fire+ heating progress",
-            icon="mdi:progress-helper",
+            key="heating_progress", translation_key="heating_progress", has_entity_name=True, icon="mdi:progress-helper"
         )
         self.native_unit_of_measurement = PERCENTAGE
 
@@ -227,10 +219,9 @@ class FireplusErrorMessageSensor(FireplusEntity, SensorEntity):
         self._attr_unique_id = coordinator.config_entry.entry_id + "_error_message"
         self.entity_description = SensorEntityDescription(
             key="error_message",
-            name="fire+ error message",
-            icon="mdi:alert",
             translation_key="error_message",
             has_entity_name=True,
+            icon="mdi:alert",
             entity_category=EntityCategory.DIAGNOSTIC,
         )
 

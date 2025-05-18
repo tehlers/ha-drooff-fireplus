@@ -46,7 +46,11 @@ class FireplusErrorSensor(FireplusEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_error"
         self.entity_description = BinarySensorEntityDescription(
-            key="error", name="fire+ error", icon="mdi:alert", entity_category=EntityCategory.DIAGNOSTIC
+            key="error",
+            translation_key="error",
+            has_entity_name=True,
+            icon="mdi:alert",
+            entity_category=EntityCategory.DIAGNOSTIC,
         )
         self.device_class = BinarySensorDeviceClass.PROBLEM
 
