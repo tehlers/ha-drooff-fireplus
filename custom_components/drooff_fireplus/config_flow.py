@@ -47,7 +47,7 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(unique_id=f"{DOMAIN}_{response.serial_number}")
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=f"Drooff fire+ at http://{user_input[CONF_HOST]}",
+                    title="Drooff fire+",
                     data=user_input,
                 )
 
