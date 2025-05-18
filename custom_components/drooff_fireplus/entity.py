@@ -21,4 +21,5 @@ class FireplusEntity(CoordinatorEntity[FireplusDataUpdateCoordinator]):
                     coordinator.config_entry.entry_id,
                 ),
             },
+            configuration_url=f"http://{coordinator.host}",
         )

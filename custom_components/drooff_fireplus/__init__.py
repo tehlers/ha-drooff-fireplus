@@ -15,7 +15,6 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import FireplusApiClient
-from .const import DOMAIN, LOGGER
 from .coordinator import FireplusDataUpdateCoordinator
 from .data import FireplusData
 
@@ -40,9 +39,8 @@ async def async_setup_entry(
     """Set up this integration using UI."""
     coordinator = FireplusDataUpdateCoordinator(
         hass=hass,
-        logger=LOGGER,
-        name=DOMAIN,
         update_interval=timedelta(seconds=5),
+        host=entry.data[CONF_HOST],
     )
     entry.runtime_data = FireplusData(
         client=FireplusApiClient(

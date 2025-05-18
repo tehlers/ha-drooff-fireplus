@@ -6,11 +6,14 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import (
-    FireplusApiClientError,
-)
+from .api import FireplusApiClientError
+from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
+    from datetime import timedelta
+
+    from homeassistant.core import HomeAssistant
+
     from .data import FireplusConfigEntry
 
 
@@ -19,6 +22,17 @@ class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
     config_entry: FireplusConfigEntry
+    host: str
+
+    def __init__(self, hass: HomeAssistant, update_interval: timedelta, host: str) -> None:
+        """Initialize the FireplusDataUpdateCoordinator."""
+        self.host = host
+        super().__init__(
+            hass,
+            logger=LOGGER,
+            name=DOMAIN,
+            update_interval=update_interval,
+        )
 
     async def _async_update_data(self) -> Any:
         """Update data via library."""
