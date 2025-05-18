@@ -12,6 +12,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     PERCENTAGE,
+    EntityCategory,
     UnitOfPressure,
     UnitOfTemperature,
     UnitOfTime,
@@ -174,6 +175,7 @@ class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
             key="operating_time",
             name="fire+ operating time",
             icon="mdi:history",
+            entity_category=EntityCategory.DIAGNOSTIC,
         )
         self.device_class = SensorDeviceClass.DURATION
         self.state_class = SensorStateClass.TOTAL_INCREASING
@@ -229,6 +231,7 @@ class FireplusErrorMessageSensor(FireplusEntity, SensorEntity):
             icon="mdi:alert",
             translation_key="error_message",
             has_entity_name=True,
+            entity_category=EntityCategory.DIAGNOSTIC,
         )
 
     @property

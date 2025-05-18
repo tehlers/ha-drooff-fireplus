@@ -10,7 +10,7 @@ from homeassistant.components.number import (
     NumberEntityDescription,
     NumberMode,
 )
-from homeassistant.const import PERCENTAGE
+from homeassistant.const import PERCENTAGE, EntityCategory
 
 from .entity import FireplusEntity
 
@@ -48,9 +48,7 @@ class FireplusBrightness(FireplusEntity, NumberEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_brightness"
         self.entity_description = NumberEntityDescription(
-            key="brightness",
-            name="fire+ LED brightness",
-            icon="mdi:led-strip",
+            key="brightness", name="fire+ LED brightness", icon="mdi:led-strip", entity_category=EntityCategory.CONFIG
         )
         self.mode = NumberMode.SLIDER
         self.native_step = 10.0
@@ -83,8 +81,7 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_volume"
         self.entity_description = NumberEntityDescription(
-            key="volume",
-            name="fire+ volume",
+            key="volume", name="fire+ volume", entity_category=EntityCategory.CONFIG
         )
         self.mode = NumberMode.SLIDER
         self.native_step = 10.0

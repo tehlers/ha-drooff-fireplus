@@ -9,6 +9,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
+from homeassistant.const import EntityCategory
 
 from .api import FireplusError
 from .entity import FireplusEntity
@@ -45,9 +46,7 @@ class FireplusErrorSensor(FireplusEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id + "_error"
         self.entity_description = BinarySensorEntityDescription(
-            key="error",
-            name="fire+ error",
-            icon="mdi:alert",
+            key="error", name="fire+ error", icon="mdi:alert", entity_category=EntityCategory.DIAGNOSTIC
         )
         self.device_class = BinarySensorDeviceClass.PROBLEM
 
