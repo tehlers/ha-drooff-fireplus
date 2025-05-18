@@ -17,7 +17,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 
-from .api import FireplusOperationMode
+from .api import FireplusOperationStatus
 from .entity import FireplusEntity
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ async def async_setup_entry(
             FireplusTemperatureSensor(entry.runtime_data.coordinator),
             FireplusChimneyDraughtSensor(entry.runtime_data.coordinator),
             FireplusAirSliderSensor(entry.runtime_data.coordinator),
-            FireplusOperationModeSensor(entry.runtime_data.coordinator),
+            FireplusOperationStatusSensor(entry.runtime_data.coordinator),
             FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
             FireplusHeatingProgressSensor(entry.runtime_data.coordinator),
             FireplusErrorMessageSensor(entry.runtime_data.coordinator),
@@ -128,34 +128,34 @@ class FireplusAirSliderSensor(FireplusEntity, SensorEntity):
         return self.coordinator.data.air_slider
 
 
-class FireplusOperationModeSensor(FireplusEntity, SensorEntity):
-    """Drooff fire+ operation mode sensor."""
+class FireplusOperationStatusSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ operation status sensor."""
 
     def __init__(
         self,
         coordinator: FireplusDataUpdateCoordinator,
     ) -> None:
-        """Initialize the operation mode sensor."""
+        """Initialize the operation status sensor."""
         super().__init__(coordinator)
-        self._attr_unique_id = coordinator.config_entry.entry_id + "_operation_mode"
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_operation_status"
         self.entity_description = SensorEntityDescription(
-            key="drooff_fireplus_operation_mode",
-            name="fire+ operation mode",
+            key="drooff_fireplus_operation_status",
+            name="fire+ operation status",
         )
         self.device_class = SensorDeviceClass.ENUM
-        self.options = [om.name for om in FireplusOperationMode]
+        self.options = [om.name for om in FireplusOperationStatus]
 
     @property
     def native_value(self) -> str | None:
         """Return the native value of the sensor."""
-        return self.coordinator.data.operation_mode.name
+        return self.coordinator.data.operation_status.name
 
     @property
     def icon(self) -> str:
-        """Return icon that represents the state of the fireplace."""
+        """Return icon that represents the status of the fireplace."""
         return (
             "mdi:fireplace-off"
-            if self.coordinator.data.operation_mode == FireplusOperationMode.STANDBY
+            if self.coordinator.data.operation_status == FireplusOperationStatus.STANDBY
             else "mdi:fireplace"
         )
 
@@ -205,7 +205,7 @@ class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
     @property
     def available(self) -> bool | None:
         """Return the availability of the sensor."""
-        return self.coordinator.data.operation_mode == FireplusOperationMode.HEATING
+        return self.coordinator.data.operation_status == FireplusOperationStatus.HEATING
 
     @property
     def native_value(self) -> float | None:

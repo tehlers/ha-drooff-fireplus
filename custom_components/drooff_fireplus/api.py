@@ -111,7 +111,7 @@ class FireplusResponse:
     max_temperature: int
     air_slider: float
     chimney_draught: float
-    operation_mode: FireplusOperationMode
+    operation_status: FireplusOperationStatus
     error: FireplusError
     error_code: int
     count: int
@@ -133,7 +133,7 @@ class FireplusResponse:
         self.temperature = int(panel_values[5])
         self.air_slider = float(panel_values[6])
         self.chimney_draught = float(panel_values[7])
-        self.operation_mode = _get_operation_mode(panel_values[8])
+        self.operation_status = _get_operation_status(panel_values[8])
         self.error = _get_error(int(panel_values[9]))
         self.error_code = int(panel_values[9])
         self.ember_burndown = panel_values[10] == "1"
@@ -153,8 +153,8 @@ class FireplusResponse:
         self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
 
 
-class FireplusOperationMode(Enum):
-    """Operation modes of the Drooff fire+ combustion control system."""
+class FireplusOperationStatus(Enum):
+    """Operation status of the Drooff fire+ combustion control system."""
 
     UNKNOWN = auto()
     STANDBY = auto()
@@ -167,21 +167,21 @@ class FireplusOperationMode(Enum):
     ERROR = auto()
 
 
-# Lookup table of LED states to operation modes
-_OPERATION_MODE_LOOKUP = {
-    "aus": FireplusOperationMode.STANDBY,
-    "Gruen": FireplusOperationMode.REGULAR,
-    "Gruen blinkt": FireplusOperationMode.HEATING,
-    "Gelb": FireplusOperationMode.WOOD_REQUIRED,
-    "Gelb blinkt": FireplusOperationMode.WOOD_URGENTLY_REQUIRED,
-    "Violett dunkel": FireplusOperationMode.EMBER_PRESERVATION,
-    "Orange": FireplusOperationMode.EMBER_BURNDOWN,
-    "Rot blinkt": FireplusOperationMode.ERROR,
+# Lookup table of LED status to operation status
+_OPERATION_STATUS_LOOKUP = {
+    "aus": FireplusOperationStatus.STANDBY,
+    "Gruen": FireplusOperationStatus.REGULAR,
+    "Gruen blinkt": FireplusOperationStatus.HEATING,
+    "Gelb": FireplusOperationStatus.WOOD_REQUIRED,
+    "Gelb blinkt": FireplusOperationStatus.WOOD_URGENTLY_REQUIRED,
+    "Violett dunkel": FireplusOperationStatus.EMBER_PRESERVATION,
+    "Orange": FireplusOperationStatus.EMBER_BURNDOWN,
+    "Rot blinkt": FireplusOperationStatus.ERROR,
 }
 
 
-def _get_operation_mode(led_state: str) -> FireplusOperationMode:
-    return _OPERATION_MODE_LOOKUP.get(led_state, FireplusOperationMode.UNKNOWN)
+def _get_operation_status(led_status: str) -> FireplusOperationStatus:
+    return _OPERATION_STATUS_LOOKUP.get(led_status, FireplusOperationStatus.UNKNOWN)
 
 
 # Lookup table of burn rate to values for "Betrieb" and "Leistung"
