@@ -25,7 +25,7 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 1. Go to the Home Assistant dashboard.
 2. Navigate to `Configuration` > `Devices & Services` > `Add Integration`.
 3. Search for "Drooff fire+" and select it.
-4. You will be prompted to enter the hostname used by your Drooff fire+ combustion control system. In the default configuration, this is "fire".
+4. You will be prompted to enter the hostname used by your Drooff fire+ web application. In the default configuration, this is "fire".
 
 ## Disclaimer
 

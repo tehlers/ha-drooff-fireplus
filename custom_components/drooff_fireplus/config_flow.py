@@ -15,7 +15,7 @@ from .api import (
     FireplusApiClientCommunicationError,
     FireplusApiClientError,
 )
-from .const import DOMAIN, LOGGER
+from .const import DEFAULT_HOST, DOMAIN, LOGGER
 
 
 class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -57,7 +57,7 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(
                         CONF_HOST,
-                        default=(user_input or {}).get(CONF_HOST, vol.UNDEFINED),
+                        default=(user_input or {CONF_HOST: DEFAULT_HOST}).get(CONF_HOST, vol.UNDEFINED),
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,

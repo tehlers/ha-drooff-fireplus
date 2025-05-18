@@ -2,16 +2,17 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/tehlers/ha-drooff-fireplus",
+                "description": "Please enter the hostname of your Drooff fire+ web application.",
                 "data": {
-                    "username": "Username",
-                    "password": "Password"
+                    "host": "Host"
+                },
+                "data_description": {
+                    "host": "The hostname or IP address of the Drooff fire+ web application."
                 }
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
+            "connection": "Unable to connect to the Drooff fire+ web application.",
             "unknown": "Unknown error occurred."
         },
         "abort": {
