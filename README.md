@@ -27,6 +27,40 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 3. Search for "Drooff fire+" and select it.
 4. You will be prompted to enter the hostname used by your Drooff fire+ web application. In the default configuration, this is "fire".
 
+## Entities
+
+### Controls
+
+| Name             | Type   | Description                                              |
+| ---------------- | ------ | -------------------------------------------------------- |
+| `Burn rate`      | Number | Select burn rate in six stages between "Eco" and "Power" |
+| `Ember burndown` | Switch | Toggle between "Ember preservation" and "Ember burndown" |
+
+### Sensors
+
+| Name                  | Type   | Description                                                   |
+| --------------------- | ------ | ------------------------------------------------------------- |
+| `Air slider position` | Sensor | Position of the air slider in percent                         |
+| `Draught`             | Sensor | Chimney draught in Pa                                         |
+| `Heating progress`    | Sensor | Heating progress in percent (only available while `HEATING`) |
+| `Operation status`    | Sensor | Operation status of the fireplace. Possible values are:<br>- `STANDBY`<br>- `REGULAR`<br>- `HEATING`<br>- `WOOD_REQUIRED`<br>- `WOOD_URGENTLY_REQUIRED`<br>- `EMBER_PRESERVATION`<br>- `EMBER_BURNDOWN`<br>- `ERROR`<br>- `UNKNOWN` |
+| `Temperature`         | Sensor | Temperature inside the combustion chamber in °C               |
+
+### Configuration
+
+| Name         | Type   | Description                              |
+| ------------ | ------ | ---------------------------------------- |
+| `Brightness` | Number | Brightness of the LED strip in percent   |
+| `Volume`     | Number | Volume of the acoustic signal in percent |
+
+### Diagnostic
+
+| Name             | Type          | Description                                |
+| ---------------- | ------------- | ------------------------------------------ |
+| `Error`          | Binary Sensor | Active when an error has been detected     |
+| `Error message`  | Sensor        | Description of the detected error. Possible values are:<br>- "No error"<br>- "Temperature sensor defective"<br>- "Pressure measurement defective"<br>- "Air slider defective"<br>- "Service mode enabled"<br>- "Chimney draught too low"<br>- "Air slider stuck"<br>- "No chimney draught"<br>- "Wrong motor direction"<br>- "Unknown error"<br><br>**Always consult the official fire+ web application in the event of an error!** |
+| `Operating time` | Sensor        | Total operating time of the fireplace in s |
+
 ## Disclaimer
 
 This integration is neither supported nor affiliated with Drooff. It is intended as a supplement to the official fire+ webapp and not a full replacement.
