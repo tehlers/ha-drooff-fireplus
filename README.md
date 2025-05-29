@@ -63,4 +63,5 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 
 ## Disclaimer
 
-This integration is neither supported nor affiliated with Drooff. It is intended as a supplement to the official fire+ webapp and not a full replacement.
+> [!IMPORTANT]
+> This integration is neither supported nor affiliated with Drooff. It is intended as a supplement to the official fire+ webapp and not a full replacement.
