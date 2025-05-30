@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import FireplusApiClientError
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, LOGGER, UPDATE_FAILED_MSG
 
 if TYPE_CHECKING:
     from datetime import timedelta
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
 
 # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
 class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
-    """Class to manage fetching data from the API."""
+    """Class to manage fetching data from the Drooff fire+ API."""
 
     config_entry: FireplusConfigEntry
     host: str
@@ -35,8 +36,18 @@ class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self) -> Any:
-        """Update data via library."""
-        try:
-            return await self.config_entry.runtime_data.client.async_get_data()
-        except FireplusApiClientError as exception:
-            raise UpdateFailed(exception) from exception
+        """Retrieve updated data from Drooff fire+ API."""
+        retries = 0
+        max_retries = 3
+
+        while retries < max_retries:
+            try:
+                return await self.config_entry.runtime_data.client.async_get_data()
+            except FireplusApiClientError as exception:
+                retries += 1
+                if retries < max_retries:
+                    await asyncio.sleep(1)
+                else:
+                    raise UpdateFailed(exception) from exception
+
+        raise UpdateFailed(UPDATE_FAILED_MSG)
