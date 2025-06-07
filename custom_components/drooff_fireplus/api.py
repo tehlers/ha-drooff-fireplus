@@ -20,6 +20,12 @@ class FireplusApiClientCommunicationError(
     """Exception to indicate a communication error."""
 
 
+class FireplusApiClientInvalidResponseError(
+    FireplusApiClientError,
+):
+    """Exception to indicate that the response contained invalid data."""
+
+
 class FireplusApiClient:
     """Drooff fire+ API Client."""
 
@@ -125,32 +131,38 @@ class FireplusResponse:
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
-        panel_values = panel_response[2:-1].split("\\n")
+        try:
+            panel_values = panel_response[2:-1].split("\\n")
 
-        self.web_controls_shown = panel_values[1] == "1"
-        self.brightness = int(panel_values[4])
-        self.volume = int(panel_values[12])
-        self.temperature = int(panel_values[5])
-        self.air_slider = float(panel_values[6])
-        self.chimney_draught = float(panel_values[7])
-        self.operation_status = _get_operation_status(panel_values[8])
-        self.error = _get_error(int(panel_values[9]))
-        self.error_code = int(panel_values[9])
-        self.ember_burndown = panel_values[10] == "1"
-        self.count = int(panel_values[16])
-        self.burn_rate = _get_burn_rate(int(panel_values[2]), int(panel_values[3]))
+            self.web_controls_shown = panel_values[1] == "1"
+            self.brightness = int(panel_values[4])
+            self.volume = int(panel_values[12])
+            self.temperature = int(panel_values[5])
+            self.air_slider = float(panel_values[6])
+            self.chimney_draught = float(panel_values[7])
+            self.operation_status = _get_operation_status(panel_values[8])
+            self.error = _get_error(int(panel_values[9]))
+            self.error_code = int(panel_values[9])
+            self.ember_burndown = panel_values[10] == "1"
+            self.count = int(panel_values[16])
+            self.burn_rate = _get_burn_rate(int(panel_values[2]), int(panel_values[3]))
 
-        configuration_values = configuration_response[2:-1].split("\\n")
+            configuration_values = configuration_response[2:-1].split("\\n")
 
-        self.max_temperature = int(configuration_values[1])
-        # In the source code of the fire+ webapp, the value is called 'hardware version'.
-        # As it looks more like a serial number, we use it as such for the time being, in
-        # particular to make it part of the unique id.
-        self.serial_number = configuration_values[3]
-        self.chimney_draught_available = configuration_values[4] == "1"
-        self.operating_time = int(configuration_values[7])
+            self.max_temperature = int(configuration_values[1])
+            # In the source code of the fire+ webapp, the value is called 'hardware version'.
+            # As it looks more like a serial number, we use it as such for the time being, in
+            # particular to make it part of the unique id.
+            self.serial_number = configuration_values[3]
+            self.chimney_draught_available = configuration_values[4] == "1"
+            self.operating_time = int(configuration_values[7])
 
-        self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
+            self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
+        except (IndexError, ValueError) as exception:
+            msg = f"Error parsing responses from fire+: '{panel_response}' and '{configuration_response}'"
+            raise FireplusApiClientInvalidResponseError(
+                msg,
+            ) from exception
 
 
 class FireplusOperationStatus(Enum):
