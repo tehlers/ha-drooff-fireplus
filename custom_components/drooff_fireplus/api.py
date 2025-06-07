@@ -188,7 +188,7 @@ def _get_operation_status(led_status: str) -> FireplusOperationStatus:
 _BURN_RATE_LOOKUP = {1: (2, 4), 2: (3, 4), 3: (4, 4), 4: (2, 8), 5: (3, 8), 6: (4, 8)}
 
 
-def _get_values_for_burn_rate(burn_rate: int) -> (int, int):
+def _get_values_for_burn_rate(burn_rate: int) -> tuple[int, int]:
     return _BURN_RATE_LOOKUP.get(burn_rate, (2, 4))
 
 
