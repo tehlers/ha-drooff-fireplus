@@ -53,6 +53,7 @@ class FireplusApiClient:
 
     async def async_update_settings(
         self,
+        *,
         brightness: int | None = None,
         volume: int | None = None,
         ember_burndown: bool | None = None,
