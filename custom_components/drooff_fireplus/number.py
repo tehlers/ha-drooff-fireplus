@@ -57,6 +57,7 @@ class FireplusBrightness(FireplusEntity, NumberEntity):
         self.mode = NumberMode.SLIDER
         self.native_step = 10.0
         self.native_unit_of_measurement = PERCENTAGE
+        self.suggested_display_precision = 0
 
     @property
     def native_value(self) -> float | None:
@@ -90,6 +91,7 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         self.mode = NumberMode.SLIDER
         self.native_step = 10.0
         self.native_unit_of_measurement = PERCENTAGE
+        self.suggested_display_precision = 0
 
     @property
     def native_value(self) -> float | None:
@@ -135,6 +137,7 @@ class FireplusBurnRate(FireplusEntity, NumberEntity):
         self.native_step = 1.0
         self.native_min_value = 1.0
         self.native_max_value = 6.0
+        self.suggested_display_precision = 0
 
     @property
     def native_value(self) -> float | None:
