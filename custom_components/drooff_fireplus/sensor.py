@@ -63,6 +63,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         )
         self.device_class = SensorDeviceClass.TEMPERATURE
         self.native_unit_of_measurement = UnitOfTemperature.CELSIUS
+        self.suggested_display_precision = 0
 
     @property
     def native_value(self) -> int | None:
@@ -90,6 +91,7 @@ class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
         )
         self.device_class = SensorDeviceClass.PRESSURE
         self.native_unit_of_measurement = UnitOfPressure.PA
+        self.suggested_display_precision = 1
 
     @property
     def available(self) -> bool | None:
@@ -116,6 +118,7 @@ class FireplusAirSliderPositionSensor(FireplusEntity, SensorEntity):
             key="air_slider_position", translation_key="air_slider_position", has_entity_name=True, icon="mdi:tune"
         )
         self.native_unit_of_measurement = PERCENTAGE
+        self.suggested_display_precision = 0
 
     @property
     def native_value(self) -> float | None:
@@ -195,6 +198,7 @@ class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
             key="heating_progress", translation_key="heating_progress", has_entity_name=True, icon="mdi:progress-helper"
         )
         self.native_unit_of_measurement = PERCENTAGE
+        self.suggested_display_precision = 0
 
     @property
     def available(self) -> bool | None:
