@@ -7,7 +7,7 @@
                     "host": "Host"
                 },
                 "data_description": {
-                    "host": "Der Hostname oder die IP-Adresse der Drooff fire+ Webanwendung."
+                    "host": "Der Hostname oder die IP-Adresse der Drooff fire+ Webanwendung. In manchen Fällen muss eine Domain wie '.local' an den Hostnamen angehängt werden."
                 }
             }
         },
