@@ -74,6 +74,9 @@
         "switch": {
             "ember_burndown": {
                 "name": "Ember burndown"
+            },
+            "led": {
+                "name": "LED"
             }
         }
     }

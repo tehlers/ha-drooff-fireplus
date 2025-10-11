@@ -108,6 +108,8 @@ class FireplusVolume(FireplusEntity, NumberEntity):
     @property
     def icon(self) -> str:
         """Return icon that changes based on the current volume."""
+        if self.native_value is None:
+            return "mdi:volume-off"
         if self.native_value == 0:
             return "mdi:volume-off"
         if self.native_value <= FireplusVolume.LOW_VOLUME:
@@ -115,6 +117,16 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         if self.native_value <= FireplusVolume.MEDIUM_VOLUME:
             return "mdi:volume-medium"
         return "mdi:volume-high"
+
+    @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.volume is not None
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added."""
+        return self.available
 
 
 class FireplusBurnRate(FireplusEntity, NumberEntity):
@@ -136,13 +148,17 @@ class FireplusBurnRate(FireplusEntity, NumberEntity):
         self.mode = NumberMode.SLIDER
         self.native_step = 1.0
         self.native_min_value = 1.0
-        self.native_max_value = 6.0
         self.suggested_display_precision = 0
 
     @property
     def native_value(self) -> float | None:
         """Return the native value of the entity."""
         return self.coordinator.data.burn_rate
+
+    @property
+    def native_max_value(self) -> float | None:
+        """Return the maximal native value of the entity."""
+        return 7.0 if self.coordinator.data.version == 1 else 6.0
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""

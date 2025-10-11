@@ -74,6 +74,9 @@
         "switch": {
             "ember_burndown": {
                 "name": "Glutabbrand"
+            },
+            "led": {
+                "name": "LED"
             }
         }
     }
