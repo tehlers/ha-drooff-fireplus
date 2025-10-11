@@ -183,6 +183,16 @@ class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
         """Return the native value of the sensor."""
         return self.coordinator.data.operating_time
 
+    @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.operating_time is not None
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added."""
+        return self.available
+
 
 class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
     """Drooff fire+ heating progress sensor."""

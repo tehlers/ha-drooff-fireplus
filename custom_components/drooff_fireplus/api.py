@@ -1,4 +1,4 @@
-"""Sample API Client."""
+"""Drooff fire+ API Client."""
 
 from __future__ import annotations
 
@@ -58,20 +58,38 @@ class FireplusApiClient:
         volume: int | None = None,
         ember_burndown: bool | None = None,
         burn_rate: int | None = None,
+        led: bool | None = None,
     ) -> None:
         """Update settings of Drooff fire+."""
         current_data = await self.async_get_data()
-        burn_rate_values = _get_values_for_burn_rate(burn_rate if burn_rate is not None else current_data.burn_rate)
 
-        data = {
-            "Betrieb": burn_rate_values[0],
-            "Leistung": burn_rate_values[1],
-            "Helligkeit": brightness if brightness is not None else current_data.brightness,
-            "Bedienung": int(current_data.web_controls_shown),
-            "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
-            "Lautstaerke": volume if volume is not None else current_data.volume,
-            "CNT": (current_data.count + 1) % 100,
-        }
+        if current_data.version == 1:
+            burn_rate_values = _get_values_for_burn_rate_v1(
+                burn_rate if burn_rate is not None else current_data.burn_rate
+            )
+
+            data = {
+                "Betrieb": burn_rate_values[0],
+                "Leistung": burn_rate_values[1],
+                "Helligkeit": brightness if brightness is not None else current_data.brightness,
+                "Bedienung": int(current_data.web_controls_shown),
+                "LED": int(led if led is not None else current_data.led),
+                "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
+            }
+        else:
+            burn_rate_values = _get_values_for_burn_rate_v2(
+                burn_rate if burn_rate is not None else current_data.burn_rate
+            )
+
+            data = {
+                "Betrieb": burn_rate_values[0],
+                "Leistung": burn_rate_values[1],
+                "Helligkeit": brightness if brightness is not None else current_data.brightness,
+                "Bedienung": int(current_data.web_controls_shown),
+                "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
+                "Lautstaerke": volume if volume is not None else current_data.volume,
+                "CNT": (current_data.count + 1) % 100,
+            }
 
         await self._api_wrapper(method="post", url=f"http://{self._host}/php/easpanelW.php", data=data)
 
@@ -113,7 +131,7 @@ class FireplusResponse:
     """Stores the metrics and data retrieved from the Drooff fire+ API."""
 
     brightness: int
-    volume: int
+    volume: int | None
     temperature: int
     max_temperature: int
     air_slider: float
@@ -122,33 +140,32 @@ class FireplusResponse:
     error: FireplusError
     error_code: int
     count: int
-    operating_time: int
+    operating_time: int | None
     chimney_draught_available: bool
     ember_burndown: bool
     heating_progress: float
     web_controls_shown: bool
     burn_rate: int
     serial_number: str
+    led: bool | None
+    version: int
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
         try:
             panel_values = panel_response[2:-1].split("\\n")
+            configuration_values = configuration_response[2:-1].split("\\n")
+
+            self.version = int(configuration_values[0].split(".")[0])
 
             self.web_controls_shown = panel_values[1] == "1"
             self.brightness = int(panel_values[4])
-            self.volume = int(panel_values[12])
             self.temperature = int(panel_values[5])
             self.air_slider = float(panel_values[6])
             self.chimney_draught = float(panel_values[7])
             self.operation_status = _get_operation_status(panel_values[8])
             self.error = _get_error(int(panel_values[9]))
             self.error_code = int(panel_values[9])
-            self.ember_burndown = panel_values[10] == "1"
-            self.count = int(panel_values[16])
-            self.burn_rate = _get_burn_rate(int(panel_values[2]), int(panel_values[3]))
-
-            configuration_values = configuration_response[2:-1].split("\\n")
 
             self.max_temperature = int(configuration_values[1])
             # In the source code of the fire+ webapp, the value is called 'hardware version'.
@@ -156,14 +173,35 @@ class FireplusResponse:
             # particular to make it part of the unique id.
             self.serial_number = configuration_values[3]
             self.chimney_draught_available = configuration_values[4] == "1"
-            self.operating_time = int(configuration_values[7])
 
-            self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
+            if self.version == 1:
+                self.__init_version1(panel_values, configuration_values)
+            else:
+                self.__init_version2(panel_values, configuration_values)
+
         except (IndexError, ValueError) as exception:
             msg = f"Error parsing responses from fire+: '{panel_response}' and '{configuration_response}'"
             raise FireplusApiClientInvalidResponseError(
                 msg,
             ) from exception
+
+    def __init_version1(self, panel_values: list[str], configuration_values: list[str]) -> None:
+        self.volume = None
+        self.ember_burndown = panel_values[11] == "1"
+        self.count = None
+        self.led = panel_values[10] == "1"
+        self.burn_rate = _get_burn_rate_v1(int(panel_values[2]), int(panel_values[3]))
+        self.operating_time = None
+        self.heating_progress = (int(panel_values[12]) / int(configuration_values[6])) * 100
+
+    def __init_version2(self, panel_values: list[str], configuration_values: list[str]) -> None:
+        self.volume = int(panel_values[12])
+        self.ember_burndown = panel_values[10] == "1"
+        self.count = int(panel_values[16])
+        self.led = None
+        self.burn_rate = _get_burn_rate_v2(int(panel_values[2]), int(panel_values[3]))
+        self.operating_time = int(configuration_values[7])
+        self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
 
 
 class FireplusOperationStatus(Enum):
@@ -197,20 +235,36 @@ def _get_operation_status(led_status: str) -> FireplusOperationStatus:
     return _OPERATION_STATUS_LOOKUP.get(led_status, FireplusOperationStatus.UNKNOWN)
 
 
-# Lookup table of burn rate to values for "Betrieb" and "Leistung"
-_BURN_RATE_LOOKUP = {1: (2, 4), 2: (3, 4), 3: (4, 4), 4: (2, 8), 5: (3, 8), 6: (4, 8)}
+# Lookup table of burn rate to values for "Betrieb" and "Leistung" (API v1)
+_BURN_RATE_LOOKUP_V1 = {1: (1, 4), 2: (2, 4), 3: (3, 4), 4: (4, 4), 5: (2, 8), 6: (3, 8), 7: (4, 8)}
 
 
-def _get_values_for_burn_rate(burn_rate: int) -> tuple[int, int]:
-    return _BURN_RATE_LOOKUP.get(burn_rate, (2, 4))
+# Lookup table of burn rate to values for "Betrieb" and "Leistung" (API v2)
+_BURN_RATE_LOOKUP_V2 = {1: (2, 4), 2: (3, 4), 3: (4, 4), 4: (2, 8), 5: (3, 8), 6: (4, 8)}
 
 
-# Lookup table of values for "Betrieb" and "Leistung" to burn rate
-_DERIVED_BURN_RATE_LOOKUP = {value: key for key, value in _BURN_RATE_LOOKUP.items()}
+def _get_values_for_burn_rate_v1(burn_rate: int) -> tuple[int, int]:
+    return _BURN_RATE_LOOKUP_V1.get(burn_rate, (1, 4))
 
 
-def _get_burn_rate(betrieb: int, leistung: int) -> int:
-    return _DERIVED_BURN_RATE_LOOKUP.get((betrieb, leistung), 1)
+def _get_values_for_burn_rate_v2(burn_rate: int) -> tuple[int, int]:
+    return _BURN_RATE_LOOKUP_V2.get(burn_rate, (2, 4))
+
+
+# Lookup table of values for "Betrieb" and "Leistung" to burn rate (API v1)
+_DERIVED_BURN_RATE_LOOKUP_V1 = {value: key for key, value in _BURN_RATE_LOOKUP_V1.items()}
+
+
+# Lookup table of values for "Betrieb" and "Leistung" to burn rate (API v2)
+_DERIVED_BURN_RATE_LOOKUP_V2 = {value: key for key, value in _BURN_RATE_LOOKUP_V2.items()}
+
+
+def _get_burn_rate_v1(betrieb: int, leistung: int) -> int:
+    return _DERIVED_BURN_RATE_LOOKUP_V1.get((betrieb, leistung), 1)
+
+
+def _get_burn_rate_v2(betrieb: int, leistung: int) -> int:
+    return _DERIVED_BURN_RATE_LOOKUP_V2.get((betrieb, leistung), 1)
 
 
 class FireplusError(Enum):
