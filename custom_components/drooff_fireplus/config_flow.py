@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import socket
 from typing import Any
 
 import voluptuous as vol
@@ -15,63 +16,136 @@ from .api import (
     FireplusApiClientCommunicationError,
     FireplusApiClientError,
 )
-from .const import DEFAULT_HOST, DOMAIN, LOGGER
+from .const import (
+    CONF_IP_VERSION,
+    CONF_POLLING_INTERVAL,
+    DEFAULT_HOST,
+    DEFAULT_POLLING_INTERVAL,
+    DOMAIN,
+    LOGGER,
+    MAX_POLLING_INTERVAL,
+    MIN_POLLING_INTERVAL,
+)
 
 
 class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Drooff fire+."""
 
     VERSION = 1
+    MINOR_VERSION = 1
 
-    async def async_step_user(
-        self,
-        user_input: dict | None = None,
+    def _show_form(
+        self, *, host: str, ip_version: str, polling_interval: str, errors: dict[str, str]
     ) -> config_entries.ConfigFlowResult:
-        """Handle a flow initialized by the user."""
-        _errors = {}
-        if user_input is not None:
-            try:
-                response = await self._test_host(
-                    host=user_input[CONF_HOST],
-                )
-            except FireplusApiClientCommunicationError as exception:
-                LOGGER.error(exception)
-                _errors["base"] = "connection"
-            except FireplusApiClientError as exception:
-                LOGGER.exception(exception)
-                _errors["base"] = "unknown"
-            else:
-                # In the source code of the fire+ webapp, the value we use for `serial_number` is
-                # called 'hardware version'. As it looks more like a serial number, we use it as
-                # such for the time being, in particular to make it part of the unique id.
-                await self.async_set_unique_id(unique_id=f"{DOMAIN}_{response.serial_number}")
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title="Drooff fire+",
-                    data=user_input,
-                )
-
         return self.async_show_form(
-            step_id="user",
+            step_id=config_entries.SOURCE_USER,
             data_schema=vol.Schema(
                 {
                     vol.Required(
                         CONF_HOST,
-                        default=(user_input or {CONF_HOST: DEFAULT_HOST}).get(CONF_HOST, vol.UNDEFINED),
+                        default=host,
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
                         ),
                     ),
+                    vol.Required(CONF_IP_VERSION, default=ip_version): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[socket.AF_INET.name, socket.AF_INET6.name, socket.AF_UNSPEC.name],
+                            translation_key=CONF_IP_VERSION,
+                        )
+                    ),
+                    vol.Required(CONF_POLLING_INTERVAL, default=polling_interval): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=MIN_POLLING_INTERVAL,
+                            max=MAX_POLLING_INTERVAL,
+                            unit_of_measurement="s",
+                        )
+                    ),
                 },
             ),
-            errors=_errors,
+            errors=errors,
         )
 
-    async def _test_host(self, host: str) -> Any:
-        """Validate host by calling the fire+ specific endpoints and returning the parsed result."""
+    async def _get_serial_number(self, host: str, family: socket.AddressFamily) -> tuple[str | None, dict[str, str]]:
+        """Connect to the fire+ endpoint and return serial number."""
+        errors = {}
+
         client = FireplusApiClient(
             host=host,
-            session=async_create_clientsession(self.hass),
+            session=async_create_clientsession(self.hass, family=family),
         )
-        return await client.async_get_data()
+
+        try:
+            response = await client.async_get_data()
+        except FireplusApiClientCommunicationError as exception:
+            LOGGER.error(exception)
+            errors["base"] = "connection"
+        except FireplusApiClientError as exception:
+            LOGGER.exception(exception)
+            errors["base"] = "unknown"
+        else:
+            return response.serial_number, errors
+
+        return None, errors
+
+    async def async_step_user(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Verify the given user input and either create or update the config entry."""
+        serial_number = None
+        errors = {}
+
+        if user_input is not None:
+            host = user_input.get(CONF_HOST, "")
+            ip_version = socket.AddressFamily[user_input.get(CONF_IP_VERSION, socket.AF_INET.name)]
+            polling_interval = int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
+            serial_number, errors = await self._get_serial_number(host, ip_version)
+        elif self.source == config_entries.SOURCE_RECONFIGURE:
+            existing_config_data = self._get_reconfigure_entry().data
+            host = existing_config_data.get(CONF_HOST, DEFAULT_HOST)
+            ip_version = socket.AddressFamily(existing_config_data.get(CONF_IP_VERSION, socket.AF_INET))
+            polling_interval = existing_config_data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+        else:
+            host = DEFAULT_HOST
+            polling_interval = DEFAULT_POLLING_INTERVAL
+            ip_version: socket.AddressFamily = socket.AF_INET
+
+        if not serial_number:
+            return self._show_form(
+                host=host,
+                ip_version=ip_version.name,
+                polling_interval=str(polling_interval),
+                errors=errors,
+            )
+
+        config_data = {
+            CONF_HOST: host,
+            CONF_IP_VERSION: ip_version,
+            CONF_POLLING_INTERVAL: polling_interval,
+        }
+
+        # In the source code of the fire+ webapp, the value we use for `serial_number` is
+        # called 'hardware version'. As it looks more like a serial number, we use it as
+        # such for the time being, in particular to make it part of the unique id.
+        await self.async_set_unique_id(unique_id=f"{DOMAIN}_{serial_number}")
+
+        if self.source == config_entries.SOURCE_RECONFIGURE:
+            self._abort_if_unique_id_mismatch()
+            return self.async_update_reload_and_abort(
+                self._get_reconfigure_entry(),
+                data_updates=config_data,
+            )
+
+        return self.async_create_entry(
+            title="Drooff fire+",
+            data=config_data,
+        )
+
+    async def async_step_reconfigure(
+        self,
+        user_input: dict | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Handle a flow initialized by the user."""
+        return await self.async_step_user(user_input)
