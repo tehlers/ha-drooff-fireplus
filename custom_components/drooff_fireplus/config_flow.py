@@ -7,7 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST
+from homeassistant.const import CONF_HOST, UnitOfTime
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
@@ -17,8 +17,8 @@ from .api import (
     FireplusApiClientError,
 )
 from .const import (
-    CONF_IP_VERSION,
-    CONF_IP_VERSION_DEFAULT,
+    CONF_FORCE_IPV4,
+    CONF_FORCE_IPV4_DEFAULT,
     CONF_POLLING_INTERVAL,
     DEFAULT_HOST,
     DEFAULT_POLLING_INTERVAL,
@@ -29,16 +29,6 @@ from .const import (
 )
 
 
-def _ip_version_to_label(ip_version: socket.AddressFamily) -> str:
-    return ip_version.name.lower()
-
-
-def _label_to_ip_version(label: str | None, fallback: socket.AddressFamily) -> socket.AddressFamily:
-    if label and label.upper() in [af.name for af in socket.AddressFamily]:
-        return socket.AddressFamily[label.upper()]
-    return fallback
-
-
 class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Drooff fire+."""
 
@@ -46,7 +36,7 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     MINOR_VERSION = 1
 
     def _show_form(
-        self, *, host: str, ip_version: str, polling_interval: str, errors: dict[str, str]
+        self, *, host: str, force_ipv4: bool, polling_interval: int, errors: dict[str, str]
     ) -> config_entries.ConfigFlowResult:
         return self.async_show_form(
             step_id=config_entries.SOURCE_USER,
@@ -60,19 +50,12 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                             type=selector.TextSelectorType.TEXT,
                         ),
                     ),
-                    vol.Required(CONF_IP_VERSION, default=ip_version): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=[
-                                _ip_version_to_label(v) for v in (socket.AF_INET, socket.AF_INET6, socket.AF_UNSPEC)
-                            ],
-                            translation_key=CONF_IP_VERSION,
-                        )
-                    ),
+                    vol.Required(CONF_FORCE_IPV4, default=force_ipv4): selector.BooleanSelector(),
                     vol.Required(CONF_POLLING_INTERVAL, default=polling_interval): selector.NumberSelector(
                         selector.NumberSelectorConfig(
                             min=MIN_POLLING_INTERVAL,
                             max=MAX_POLLING_INTERVAL,
-                            unit_of_measurement="s",
+                            unit_of_measurement=UnitOfTime.SECONDS,
                         )
                     ),
                 },
@@ -80,13 +63,13 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def _get_serial_number(self, host: str, family: socket.AddressFamily) -> tuple[str | None, dict[str, str]]:
+    async def _get_serial_number(self, *, host: str, force_ipv4: bool) -> tuple[str | None, dict[str, str]]:
         """Connect to the fire+ endpoint and return serial number."""
         errors = {}
 
         client = FireplusApiClient(
             host=host,
-            session=async_create_clientsession(self.hass, family=family),
+            session=async_create_clientsession(self.hass, family=socket.AF_INET if force_ipv4 else socket.AF_UNSPEC),
         )
 
         try:
@@ -112,30 +95,30 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             host = user_input.get(CONF_HOST, "")
-            ip_version = _label_to_ip_version(user_input.get(CONF_IP_VERSION), CONF_IP_VERSION_DEFAULT)
-            polling_interval = int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
-            serial_number, errors = await self._get_serial_number(host, ip_version)
+            force_ipv4 = user_input.get(CONF_FORCE_IPV4, CONF_FORCE_IPV4_DEFAULT)
+            polling_interval = user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+            serial_number, errors = await self._get_serial_number(host=host, force_ipv4=force_ipv4)
         elif self.source == config_entries.SOURCE_RECONFIGURE:
             existing_config_data = self._get_reconfigure_entry().data
             host = existing_config_data.get(CONF_HOST, DEFAULT_HOST)
-            ip_version = socket.AddressFamily(existing_config_data.get(CONF_IP_VERSION, CONF_IP_VERSION_DEFAULT))
+            force_ipv4 = existing_config_data.get(CONF_FORCE_IPV4, CONF_FORCE_IPV4_DEFAULT)
             polling_interval = existing_config_data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
         else:
             host = DEFAULT_HOST
             polling_interval = DEFAULT_POLLING_INTERVAL
-            ip_version: socket.AddressFamily = socket.AF_INET
+            force_ipv4 = CONF_FORCE_IPV4_DEFAULT
 
         if not serial_number:
             return self._show_form(
                 host=host,
-                ip_version=_ip_version_to_label(ip_version),
-                polling_interval=str(polling_interval),
+                force_ipv4=force_ipv4,
+                polling_interval=polling_interval,
                 errors=errors,
             )
 
         config_data = {
             CONF_HOST: host,
-            CONF_IP_VERSION: ip_version,
+            CONF_FORCE_IPV4: force_ipv4,
             CONF_POLLING_INTERVAL: polling_interval,
         }
 

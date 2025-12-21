@@ -15,7 +15,12 @@ from homeassistant.const import CONF_HOST, Platform
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.loader import async_get_loaded_integration
 
-from custom_components.drooff_fireplus.const import CONF_IP_VERSION, CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
+from custom_components.drooff_fireplus.const import (
+    CONF_FORCE_IPV4,
+    CONF_FORCE_IPV4_DEFAULT,
+    CONF_POLLING_INTERVAL,
+    DEFAULT_POLLING_INTERVAL,
+)
 
 from .api import FireplusApiClient
 from .coordinator import FireplusDataUpdateCoordinator
@@ -48,7 +53,10 @@ async def async_setup_entry(
     entry.runtime_data = FireplusData(
         client=FireplusApiClient(
             host=entry.data[CONF_HOST],
-            session=async_get_clientsession(hass, family=entry.data.get(CONF_IP_VERSION, socket.AF_INET)),
+            session=async_get_clientsession(
+                hass,
+                family=socket.AF_INET if entry.data.get(CONF_FORCE_IPV4, CONF_FORCE_IPV4_DEFAULT) else socket.AF_UNSPEC,
+            ),
         ),
         integration=async_get_loaded_integration(hass, entry.domain),
         coordinator=coordinator,

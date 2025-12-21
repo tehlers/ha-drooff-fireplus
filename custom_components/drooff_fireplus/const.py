@@ -1,6 +1,5 @@
 """Constants for drooff_fireplus."""
 
-import socket
 from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
@@ -11,13 +10,13 @@ DEFAULT_HOST = "fire"
 
 UPDATE_FAILED_MSG = "Unable to retrieve updated data from Drooff fire+ API"
 
-CONF_IP_VERSION = "ip_version"
+CONF_FORCE_IPV4 = "force_ipv4"
 
-CONF_IP_VERSION_DEFAULT = socket.AF_INET
+CONF_FORCE_IPV4_DEFAULT = True
 
 CONF_POLLING_INTERVAL = "polling_interval"
 
-DEFAULT_POLLING_INTERVAL = 10
+DEFAULT_POLLING_INTERVAL = 5
 
 MIN_POLLING_INTERVAL = 5
 

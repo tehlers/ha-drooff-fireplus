@@ -5,12 +5,12 @@
                 "description": "Bitte geben Sie den Hostnamen Ihrer Drooff fire+ Webanwendung ein.",
                 "data": {
                     "host": "Host",
-                    "ip_version": "IP Version",
+                    "force_ipv4": "IPv4 erzwingen",
                     "polling_interval": "Abfrageintervall"
                 },
                 "data_description": {
                     "host": "Der Hostname oder die IP-Adresse der Drooff fire+ Webanwendung. In manchen Fällen muss eine Domain wie '.local' an den Hostnamen angehängt werden.",
-                    "ip_version": "Die zu verwendende IP Version. In Dual Stack Netzwerken kann es nötig sein, die Kommunikation auf IPv4 zu beschränken."
+                    "force_ipv4": "In Dual Stack Netzwerken kann es nötig sein, die Kommunikation auf IPv4 zu beschränken."
                 }
             }
         },
@@ -22,15 +22,6 @@
             "already_configured": "Diese Eintrag ist bereits konfiguriert.",
             "reconfigure_successful": "Neu konfigurieren erfolgreich.",
             "unique_id_mismatch": "Neu konfigurieren abgebrochen. Gerät mit anderer Seriennummer erkannt."
-        }
-    },
-    "selector": {
-        "ip_version": {
-            "options": {
-                "af_inet": "Nur IPv4",
-                "af_inet6": "Nur IPv6",
-                "af_unspec": "IPv4 oder IPv6"
-            }
         }
     },
     "entity": {

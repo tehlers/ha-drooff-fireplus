@@ -5,12 +5,12 @@
                 "description": "Please enter the hostname of your Drooff fire+ web application.",
                 "data": {
                     "host": "Host",
-                    "ip_version": "IP version",
+                    "force_ipv4": "Force IPv4",
                     "polling_interval": "Polling interval"
                 },
                 "data_description": {
                     "host": "The hostname or IP address of the Drooff fire+ web application. In some cases a domain like '.local' has to be added to the hostname.",
-                    "ip_version": "Which IP version to use. In dual stack networks it might be necessary to restrict the communication to IPv4."
+                    "force_ipv4": "In dual stack networks it might be necessary to restrict the communication to IPv4."
                 }
             }
         },
@@ -22,15 +22,6 @@
             "already_configured": "This entry is already configured.",
             "reconfigure_successful": "Reconfigure successful.",
             "unique_id_mismatch": "Reconfigure cancelled. Detected device with different serial number."
-        }
-    },
-    "selector": {
-        "ip_version": {
-            "options": {
-                "af_inet": "IPv4 only",
-                "af_inet6": "IPv6 only",
-                "af_unspec": "IPv4 or IPv6"
-            }
         }
     },
     "entity": {
