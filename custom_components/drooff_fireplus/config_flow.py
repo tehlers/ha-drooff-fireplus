@@ -34,7 +34,7 @@ def _ip_version_to_label(ip_version: socket.AddressFamily) -> str:
 
 
 def _label_to_ip_version(label: str | None, fallback: socket.AddressFamily) -> socket.AddressFamily:
-    if label and label.upper() in socket.AddressFamily:
+    if label and label.upper() in [af.name for af in socket.AddressFamily]:
         return socket.AddressFamily[label.upper()]
     return fallback
 
