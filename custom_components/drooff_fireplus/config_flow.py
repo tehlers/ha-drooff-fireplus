@@ -18,6 +18,7 @@ from .api import (
 )
 from .const import (
     CONF_IP_VERSION,
+    CONF_IP_VERSION_DEFAULT,
     CONF_POLLING_INTERVAL,
     DEFAULT_HOST,
     DEFAULT_POLLING_INTERVAL,
@@ -26,6 +27,16 @@ from .const import (
     MAX_POLLING_INTERVAL,
     MIN_POLLING_INTERVAL,
 )
+
+
+def _ip_version_to_label(ip_version: socket.AddressFamily) -> str:
+    return ip_version.name.lower()
+
+
+def _label_to_ip_version(label: str | None, fallback: socket.AddressFamily) -> socket.AddressFamily:
+    if label and label in socket.AddressFamily:
+        return socket.AddressFamily[label.upper()]
+    return fallback
 
 
 class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -51,7 +62,9 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                     vol.Required(CONF_IP_VERSION, default=ip_version): selector.SelectSelector(
                         selector.SelectSelectorConfig(
-                            options=[socket.AF_INET.name, socket.AF_INET6.name, socket.AF_UNSPEC.name],
+                            options=[
+                                _ip_version_to_label(v) for v in (socket.AF_INET, socket.AF_INET6, socket.AF_UNSPEC)
+                            ],
                             translation_key=CONF_IP_VERSION,
                         )
                     ),
@@ -99,13 +112,13 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             host = user_input.get(CONF_HOST, "")
-            ip_version = socket.AddressFamily[user_input.get(CONF_IP_VERSION, socket.AF_INET.name)]
+            ip_version = _label_to_ip_version(user_input.get(CONF_IP_VERSION), CONF_IP_VERSION_DEFAULT)
             polling_interval = int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
             serial_number, errors = await self._get_serial_number(host, ip_version)
         elif self.source == config_entries.SOURCE_RECONFIGURE:
             existing_config_data = self._get_reconfigure_entry().data
             host = existing_config_data.get(CONF_HOST, DEFAULT_HOST)
-            ip_version = socket.AddressFamily(existing_config_data.get(CONF_IP_VERSION, socket.AF_INET))
+            ip_version = socket.AddressFamily(existing_config_data.get(CONF_IP_VERSION, CONF_IP_VERSION_DEFAULT))
             polling_interval = existing_config_data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
         else:
             host = DEFAULT_HOST
@@ -115,7 +128,7 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if not serial_number:
             return self._show_form(
                 host=host,
-                ip_version=ip_version.name,
+                ip_version=_ip_version_to_label(ip_version),
                 polling_interval=str(polling_interval),
                 errors=errors,
             )

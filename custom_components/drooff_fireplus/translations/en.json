@@ -27,9 +27,9 @@
     "selector": {
         "ip_version": {
             "options": {
-                "AF_INET": "IPv4 only",
-                "AF_INET6": "IPv6 only",
-                "AF_UNSPEC": "IPv4 or IPv6"
+                "af_inet": "IPv4 only",
+                "af_inet6": "IPv6 only",
+                "af_unspec": "IPv4 or IPv6"
             }
         }
     },
