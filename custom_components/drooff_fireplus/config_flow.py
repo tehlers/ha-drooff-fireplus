@@ -136,6 +136,7 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 data_updates=config_data,
             )
 
+        self._abort_if_unique_id_configured()
         return self.async_create_entry(
             title="Drooff fire+",
             data=config_data,
