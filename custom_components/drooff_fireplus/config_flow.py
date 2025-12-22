@@ -108,6 +108,8 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             polling_interval = DEFAULT_POLLING_INTERVAL
             force_ipv4 = CONF_FORCE_IPV4_DEFAULT
 
+        # If the serial number is not set, the form must be displayed to either capture
+        # the data or to display an error message.
         if not serial_number:
             return self._show_form(
                 host=host,
