@@ -196,6 +196,9 @@ class FireplusResponse:
         self.burn_rate = _get_burn_rate_v1(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = None
         self.heating_progress = (int(panel_values[12]) / int(configuration_values[6])) * 100
+        self.door = None
+        self.weight = None
+        self.target_temperature = None
 
     def __init_version2(self, panel_values: list[str], configuration_values: list[str]) -> None:
         self.volume = int(panel_values[12])
