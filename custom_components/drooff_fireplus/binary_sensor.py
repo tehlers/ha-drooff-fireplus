@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
-from homeassistant.const import EntityCategory
+from homeassistant.const import STATE_OFF, STATE_ON, EntityCategory
 
 from .api import FireplusError
 from .entity import FireplusEntity
@@ -31,6 +31,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             FireplusErrorSensor(entry.runtime_data.coordinator),
+            FireplusDoorSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -66,3 +67,34 @@ class FireplusErrorSensor(FireplusEntity, BinarySensorEntity):
             "error": self.coordinator.data.error.name,
             "error_code": self.coordinator.data.error_code,
         }
+
+class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
+    """Drooff fire+ door sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the binary_sensor class."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_door"
+        self.entity_description = BinarySensorEntityDescription(
+            key="door",
+            translation_key="door",
+            has_entity_name=True,
+            icon="mdi:door",
+        )
+        self.device_class = BinarySensorDeviceClass.DOOR
+
+    @property
+    def is_on(self) -> bool:
+        """Return true if the fire+ signals an error."""
+        return self.coordinator.data.door
+    
+    @final
+    @property
+    def state(self) -> Literal["on", "off"] | None:
+        """Return the state of the binary sensor."""
+        if (is_on := self.is_on) is None:
+            return None
+        return STATE_ON if is_on else STATE_OFF
