@@ -210,7 +210,7 @@ class FireplusResponse:
         self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
         self.door = (panel_values[19]) == "auf"
         self.weight = int(panel_values[18])
-        self.target_temperature = int(configuration_values[17])
+        self.target_temperature = int(panel_values[17])
 
 
 class FireplusOperationStatus(Enum):
