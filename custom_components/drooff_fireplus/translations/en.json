@@ -74,6 +74,12 @@
             },
             "temperature": {
                 "name": "Temperature"
+            },
+            "target_temperature": {
+                "name": "Target temperature"
+            },
+            "weight": {
+                "name": "Recommended wood load"
             }
         },
         "switch": {
