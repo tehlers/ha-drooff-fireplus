@@ -150,6 +150,8 @@ class FireplusResponse:
     led: bool | None
     version: int
     door: bool
+    weight: int
+    target_temperature: int
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
@@ -204,6 +206,8 @@ class FireplusResponse:
         self.operating_time = int(configuration_values[7])
         self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
         self.door = (panel_values[19]) == "auf"
+        self.weight = int(panel_values[18])
+        self.target_temperature = int(configuration_values[17])
 
 
 class FireplusOperationStatus(Enum):
