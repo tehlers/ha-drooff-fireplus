@@ -209,7 +209,7 @@ class FireplusResponse:
         self.operating_time = int(configuration_values[7])
         self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
         self.door_open = (panel_values[19]) == "auf"
-        self.weight = int(panel_values[18]) / 100
+        self.weight = float(panel_values[18]) / 100
         self.target_temperature = int(panel_values[17])
 
 
