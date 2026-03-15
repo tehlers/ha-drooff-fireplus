@@ -91,10 +91,10 @@ class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
         """Return true if the fire+ door is open."""
         return self.coordinator.data.door_open
     
-    @final
-    @property
-    def state(self) -> Literal["on", "off"] | None:
-        """Return the state of the binary sensor."""
-        if (is_on := self.is_on) is None:
-            return None
-        return STATE_ON if is_on else STATE_OFF
+    # @final
+    # @property
+    # def state(self) -> Literal["on", "off"] | None:
+    #     """Return the state of the binary sensor."""
+    #     if (is_on := self.is_on) is None:
+    #         return None
+    #     return STATE_ON if is_on else STATE_OFF
