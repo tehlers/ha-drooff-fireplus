@@ -88,7 +88,7 @@ class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
-        """Return true if the fire+ signals an error."""
+        """Return true if the fire+ door is open."""
         return self.coordinator.data.door_open
     
     @final
