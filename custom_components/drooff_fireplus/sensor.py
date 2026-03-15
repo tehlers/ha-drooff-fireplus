@@ -292,6 +292,7 @@ class FireplusWeightSensor(FireplusEntity, SensorEntity):
             key="weight", translation_key="weight", has_entity_name=True, icon="mdi:weight-kilogram"
         )
         self.device_class = SensorDeviceClass.WEIGHT
+        self.native_unit_of_measurement = UnitOfMass.KILOGRAMS
         self.suggested_display_precision = 1
 
     @property
