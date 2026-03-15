@@ -150,8 +150,8 @@ class FireplusResponse:
     led: bool | None
     version: int
     door_open: bool | None
-    weight: int
-    target_temperature: int
+    weight: float | None
+    target_temperature: int | None
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
