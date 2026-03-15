@@ -16,6 +16,7 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfTemperature,
     UnitOfTime,
+    UnitOfMass,
 )
 
 from .api import FireplusOperationStatus
@@ -44,6 +45,8 @@ async def async_setup_entry(
             FireplusOperatingTimeSensor(entry.runtime_data.coordinator),
             FireplusHeatingProgressSensor(entry.runtime_data.coordinator),
             FireplusErrorMessageSensor(entry.runtime_data.coordinator),
+            FireplusTargetTemperatureSensor(entry.runtime_data.coordinator),
+            FireplusWeightSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -251,3 +254,49 @@ class FireplusErrorMessageSensor(FireplusEntity, SensorEntity):
             "error": self.coordinator.data.error.name,
             "error_code": self.coordinator.data.error_code,
         }
+
+
+class FireplusTargetTemperatureSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ target chamber temperature."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the temperature sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_target_temperature"
+        self.entity_description = SensorEntityDescription(
+            key="target_temperature", translation_key="target_temperature", has_entity_name=True, icon="mdi:gauge"
+        )
+        self.device_class = SensorDeviceClass.TEMPERATURE
+        self.native_unit_of_measurement = UnitOfTemperature.CELSIUS
+        self.suggested_display_precision = 0
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.target_temperature
+
+ 
+class FireplusWeightSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ weight sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the weight sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_weight"
+        self.entity_description = SensorEntityDescription(
+            key="weight", translation_key="weight", has_entity_name=True, icon="mdi:weight-kilogram"
+        )
+        self.device_class = SensorDeviceClass.WEIGHT
+        self.native_unit_of_measurement = UnitOfMass.KILOGRAMS
+        self.suggested_display_precision = 1
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.weight

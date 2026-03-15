@@ -74,6 +74,12 @@
             },
             "temperature": {
                 "name": "Temperatur"
+            },
+            "target_temperature": {
+                "name": "Zieltemperatur"
+            },
+            "weight": {
+                "name": "Empfohlene Holzauflage"
             }
         },
         "switch": {

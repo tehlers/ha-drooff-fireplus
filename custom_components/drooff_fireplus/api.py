@@ -149,6 +149,9 @@ class FireplusResponse:
     serial_number: str
     led: bool | None
     version: int
+    door_open: bool | None
+    weight: float | None
+    target_temperature: int | None
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
@@ -193,6 +196,9 @@ class FireplusResponse:
         self.burn_rate = _get_burn_rate_v1(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = None
         self.heating_progress = (int(panel_values[12]) / int(configuration_values[6])) * 100
+        self.door_open = None
+        self.weight = None
+        self.target_temperature = None
 
     def __init_version2(self, panel_values: list[str], configuration_values: list[str]) -> None:
         self.volume = int(panel_values[12])
@@ -202,6 +208,9 @@ class FireplusResponse:
         self.burn_rate = _get_burn_rate_v2(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = int(configuration_values[7])
         self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
+        self.door_open = (panel_values[19]) == "auf"
+        self.weight = float(panel_values[18]) / 100
+        self.target_temperature = int(panel_values[17])
 
 
 class FireplusOperationStatus(Enum):

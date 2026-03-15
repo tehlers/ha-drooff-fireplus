@@ -39,13 +39,16 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 
 ### Sensors
 
-| Name                  | Type   | Description                                                   |
-| --------------------- | ------ | ------------------------------------------------------------- |
-| `Air slider position` | Sensor | Position of the air slider in percent                         |
-| `Draught`             | Sensor | Chimney draught in Pa                                         |
-| `Heating progress`    | Sensor | Heating progress in percent (only available while `HEATING`)  |
-| `Operation status`    | Sensor | Operation status of the fireplace. Possible values are:<br>- `STANDBY`<br>- `REGULAR`<br>- `HEATING`<br>- `WOOD_REQUIRED`<br>- `WOOD_URGENTLY_REQUIRED`<br>- `EMBER_PRESERVATION`<br>- `EMBER_BURNDOWN`<br>- `ERROR`<br>- `UNKNOWN` |
-| `Temperature`         | Sensor | Temperature inside the combustion chamber in °C               |
+| Name                      | Type   | Description                                                  |
+| ------------------------- | ------ | ------------------------------------------------------------ |
+| `Air slider position`     | Sensor | Position of the air slider in percent                        |
+| `Draught`                 | Sensor | Chimney draught in Pa                                        |
+| `Heating progress`        | Sensor | Heating progress in percent (only available while `HEATING`) |
+| `Operation status`        | Sensor | Operation status of the fireplace. Possible values are:<br>- `STANDBY`<br>- `REGULAR`<br>- `HEATING`<br>- `WOOD_REQUIRED`<br>- `WOOD_URGENTLY_REQUIRED`<br>- `EMBER_PRESERVATION`<br>- `EMBER_BURNDOWN`<br>- `ERROR`<br>- `UNKNOWN` |
+| `Temperature`             | Sensor | Temperature inside the combustion chamber in °C              |
+| `Target temperature`      | Sensor | Target Temperature inside the combustion chamber in °C       |
+| `Recommended wood load`   | Sensor | Recommended amount of wood to add in kg                      |
+| `Door`                    | Sensor | Door contact switch indicator                                |
 
 ### Configuration
 
