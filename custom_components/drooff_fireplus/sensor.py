@@ -16,6 +16,7 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfTemperature,
     UnitOfTime,
+    UnitOfMass,
 )
 
 from .api import FireplusOperationStatus
