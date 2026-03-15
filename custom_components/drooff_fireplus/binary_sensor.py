@@ -9,7 +9,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
-from homeassistant.const import STATE_OFF, STATE_ON, EntityCategory
+from homeassistant.const import EntityCategory
 
 from .api import FireplusError
 from .entity import FireplusEntity
