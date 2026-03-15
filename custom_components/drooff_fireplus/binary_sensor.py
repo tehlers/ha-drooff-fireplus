@@ -77,10 +77,10 @@ class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
     ) -> None:
         """Initialize the binary_sensor class."""
         super().__init__(coordinator)
-        self._attr_unique_id = coordinator.config_entry.entry_id + "_door"
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_door_open"
         self.entity_description = BinarySensorEntityDescription(
-            key="door",
-            translation_key="door",
+            key="door_open",
+            translation_key="door_open",
             has_entity_name=True,
             icon="mdi:door",
         )
@@ -89,7 +89,7 @@ class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return true if the fire+ signals an error."""
-        return self.coordinator.data.door
+        return self.coordinator.data.door_open
     
     @final
     @property

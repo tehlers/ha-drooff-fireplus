@@ -149,7 +149,7 @@ class FireplusResponse:
     serial_number: str
     led: bool | None
     version: int
-    door: bool
+    door_open: bool | None
     weight: int
     target_temperature: int
 
@@ -196,7 +196,7 @@ class FireplusResponse:
         self.burn_rate = _get_burn_rate_v1(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = None
         self.heating_progress = (int(panel_values[12]) / int(configuration_values[6])) * 100
-        self.door = None
+        self.door_open = None
         self.weight = None
         self.target_temperature = None
 
@@ -208,7 +208,7 @@ class FireplusResponse:
         self.burn_rate = _get_burn_rate_v2(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = int(configuration_values[7])
         self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
-        self.door = (panel_values[19]) == "auf"
+        self.door_open = (panel_values[19]) == "auf"
         self.weight = int(panel_values[18])
         self.target_temperature = int(panel_values[17])
 
