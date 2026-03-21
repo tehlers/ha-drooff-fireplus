@@ -13,10 +13,10 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     PERCENTAGE,
     EntityCategory,
+    UnitOfMass,
     UnitOfPressure,
     UnitOfTemperature,
     UnitOfTime,
-    UnitOfMass,
 )
 
 from .api import FireplusOperationStatus
@@ -278,7 +278,7 @@ class FireplusTargetTemperatureSensor(FireplusEntity, SensorEntity):
         """Return the native value of the sensor."""
         return self.coordinator.data.target_temperature
 
- 
+
 class FireplusWeightSensor(FireplusEntity, SensorEntity):
     """Drooff fire+ weight sensor."""
 
