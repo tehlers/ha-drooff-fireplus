@@ -68,6 +68,7 @@ class FireplusErrorSensor(FireplusEntity, BinarySensorEntity):
             "error_code": self.coordinator.data.error_code,
         }
 
+
 class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
     """Drooff fire+ door sensor."""
 
