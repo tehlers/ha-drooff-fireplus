@@ -20,6 +20,7 @@ from homeassistant.const import (
 )
 
 from .api import FireplusOperationStatus
+from .const import ETHERNET_LINK
 from .entity import FireplusEntity
 
 if TYPE_CHECKING:
@@ -47,6 +48,7 @@ async def async_setup_entry(
             FireplusErrorMessageSensor(entry.runtime_data.coordinator),
             FireplusTargetTemperatureSensor(entry.runtime_data.coordinator),
             FireplusWeightSensor(entry.runtime_data.coordinator),
+            FireplusWifiSignalStrengthSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -320,3 +322,50 @@ class FireplusWeightSensor(FireplusEntity, SensorEntity):
     def entity_registry_enabled_default(self) -> bool:
         """Return if the entity should be enabled when first added."""
         return self.available
+
+
+class FireplusWifiSignalStrengthSensor(FireplusEntity, SensorEntity):
+    """Drooff fire+ wifi signal strength sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the weight sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_wifi_signal_strength"
+        self.entity_description = SensorEntityDescription(
+            key="wifi_signal_strength",
+            translation_key="wifi_signal_strength",
+            has_entity_name=True,
+            icon="mdi:wifi-off",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        self.device_class = SensorDeviceClass.SIGNAL_STRENGTH
+        self.suggested_display_precision = 0
+
+    @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.wifi_signal_strength is not None
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added."""
+        return self.available
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.wifi_signal_strength
+
+    @property
+    def icon(self) -> str:
+        """Return icon that changes based on the current wifi signal strength."""
+        if self.native_value is None:
+            return "mdi:wifi-off"
+
+        if self.native_value > 0 and self.native_value < ETHERNET_LINK:
+            return "mdi:wifi-strength-" + str(self.native_value)
+
+        return "mdi:wifi-off"

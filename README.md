@@ -59,11 +59,13 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 
 ### Diagnostic
 
-| Name             | Type          | Description                                                       |
-| ---------------- | ------------- | ----------------------------------------------------------------- |
-| `Error`          | Binary Sensor | Active when an error has been detected                            |
-| `Error message`  | Sensor        | Description of the detected error. Possible values are:<br>- "No error"<br>- "Temperature sensor defective"<br>- "Pressure measurement defective"<br>- "Air slider defective"<br>- "Service mode enabled"<br>- "Chimney draught too low"<br>- "Air slider stuck"<br>- "No chimney draught"<br>- "Wrong motor direction"<br>- "Unknown error"<br><br>**Always consult the official fire+ web application in the event of an error!** |
-| `Operating time` | Sensor        | Total operating time of the fireplace in s (only Drooff fire+ v2) |
+| Name                   | Type          | Description                                                       |
+| ---------------------- | ------------- | ----------------------------------------------------------------- |
+| `Error`                | Binary Sensor | Active when an error has been detected                            |
+| `Error message`        | Sensor        | Description of the detected error. Possible values are:<br>- "No error"<br>- "Temperature sensor defective"<br>- "Pressure measurement defective"<br>- "Air slider defective"<br>- "Service mode enabled"<br>- "Chimney draught too low"<br>- "Air slider stuck"<br>- "No chimney draught"<br>- "Wrong motor direction"<br>- "Unknown error"<br><br>**Always consult the official fire+ web application in the event of an error!** |
+| `Operating time`       | Sensor        | Total operating time of the fireplace in s (only Drooff fire+ v2) |
+| `Wifi signal strength` | Sensor        | Strength of the Wifi signal (only Drooff fire+ v2)                |
+| `Ethernet link`        | Binary Sensor | Network is connected via Ethernet (only Drooff fire+ v2)          |
 
 ## Disclaimer
 

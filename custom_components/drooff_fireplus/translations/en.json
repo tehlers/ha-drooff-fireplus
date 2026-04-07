@@ -28,6 +28,9 @@
         "binary_sensor": {
             "error": {
                 "name": "Error"
+            },
+            "ethernet_link": {
+                "name": "Ethernet link"
             }
         },
         "number": {
@@ -80,6 +83,9 @@
             },
             "weight": {
                 "name": "Recommended wood load"
+            },
+            "wifi_signal_strength": {
+                "name": "Wifi signal strength"
             }
         },
         "switch": {

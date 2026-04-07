@@ -10,6 +10,8 @@ import aiohttp
 import async_timeout
 from awesomeversion import AwesomeVersion
 
+from .const import ETHERNET_LINK
+
 VERSION_2_0_0 = AwesomeVersion("2.0.0")
 VERSION_2_4_0 = AwesomeVersion("2.4.0")
 
@@ -156,6 +158,8 @@ class FireplusResponse:
     door_open: bool | None
     weight: float | None
     target_temperature: int | None
+    ethernet_link: bool | None
+    wifi_signal_strength: int | None
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
@@ -205,6 +209,8 @@ class FireplusResponse:
         self.door_open = None
         self.weight = None
         self.target_temperature = None
+        self.ethernet_link = None
+        self.wifi_signal_strength = None
 
     def __init_version2(self, panel_values: list[str], configuration_values: list[str]) -> None:
         self.volume = int(panel_values[12])
@@ -217,12 +223,17 @@ class FireplusResponse:
         self.door_open = None
         self.weight = None
         self.target_temperature = None
+        self.ethernet_link = None
+        self.wifi_signal_strength = None
 
     def __init_version2_4(self, panel_values: list[str], configuration_values: list[str]) -> None:
         self.__init_version2(panel_values, configuration_values)
         self.door_open = (panel_values[19]) == "auf"
         self.weight = float(panel_values[18]) / 100
         self.target_temperature = int(panel_values[17])
+        network = int(panel_values[20])
+        self.ethernet_link = network == ETHERNET_LINK
+        self.wifi_signal_strength = network if network > 0 and network < ETHERNET_LINK else None
 
 
 class FireplusOperationStatus(Enum):

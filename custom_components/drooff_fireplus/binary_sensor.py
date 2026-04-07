@@ -32,6 +32,7 @@ async def async_setup_entry(
         [
             FireplusErrorSensor(entry.runtime_data.coordinator),
             FireplusDoorSensor(entry.runtime_data.coordinator),
+            FireplusEthernetLinkSensor(entry.runtime_data.coordinator),
         ]
     )
 
@@ -101,3 +102,43 @@ class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
     def entity_registry_enabled_default(self) -> bool:
         """Return if the entity should be enabled when first added."""
         return self.available
+
+
+class FireplusEthernetLinkSensor(FireplusEntity, BinarySensorEntity):
+    """Drooff fire+ ethernet link sensor."""
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the binary_sensor class."""
+        super().__init__(coordinator)
+        self._attr_unique_id = coordinator.config_entry.entry_id + "_ethernet_link"
+        self.entity_description = BinarySensorEntityDescription(
+            key="ethernet_link",
+            translation_key="ethernet_link",
+            has_entity_name=True,
+            icon="mdi:ethernet-off",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        self.device_class = BinarySensorDeviceClass.CONNECTIVITY
+
+    @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.ethernet_link is not None
+
+    @property
+    def is_on(self) -> bool:
+        """Return true if the fire+ is connected to the network via ethernet."""
+        return self.coordinator.data.ethernet_link
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added."""
+        return self.available
+
+    @property
+    def icon(self) -> str:
+        """Return icon that represents the status of the ethernet link."""
+        return "mdi:ethernet" if self.coordinator.data.ethernet_link else "mdi:ethernet-off"

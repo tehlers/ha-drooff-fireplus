@@ -28,6 +28,9 @@
         "binary_sensor": {
             "error": {
                 "name": "Fehler"
+            },
+            "ethernet_link": {
+                "name": "Ethernet-Verbindung"
             }
         },
         "number": {
@@ -80,6 +83,9 @@
             },
             "weight": {
                 "name": "Empfohlene Holzauflage"
+            },
+            "wifi_signal_strength": {
+                "name": "WLAN Signalstärke"
             }
         },
         "switch": {
