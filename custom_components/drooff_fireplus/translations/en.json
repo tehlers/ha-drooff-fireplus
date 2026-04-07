@@ -72,11 +72,11 @@
             "operating_time": {
                 "name": "Operating time"
             },
-            "temperature": {
-                "name": "Temperature"
-            },
             "target_temperature": {
                 "name": "Target temperature"
+            },
+            "temperature": {
+                "name": "Temperature"
             },
             "weight": {
                 "name": "Recommended wood load"

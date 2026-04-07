@@ -88,6 +88,16 @@ class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
         self.device_class = BinarySensorDeviceClass.DOOR
 
     @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.door_open is not None
+
+    @property
     def is_on(self) -> bool:
         """Return true if the fire+ door is open."""
         return self.coordinator.data.door_open
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added."""
+        return self.available

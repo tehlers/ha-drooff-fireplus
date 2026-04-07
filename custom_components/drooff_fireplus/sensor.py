@@ -278,6 +278,16 @@ class FireplusTargetTemperatureSensor(FireplusEntity, SensorEntity):
         """Return the native value of the sensor."""
         return self.coordinator.data.target_temperature
 
+    @property
+    def available(self) -> bool | None:
+        """Return the availability of the sensor."""
+        return self.coordinator.data.target_temperature is not None
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added."""
+        return self.available
+
 
 class FireplusWeightSensor(FireplusEntity, SensorEntity):
     """Drooff fire+ weight sensor."""
@@ -305,3 +315,8 @@ class FireplusWeightSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> int | None:
         """Return the native value of the sensor."""
         return self.coordinator.data.weight
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Return if the entity should be enabled when first added."""
+        return self.available
