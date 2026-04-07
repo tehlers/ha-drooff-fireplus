@@ -8,6 +8,10 @@ from typing import Any
 
 import aiohttp
 import async_timeout
+from awesomeversion import AwesomeVersion
+
+VERSION_2_0_0 = AwesomeVersion("2.0.0")
+VERSION_2_4_0 = AwesomeVersion("2.4.0")
 
 
 class FireplusApiClientError(Exception):
@@ -63,20 +67,7 @@ class FireplusApiClient:
         """Update settings of Drooff fire+."""
         current_data = await self.async_get_data()
 
-        if current_data.version == 1:
-            burn_rate_values = _get_values_for_burn_rate_v1(
-                burn_rate if burn_rate is not None else current_data.burn_rate
-            )
-
-            data = {
-                "Betrieb": burn_rate_values[0],
-                "Leistung": burn_rate_values[1],
-                "Helligkeit": brightness if brightness is not None else current_data.brightness,
-                "Bedienung": int(current_data.web_controls_shown),
-                "LED": int(led if led is not None else current_data.led),
-                "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
-            }
-        else:
+        if current_data.version >= VERSION_2_0_0:
             burn_rate_values = _get_values_for_burn_rate_v2(
                 burn_rate if burn_rate is not None else current_data.burn_rate
             )
@@ -89,6 +80,19 @@ class FireplusApiClient:
                 "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
                 "Lautstaerke": volume if volume is not None else current_data.volume,
                 "CNT": (current_data.count + 1) % 100,
+            }
+        else:
+            burn_rate_values = _get_values_for_burn_rate_v1(
+                burn_rate if burn_rate is not None else current_data.burn_rate
+            )
+
+            data = {
+                "Betrieb": burn_rate_values[0],
+                "Leistung": burn_rate_values[1],
+                "Helligkeit": brightness if brightness is not None else current_data.brightness,
+                "Bedienung": int(current_data.web_controls_shown),
+                "LED": int(led if led is not None else current_data.led),
+                "AB": int(ember_burndown if ember_burndown is not None else current_data.ember_burndown),
             }
 
         await self._api_wrapper(method="post", url=f"http://{self._host}/php/easpanelW.php", data=data)
@@ -148,7 +152,7 @@ class FireplusResponse:
     burn_rate: int
     serial_number: str
     led: bool | None
-    version: int
+    version: AwesomeVersion
     door_open: bool | None
     weight: float | None
     target_temperature: int | None
@@ -159,7 +163,7 @@ class FireplusResponse:
             panel_values = panel_response[2:-1].split("\\n")
             configuration_values = configuration_response[2:-1].split("\\n")
 
-            self.version = int(configuration_values[0].split(".")[0])
+            self.version = AwesomeVersion(configuration_values[0])
 
             self.web_controls_shown = panel_values[1] == "1"
             self.brightness = int(panel_values[4])
@@ -177,10 +181,12 @@ class FireplusResponse:
             self.serial_number = configuration_values[3]
             self.chimney_draught_available = configuration_values[4] == "1"
 
-            if self.version == 1:
-                self.__init_version1(panel_values, configuration_values)
-            else:
+            if self.version >= VERSION_2_4_0:
+                self.__init_version2_4(panel_values, configuration_values)
+            elif self.version >= VERSION_2_0_0:
                 self.__init_version2(panel_values, configuration_values)
+            else:
+                self.__init_version1(panel_values, configuration_values)
 
         except (IndexError, ValueError) as exception:
             msg = f"Error parsing responses from fire+: '{panel_response}' and '{configuration_response}'"
@@ -208,6 +214,12 @@ class FireplusResponse:
         self.burn_rate = _get_burn_rate_v2(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = int(configuration_values[7])
         self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
+        self.door_open = None
+        self.weight = None
+        self.target_temperature = None
+
+    def __init_version2_4(self, panel_values: list[str], configuration_values: list[str]) -> None:
+        self.__init_version2(panel_values, configuration_values)
         self.door_open = (panel_values[19]) == "auf"
         self.weight = float(panel_values[18]) / 100
         self.target_temperature = int(panel_values[17])
