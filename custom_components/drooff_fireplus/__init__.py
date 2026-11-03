@@ -9,17 +9,25 @@ from __future__ import annotations
 
 import socket
 from datetime import timedelta
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.const import CONF_HOST, Platform
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.loader import async_get_loaded_integration
 
 from custom_components.drooff_fireplus.const import (
+    CARD_FILENAME,
+    CARD_URL,
+    CARD_VERSION,
     CONF_FORCE_IPV4,
     CONF_FORCE_IPV4_DEFAULT,
     CONF_POLLING_INTERVAL,
     DEFAULT_POLLING_INTERVAL,
+    DOMAIN,
 )
 
 from .api import FireplusApiClient
@@ -28,6 +36,7 @@ from .data import FireplusData
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.typing import ConfigType
 
     from .data import FireplusConfigEntry
 
@@ -37,6 +46,27 @@ PLATFORMS: list[Platform] = [
     Platform.SWITCH,
     Platform.NUMBER,
 ]
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+
+async def async_setup(
+    hass: HomeAssistant,
+    config: ConfigType,  # noqa: ARG001 Unused function argument: `config`
+) -> bool:
+    """Serve the dashboard card and load it in the frontend."""
+    if hass.http is not None:
+        await hass.http.async_register_static_paths(
+            [
+                StaticPathConfig(
+                    CARD_URL,
+                    str(Path(__file__).parent / "frontend" / CARD_FILENAME),
+                    cache_headers=False,
+                )
+            ]
+        )
+        add_extra_js_url(hass, f"{CARD_URL}?v={CARD_VERSION}")
+    return True
 
 
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
