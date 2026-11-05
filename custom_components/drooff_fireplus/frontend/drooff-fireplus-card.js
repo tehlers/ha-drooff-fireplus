@@ -90,13 +90,11 @@ const DEFAULTS = {
   wood_days: 7,
   wood_per_load: 2,
   draught_display: "tile",
-  draught_min: -10,
-  draught_max: 25,
-  draught_part_load: 6,
-  draught_part_stage: 1,
-  draught_full_load: 12,
-  draught_full_stage: 6,
-  draught_tolerance: 2,
+  draught_min: -30,
+  draught_max: 10,
+  draught_optimal_from: -12,
+  draught_optimal_to: -20,
+  draught_invert: true,
   language: "auto", min_temperature: 80, max_temperature: 600, log_weight: 0.9, controls: true, layout: "auto", wall: "chamotte" };
 
 /* find the entities of the integration */
@@ -183,12 +181,12 @@ const I18N = {
     wood_usage: "Holzverbrauch (geschätzt)",
     now: "jetzt",
     no_history: "Noch keine Verlaufsdaten.",
-    draught_target: "Soll",
+    draught_target: "Optimal",
     stage: "Stufe",
-    draught_ok: "im Normbereich",
-    draught_low: "zu niedrig",
-    draught_high: "zu hoch",
-    draught_negative: "kein Zug (Überdruck)",
+    draught_ok: "optimal",
+    draught_low: "schwacher Zug",
+    draught_high: "OK (starker Zug)",
+    draught_negative: "Überdruck",
     error: "Fehler",
     not_found: "Keine Drooff fire+ Entitäten gefunden. Bitte `device` oder `entities` konfigurieren.",
     editor: {
@@ -208,11 +206,9 @@ const I18N = {
       advanced: "Erweitert: Kaminzug",
       draught_min: "Skala von (Pa)",
       draught_max: "Skala bis (Pa)",
-      draught_part_load: "Sollwert Teillast (Pa)",
-      draught_part_stage: "Teillast = Stufe",
-      draught_full_load: "Sollwert Volllast (Pa)",
-      draught_full_stage: "Volllast = Stufe",
-      draught_tolerance: "Normbereich ± (Pa)",
+      draught_optimal_from: "Optimal ab (Pa)",
+      draught_optimal_to: "Optimal bis (Pa)",
+      draught_invert: "Sensorwert als Unterdruck lesen (Vorzeichen drehen)",
       lang_auto: "Automatisch (Benutzersprache)",
       draught_tile: "Kachel",
       draught_gauge: "Zeigerinstrument (Gauge)",
@@ -315,12 +311,12 @@ const I18N = {
     wood_usage: "Wood usage (estimated)",
     now: "now",
     no_history: "No history data yet.",
-    draught_target: "Target",
+    draught_target: "Optimal",
     stage: "stage",
-    draught_ok: "in normal range",
-    draught_low: "too low",
-    draught_high: "too high",
-    draught_negative: "no negative pressure",
+    draught_ok: "optimal",
+    draught_low: "weak draught",
+    draught_high: "OK (strong draught)",
+    draught_negative: "overpressure",
     error: "Error",
     not_found: "No Drooff fire+ entities found. Please configure `device` or `entities`.",
     editor: {
@@ -340,11 +336,9 @@ const I18N = {
       advanced: "Advanced: draught",
       draught_min: "Scale from (Pa)",
       draught_max: "Scale to (Pa)",
-      draught_part_load: "Target part load (Pa)",
-      draught_part_stage: "Part load = stage",
-      draught_full_load: "Target full load (Pa)",
-      draught_full_stage: "Full load = stage",
-      draught_tolerance: "Normal range ± (Pa)",
+      draught_optimal_from: "Optimal from (Pa)",
+      draught_optimal_to: "Optimal to (Pa)",
+      draught_invert: "Read sensor value as negative pressure (flip sign)",
       lang_auto: "Automatic (user language)",
       draught_tile: "Tile",
       draught_gauge: "Gauge",
@@ -445,12 +439,12 @@ const I18N = {
     wood_usage: "Houtverbruik (geschat)",
     now: "nu",
     no_history: "Nog geen historische gegevens.",
-    draught_target: "Doel",
+    draught_target: "Optimaal",
     stage: "stand",
-    draught_ok: "binnen normaal bereik",
-    draught_low: "te laag",
-    draught_high: "te hoog",
-    draught_negative: "geen trek (overdruk)",
+    draught_ok: "optimaal",
+    draught_low: "zwakke trek",
+    draught_high: "OK (sterke trek)",
+    draught_negative: "overdruk",
     error: "Fout",
     not_found: "Geen Drooff fire+ entiteiten gevonden. Stel `device` of `entities` in.",
     editor: {
@@ -548,12 +542,12 @@ const I18N = {
     wood_usage: "Consommation de bois (estimée)",
     now: "maintenant",
     no_history: "Pas encore de données d'historique.",
-    draught_target: "Consigne",
+    draught_target: "Optimal",
     stage: "niveau",
-    draught_ok: "dans la plage normale",
-    draught_low: "trop faible",
-    draught_high: "trop fort",
-    draught_negative: "pas de tirage (surpression)",
+    draught_ok: "optimal",
+    draught_low: "tirage faible",
+    draught_high: "OK (tirage fort)",
+    draught_negative: "surpression",
     error: "Erreur",
     not_found: "Aucune entité Drooff fire+ trouvée. Veuillez configurer `device` ou `entities`.",
     editor: {
@@ -651,12 +645,12 @@ const I18N = {
     wood_usage: "Consumo di legna (stimato)",
     now: "ora",
     no_history: "Nessun dato storico.",
-    draught_target: "Obiettivo",
+    draught_target: "Ottimale",
     stage: "livello",
-    draught_ok: "nel range normale",
-    draught_low: "troppo basso",
-    draught_high: "troppo alto",
-    draught_negative: "nessun tiraggio (sovrapressione)",
+    draught_ok: "ottimale",
+    draught_low: "tiraggio debole",
+    draught_high: "OK (tiraggio forte)",
+    draught_negative: "sovrapressione",
     error: "Errore",
     not_found: "Nessuna entità Drooff fire+ trovata. Configurare `device` o `entities`.",
     editor: {
@@ -754,12 +748,12 @@ const I18N = {
     wood_usage: "Zużycie drewna (szacunkowe)",
     now: "teraz",
     no_history: "Brak danych historycznych.",
-    draught_target: "Cel",
+    draught_target: "Optymalnie",
     stage: "stopień",
-    draught_ok: "w normie",
-    draught_low: "za niski",
-    draught_high: "za wysoki",
-    draught_negative: "brak ciągu (nadciśnienie)",
+    draught_ok: "optymalny",
+    draught_low: "słaby ciąg",
+    draught_high: "OK (silny ciąg)",
+    draught_negative: "nadciśnienie",
     error: "Błąd",
     not_found: "Nie znaleziono encji Drooff fire+. Skonfiguruj `device` lub `entities`.",
     editor: {
@@ -857,12 +851,12 @@ const I18N = {
     wood_usage: "Spotřeba dřeva (odhad)",
     now: "nyní",
     no_history: "Zatím žádná historická data.",
-    draught_target: "Cíl",
+    draught_target: "Optimum",
     stage: "stupeň",
-    draught_ok: "v normálním rozsahu",
-    draught_low: "příliš nízký",
-    draught_high: "příliš vysoký",
-    draught_negative: "žádný tah (přetlak)",
+    draught_ok: "optimální",
+    draught_low: "slabý tah",
+    draught_high: "OK (silný tah)",
+    draught_negative: "přetlak",
     error: "Chyba",
     not_found: "Nenalezeny žádné entity Drooff fire+. Nastavte `device` nebo `entities`.",
     editor: {
@@ -960,12 +954,12 @@ const I18N = {
     wood_usage: "Brændeforbrug (anslået)",
     now: "nu",
     no_history: "Ingen historikdata endnu.",
-    draught_target: "Mål",
+    draught_target: "Optimalt",
     stage: "trin",
-    draught_ok: "i normalområdet",
-    draught_low: "for lavt",
-    draught_high: "for højt",
-    draught_negative: "intet træk (overtryk)",
+    draught_ok: "optimalt",
+    draught_low: "svagt træk",
+    draught_high: "OK (kraftigt træk)",
+    draught_negative: "overtryk",
     error: "Fejl",
     not_found: "Ingen Drooff fire+ enheder fundet. Angiv `device` eller `entities`.",
     editor: {
@@ -2512,7 +2506,7 @@ class DrooffFireplusCard extends HTMLElement {
     const dr = this._st("draught");
     let gauge = "";
     if (this._show("draught") && usable(dr)) {
-      const v = num(dr);
+      const v = this._draughtValue(num(dr));
       if (cfg.draught_display === "gauge" && Number.isFinite(v)) gauge = this._draughtGauge(v, t);
       else tiles.push(this._tile(t.draught, "mdi:weather-windy", `${Number.isFinite(v) ? v.toFixed(1) : dr.state} Pa`));
     }
@@ -2602,72 +2596,76 @@ class DrooffFireplusCard extends HTMLElement {
     }
   }
 
-  /* target draught for the current burn rate: linear between part and full load */
-  _draughtTarget() {
-    const c = this._config;
-    const br = num(this._st("burn_rate"));
-    const s0 = Number(c.draught_part_stage);
-    const s1 = Number(c.draught_full_stage);
-    const p0 = Number(c.draught_part_load);
-    const p1 = Number(c.draught_full_load);
-    const stage = Number.isFinite(br) ? br : s0;
-    const f = s1 === s0 ? 0 : clamp((stage - s0) / (s1 - s0));
-    return { target: p0 + (p1 - p0) * f, stage: Number.isFinite(br) ? Math.round(br) : null };
+  /* the fire+ reports draught as a positive number; physically it is negative pressure */
+  _draughtValue(v) {
+    if (!Number.isFinite(v)) return v;
+    return this._config.draught_invert === false ? v : v === 0 ? 0 : -v;
   }
 
+  /* gauge from draught_max (left, overpressure) to draught_min (right, strong draught) */
   _draughtGauge(v, t) {
     const c = this._config;
-    const min = Number(c.draught_min);
-    const max = Number(c.draught_max) > min ? Number(c.draught_max) : min + 1;
-    const tol = Math.max(0, Number(c.draught_tolerance));
-    const { target, stage } = this._draughtTarget();
-    const lo = target - tol;
-    const hi = target + tol;
+    const num0 = (x, d) => (Number.isFinite(Number(x)) ? Number(x) : d);
+    const max = num0(c.draught_max, DEFAULTS.draught_max);
+    const min = num0(c.draught_min, DEFAULTS.draught_min) < max ? num0(c.draught_min, DEFAULTS.draught_min) : max - 1;
+    const o1 = num0(c.draught_optimal_from, DEFAULTS.draught_optimal_from);
+    const o2 = num0(c.draught_optimal_to, DEFAULTS.draught_optimal_to);
+    const hi = Math.min(0, Math.max(o1, o2)); /* weak end of the optimum, e.g. -12 */
+    const lo = Math.min(o1, o2); /* strong end of the optimum, e.g. -20 */
     const R = 50;
     const CX = 60;
     const CY = 58;
-    const ang = (x) => Math.PI * (1 - clamp((x - min) / (max - min)));
+    const ang = (x) => Math.PI * clamp((x - min) / (max - min));
     const pt = (x, r = R) => [CX + Math.cos(ang(x)) * r, CY - Math.sin(ang(x)) * r];
     const arc = (a, b, color, w = 9) => {
       a = Math.max(min, a);
       b = Math.min(max, b);
       if (b <= a) return "";
-      const [x0, y0] = pt(a);
-      const [x1, y1] = pt(b);
+      const [x0, y0] = pt(b);
+      const [x1, y1] = pt(a);
       return `<path d="M${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}" stroke="${color}" stroke-width="${w}" fill="none"/>`;
     };
-    const inBand = v >= lo && v <= hi;
-    const col = v < 0 ? "#e53935" : inBand ? "#43a047" : "#fb8c00";
+    const C_OVER = "#e53935";
+    const C_WEAK = "#9e9e9e";
+    const C_OPT = "#2e7d32";
+    const C_OK = "#9ccc65";
+    const zone = v > 0 ? "over" : v > hi ? "weak" : v >= lo ? "opt" : "ok";
+    const col = { over: C_OVER, weak: "var(--secondary-text-color)", opt: C_OPT, ok: "#7cb342" }[zone];
+    const status = { over: t.draught_negative, weak: t.draught_low, opt: t.draught_ok, ok: t.draught_high }[zone];
     const [nx, ny] = pt(clamp(v, min, max), R - 14);
-    const ticks = [min, 0, max]
+    const fmt = (x) => x.toLocaleString(lang(this._hass, this._config), { maximumFractionDigits: 1, signDisplay: "exceptZero" });
+    const ticks = [max, 0, hi, lo, min]
+      .filter((x, i, a) => x >= min && x <= max && a.indexOf(x) === i)
       .map((x) => {
         const [a, b] = pt(x, R + 6);
         const [c2, d] = pt(x, R - 6);
-        return `<line x1="${a.toFixed(2)}" y1="${b.toFixed(2)}" x2="${c2.toFixed(2)}" y2="${d.toFixed(2)}" stroke="var(--secondary-text-color)" stroke-width="1"/>`;
+        const [tx, ty] = pt(x, R + 12);
+        const edge = x === min || x === max;
+        return `<line x1="${a.toFixed(2)}" y1="${b.toFixed(2)}" x2="${c2.toFixed(2)}" y2="${d.toFixed(2)}" stroke="var(--secondary-text-color)" stroke-width="1"/>${
+          edge ? "" : `<text x="${tx.toFixed(2)}" y="${(ty + 2).toFixed(2)}" font-size="6" text-anchor="middle" fill="var(--secondary-text-color)">${fmt(x)}</text>`
+        }`;
       })
       .join("");
-    const fmt = (x) => x.toLocaleString(lang(this._hass, this._config), { maximumFractionDigits: 1 });
-    const status = v < 0 ? t.draught_negative : v < lo ? t.draught_low : v > hi ? t.draught_high : t.draught_ok;
     return `
       <div class="row gauge-row">
         <div class="top"><span class="label">${t.draught}</span></div>
         <div class="gauge-wrap">
-          <svg class="gauge" viewBox="0 0 120 70">
+          <svg class="gauge" viewBox="0 -8 120 78">
             ${arc(min, max, "var(--divider-color, rgba(127,127,127,0.3))")}
-            ${arc(min, 0, "rgba(229,57,53,0.75)")}
-            ${arc(0, lo, "rgba(251,140,0,0.7)")}
-            ${arc(lo, hi, "#43a047")}
-            ${arc(hi, max, "rgba(251,140,0,0.7)")}
+            ${arc(0, max, C_OVER)}
+            ${arc(hi, 0, C_WEAK)}
+            ${arc(lo, hi, C_OPT)}
+            ${arc(min, lo, C_OK)}
             ${ticks}
             <line x1="${CX}" y1="${CY}" x2="${nx.toFixed(2)}" y2="${ny.toFixed(2)}" stroke="var(--primary-text-color)" stroke-width="2.4" stroke-linecap="round" style="transition: all 1s"/>
             <circle cx="${CX}" cy="${CY}" r="4" fill="var(--primary-text-color)"/>
-            <text x="${CX - R}" y="69" font-size="7" text-anchor="middle" fill="var(--secondary-text-color)">${fmt(min)}</text>
-            <text x="${CX + R}" y="69" font-size="7" text-anchor="middle" fill="var(--secondary-text-color)">${fmt(max)}</text>
+            <text x="${CX - R}" y="69" font-size="7" text-anchor="middle" fill="var(--secondary-text-color)">${fmt(max)}</text>
+            <text x="${CX + R}" y="69" font-size="7" text-anchor="middle" fill="var(--secondary-text-color)">${fmt(min)}</text>
           </svg>
           <div class="gauge-text">
             <div class="val" style="font-size:1.6em;font-weight:400;color:${col}">${fmt(v)} <small style="font-size:0.55em;color:var(--secondary-text-color)">Pa</small></div>
             <div class="sub">${esc(status)}</div>
-            <div class="sub">${t.draught_target} ${fmt(lo)}–${fmt(hi)} Pa${stage !== null ? ` (${t.stage} ${stage})` : ""}</div>
+            <div class="sub">${t.draught_target} <span style="white-space:nowrap">${fmt(hi)} … ${fmt(lo)} Pa</span></div>
           </div>
         </div>
       </div>`;
@@ -3307,15 +3305,13 @@ class DrooffFireplusCardEditor extends HTMLElement {
             type: "grid",
             name: "",
             schema: [
-              ["draught_min", -50, 0, 1],
-              ["draught_max", 5, 100, 1],
-              ["draught_part_load", 0, 50, 0.5],
-              ["draught_part_stage", 1, 7, 1],
-              ["draught_full_load", 0, 50, 0.5],
-              ["draught_full_stage", 1, 7, 1],
-              ["draught_tolerance", 0, 20, 0.5],
+              ["draught_min", -100, 0, 1],
+              ["draught_max", 0, 50, 1],
+              ["draught_optimal_from", -100, 0, 0.5],
+              ["draught_optimal_to", -100, 0, 0.5],
             ].map(([name, min, max, step]) => ({ name, selector: { number: { min, max, step, mode: "box" } } })),
           },
+          { name: "draught_invert", selector: { boolean: {} } },
         ],
       },
       {
