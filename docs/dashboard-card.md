@@ -23,10 +23,11 @@ A Lovelace dashboard card for the Home Assistant integration [Drooff fire+](http
 - Temperature with target and maximum, heating progress, air slider, chimney draught
 - **Recommended wood load shown as logs** (stack of split logs, half a log is drawn smaller)
 - **Optional: a picture of your stove** – the fire is then shown inside its window (default is the open fireplace)
+- **Stove model selection** for all Drooff fire+ stoves: applies the optimal draught range and links to the product page with instructions for the picture
 - Burn rate (1–6 or 1–7) and ember burndown can be changed directly in the card (`controls: false` turns this off)
 - Settings and diagnostics of the fire+: LED on/off, LED brightness and volume (with slider), Wi-Fi signal, Ethernet link, operating time
 - **Automatic detection**: the card editor finds the fire+ device and all of its entities and preselects everything your device provides under “Show”. Unticking hides the value. The detected entities are listed under “Entities” and can be changed.
-- **Chimney draught as gauge** (optional): scale −10 to 25 Pa, green normal range for the current burn rate (part load/stage 1: 6 Pa, full load/stage 6: 12 Pa, linear in between, ± 2 Pa), everything adjustable under “Advanced: draught”
+- **Chimney draught as gauge** (optional): scale from +10 Pa (left) to −30 Pa (right). The fire+ reports the draught as negative pressure, so negative values are good. Zones: +10 to 0 red (overpressure), 0 to −12 grey (weak draught), −12 to −20 dark green (optimal), −20 to −30 light green (OK, strong draught). Everything adjustable under “Advanced: draught”
 - **Additional graphics** (each optional, off by default):
   - `temp_history` temperature history of the last hours with target line (from the HA recorder)
   - `timeline` burn timeline as coloured band with legend
@@ -64,14 +65,13 @@ Everything else is detected automatically.
 | `log_weight` | `0.9` | Weight of one log in kg (converts the wood load into logs) |
 | `wall` | `chamotte` | Chamber background: `chamotte` (upright fire-clay plates), `bricks_light`, `bricks_dark` |
 | `stove_image` | – | Picture of the stove (file picker in the editor, or a URL like `/local/stove.png`). Without it the open fireplace is shown |
+| `stove_model` | – | Drooff model, sets the optimal draught range in the editor: `andalo3s`, `andalo3m`, `andalo3l`, `aprica2`, `arola`, `brunello2s`, `brunello2m`, `brunello2l`, `catania`, `forano`, `garda`, `imola`, `livera2m`, `livera2l`, `liverapm`, `liverapl`, `varese3`, `varese3w` |
 | `stove_window` | `{left: 20, top: 20, width: 60, height: 40}` | Position of the window in the picture, in percent of width/height |
 | `stove_window_radius` | `4` | Corner radius of the window in px |
 | `stove_window_debug` | `false` | Shows the window as red frame for alignment |
 | `draught_display` | `tile` | Chimney draught as `tile` or `gauge` |
-| `draught_min` / `draught_max` | `-10` / `25` | Gauge scale in Pa |
-| `draught_part_load` / `draught_part_stage` | `6` / `1` | Target draught in Pa at part load and its burn rate stage |
-| `draught_full_load` / `draught_full_stage` | `12` / `6` | Target draught in Pa at full load and its burn rate stage |
-| `draught_tolerance` | `2` | Width of the green normal range ± Pa around the target |
+| `draught_min` / `draught_max` | `-30` / `10` | Gauge scale in Pa (strong draught on the right, overpressure on the left) |
+| `draught_optimal_from` / `draught_optimal_to` | `-12` / `-20` | Optimal range in Pa (dark green). Between 0 and `draught_optimal_from` is grey, beyond `draught_optimal_to` light green, above 0 red |
 | `graphics` | `[]` | Additional graphics: `temp_history`, `timeline`, `wood_usage`, `heating_ring`, `air_flap`, `temp_ring` |
 | `history_hours` | `6` | Time span of temperature history and timeline in hours |
 | `wood_days` | `7` | Number of days for the wood usage |
@@ -108,6 +108,22 @@ stove_window_radius: 6
 ```
 
 Please only use pictures you are allowed to use; product photos are usually copyrighted by the manufacturer.
+
+## Stove model
+
+Under **Stove picture → Stove model (Drooff)** you can choose your Drooff model (all wood stoves that support fire+). The card then applies the optimal draught range of that model: from its minimum draught (12 Pa for all current models) to −20 Pa, above which Drooff requires a draught limiter. You can still change the values under “Advanced: draught”.
+
+The card also shows a link to the product page at Drooff and explains how to get the picture into the card:
+
+1. Open the product page and choose the variant you have.
+2. Right-click the cut-out product picture (stove without background), choose “Save image as …” and save it on your device.
+3. Click **Choose picture …** in the card editor and select the file. The background is removed and the window is detected automatically.
+
+The product pictures are protected by copyright (© Drooff). That is why the card neither downloads nor ships them; please use them only privately in your own dashboard. The model list and draught values come from Drooff’s catalogue and technical information and may be outdated; the technical documentation of your stove always takes precedence.
+
+```yaml
+stove_model: brunello2l
+```
 
 ## Chimney draught gauge
 

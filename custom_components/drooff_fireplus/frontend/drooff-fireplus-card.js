@@ -94,7 +94,6 @@ const DEFAULTS = {
   draught_max: 10,
   draught_optimal_from: -12,
   draught_optimal_to: -20,
-  draught_invert: true,
   language: "auto", min_temperature: 80, max_temperature: 600, log_weight: 0.9, controls: true, layout: "auto", wall: "chamotte" };
 
 /* find the entities of the integration */
@@ -208,7 +207,6 @@ const I18N = {
       draught_max: "Skala bis (Pa)",
       draught_optimal_from: "Optimal ab (Pa)",
       draught_optimal_to: "Optimal bis (Pa)",
-      draught_invert: "Sensorwert als Unterdruck lesen (Vorzeichen drehen)",
       lang_auto: "Automatisch (Benutzersprache)",
       draught_tile: "Kachel",
       draught_gauge: "Zeigerinstrument (Gauge)",
@@ -223,6 +221,12 @@ const I18N = {
       show: "Anzeigen (erkannte fire+ Werte)",
       stove_picture: "Ofenbild (optional)",
       stove_pick: "Bild auswählen …",
+      stove_model: "Ofenmodell (Drooff)",
+      stove_model_none: "– kein Modell –",
+      stove_model_info: "{kw} kW · Mindestförderdruck {pa} Pa. Optimaler Zug −{pa} … −{max} Pa wurde übernommen (änderbar unter „Erweitert: Kaminzug“).",
+      stove_model_link: "Produktseite bei Drooff öffnen",
+      stove_model_steps: "So kommt das Ofenbild in die Karte: 1. Produktseite öffnen und die gewünschte Ausführung wählen. 2. Das freigestellte Produktbild (Ofen ohne Hintergrund) mit Rechtsklick → „Bild speichern unter …“ auf deinem Gerät speichern. 3. Hier „Bild auswählen …“ klicken und die Datei wählen. Die Karte stellt das Bild frei und erkennt die Scheibe automatisch.",
+      stove_model_copyright: "Die Produktbilder sind urheberrechtlich geschützt (© Drooff). Deshalb lädt die Karte sie nicht selbst herunter und liefert sie nicht mit. Bitte nur privat im eigenen Dashboard verwenden.",
       stove_remove: "Entfernen",
       stove_loading: "Bild wird verarbeitet …",
       stove_error: "Das Bild konnte nicht gelesen werden.",
@@ -338,7 +342,6 @@ const I18N = {
       draught_max: "Scale to (Pa)",
       draught_optimal_from: "Optimal from (Pa)",
       draught_optimal_to: "Optimal to (Pa)",
-      draught_invert: "Read sensor value as negative pressure (flip sign)",
       lang_auto: "Automatic (user language)",
       draught_tile: "Tile",
       draught_gauge: "Gauge",
@@ -353,6 +356,12 @@ const I18N = {
       show: "Show (detected fire+ values)",
       stove_picture: "Stove picture (optional)",
       stove_pick: "Choose picture …",
+      stove_model: "Stove model (Drooff)",
+      stove_model_none: "– no model –",
+      stove_model_info: "{kw} kW · minimum draught {pa} Pa. Optimal draught −{pa} … −{max} Pa was applied (can be changed under “Advanced: draught”).",
+      stove_model_link: "Open product page at Drooff",
+      stove_model_steps: "How to get the stove picture into the card: 1. Open the product page and choose the variant you have. 2. Right-click the cut-out product picture (stove without background) → “Save image as …” and save it on your device. 3. Click “Choose picture …” here and select the file. The card removes the background and detects the window automatically.",
+      stove_model_copyright: "The product pictures are protected by copyright (© Drooff). That is why the card neither downloads nor ships them. Please use them only privately in your own dashboard.",
       stove_remove: "Remove",
       stove_loading: "Processing picture …",
       stove_error: "The picture could not be read.",
@@ -2084,10 +2093,12 @@ ha-card { overflow: hidden; container-type: inline-size; height: 100%; box-sizin
 .af { fill: #64b5f6; animation: af 1.5s linear infinite; }
 @keyframes af { from { transform: translateX(0); } to { transform: translateX(36px); } }
 .hring { position: absolute; inset: 0; pointer-events: none; }
-.hring svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.hring rect { fill: none; stroke-width: 4; vector-effect: non-scaling-stroke; }
-.hring rect.bg { stroke: rgba(255,255,255,0.12); }
-.hring rect.p { stroke: #ffb300; filter: drop-shadow(0 0 4px #ff6d00); transition: stroke-dasharray 1s ease; }
+.hring .glow { position: absolute; inset: 0; filter: drop-shadow(0 0 4px #ff6d00); }
+.hring .bg, .hring .p { position: absolute; inset: 0; padding: 4px; border-radius: var(--hr, 16px); box-sizing: border-box;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.hring .bg { background: rgba(255,255,255,0.12); }
+.hring .p { background: conic-gradient(#ffb300 calc(var(--hp, 0) * 1turn), transparent 0); }
 .pile { display: block; color: var(--secondary-text-color); }
 .wood { display: flex; align-items: flex-end; gap: 10px; }
 .wood.warn .val { color: #f57f17; }
@@ -2339,7 +2350,7 @@ class DrooffFireplusCard extends HTMLElement {
   _stoveHtml() {
     const cfg = this._config;
     if (!cfg.stove_image) {
-      return `<div class="stove"><canvas></canvas><div class="glass"></div><div class="door"></div><div class="hring"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect class="bg" x="1.5" y="1.5" width="97" height="97" rx="7" pathLength="100"/><rect class="p" x="1.5" y="1.5" width="97" height="97" rx="7" pathLength="100" stroke-dasharray="0 100"/></svg></div></div>`;
+      return `<div class="stove"><canvas></canvas><div class="glass"></div><div class="door"></div><div class="hring"><div class="bg"></div><div class="glow"><div class="p"></div></div></div></div>`;
     }
     const w = { left: 20, top: 20, width: 60, height: 40, ...(cfg.stove_window || {}) };
     const pct = (v) => `${Number(v)}%`;
@@ -2350,7 +2361,7 @@ class DrooffFireplusCard extends HTMLElement {
           <canvas></canvas><div class="glass" style="inset:0;border-radius:${r}px"></div>
         </div>
         <div class="door" style="left:${pct(w.left)};top:${pct(w.top)};width:${pct(w.width)};height:${pct(w.height)};border-radius:${r}px"></div>
-        <div class="hring" style="left:${pct(w.left)};top:${pct(w.top)};width:${pct(w.width)};height:${pct(w.height)};inset:auto"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect class="bg" x="1.5" y="1.5" width="97" height="97" rx="7" pathLength="100"/><rect class="p" x="1.5" y="1.5" width="97" height="97" rx="7" pathLength="100" stroke-dasharray="0 100"/></svg></div>
+        <div class="hring" style="inset:auto;left:${pct(w.left)};top:${pct(w.top)};width:${pct(w.width)};height:${pct(w.height)};--hr:${r}px"><div class="bg"></div><div class="glow"><div class="p"></div></div></div>
       </div>`;
   }
 
@@ -2506,7 +2517,7 @@ class DrooffFireplusCard extends HTMLElement {
     const dr = this._st("draught");
     let gauge = "";
     if (this._show("draught") && usable(dr)) {
-      const v = this._draughtValue(num(dr));
+      const v = num(dr);
       if (cfg.draught_display === "gauge" && Number.isFinite(v)) gauge = this._draughtGauge(v, t);
       else tiles.push(this._tile(t.draught, "mdi:weather-windy", `${Number.isFinite(v) ? v.toFixed(1) : dr.state} Pa`));
     }
@@ -2594,12 +2605,6 @@ class DrooffFireplusCard extends HTMLElement {
       this._values.innerHTML = html;
       this._lastHtml = html;
     }
-  }
-
-  /* the fire+ reports draught as a positive number; physically it is negative pressure */
-  _draughtValue(v) {
-    if (!Number.isFinite(v)) return v;
-    return this._config.draught_invert === false ? v : v === 0 ? 0 : -v;
   }
 
   /* gauge from draught_max (left, overpressure) to draught_min (right, strong draught) */
@@ -2941,7 +2946,7 @@ class DrooffFireplusCard extends HTMLElement {
     const hp = this._st("heating_progress");
     const on = this._gfx("heating_ring") && status === "HEATING" && usable(hp);
     ring.style.display = on ? "" : "none";
-    if (on) ring.querySelector("rect.p").setAttribute("stroke-dasharray", `${clamp(num(hp) / 100) * 100} 100`);
+    if (on) ring.style.setProperty("--hp", clamp(num(hp) / 100).toFixed(3));
   }
 
   _tile(label, icon, value, cls = "") {
@@ -2974,6 +2979,32 @@ class DrooffFireplusCard extends HTMLElement {
 /* ------------------------------------------------- stove picture (editor) */
 
 const DEFAULT_WINDOW = { left: 20, top: 20, width: 60, height: 40 };
+
+/* Drooff stoves that can be equipped with fire+ (all wood stoves except APRICA 2 Cook and FARINI).
+   [id, name, output kW, minimum draught Pa, product page slug if known].
+   Source: Drooff catalogue / technical information; above 20 Pa a draught limiter is required. */
+const DROOFF_BASE = "https://www.drooff-kaminofen.de/drooff/de/";
+const DRAUGHT_LIMIT = 20;
+const STOVE_MODELS = [
+  ["andalo3s", "ANDALO 3 S", "3–6", 12],
+  ["andalo3m", "ANDALO 3 M", "3–6", 12],
+  ["andalo3l", "ANDALO 3 L", "3–6", 12],
+  ["aprica2", "APRICA 2 / Trend / Plus / Edition", "3–6", 12],
+  ["arola", "AROLA / Edition", "4–8", 12, "arola.html"],
+  ["brunello2s", "BRUNELLO 2 S", "3–6", 12],
+  ["brunello2m", "BRUNELLO 2 M", "3–6", 12],
+  ["brunello2l", "BRUNELLO 2 L / Groove", "3–6", 12, "brunello-2-l.html"],
+  ["catania", "CATANIA", "3–6", 12],
+  ["forano", "FORANO", "3–6", 12, "forano.html"],
+  ["garda", "GARDA / Plus", "4–8", 12],
+  ["imola", "IMOLA / SP", "4–8", 12],
+  ["livera2m", "LIVERA 2 M", "3–6", 12],
+  ["livera2l", "LIVERA 2 L", "3–6", 12],
+  ["liverapm", "LIVERA Panorama M", "5–8", 12],
+  ["liverapl", "LIVERA Panorama L", "5–8", 12],
+  ["varese3", "VARESE 3", "3–6", 12],
+  ["varese3w", "VARESE 3 W", "7.9–10.5", 12],
+].map(([id, name, kw, pa, slug]) => ({ id, name, kw, pa, url: DROOFF_BASE + (slug || "kaminofen") }));
 
 const loadImageFile = (file) =>
   new Promise((resolve, reject) => {
@@ -3311,7 +3342,6 @@ class DrooffFireplusCardEditor extends HTMLElement {
               ["draught_optimal_to", -100, 0, 0.5],
             ].map(([name, min, max, step]) => ({ name, selector: { number: { min, max, step, mode: "box" } } })),
           },
-          { name: "draught_invert", selector: { boolean: {} } },
         ],
       },
       {
@@ -3427,6 +3457,17 @@ class DrooffFireplusCardEditor extends HTMLElement {
         </div>
         <div class="dfp-pick">
           <div class="label" style="font-weight:500;margin-bottom:8px">${t.stove_picture}</div>
+          <label class="lbl" style="display:block;margin:0 0 4px;font-size:0.85em;color:var(--secondary-text-color)">${t.stove_model}</label>
+          <select data-a="model" style="font:inherit;padding:6px 8px;border-radius:6px;border:1px solid var(--divider-color,#ccc);background:var(--card-background-color,#fff);color:var(--primary-text-color);max-width:100%">
+            <option value="">${esc(t.stove_model_none)}</option>
+            ${STOVE_MODELS.map((m) => `<option value="${m.id}">${esc(m.name)}</option>`).join("")}
+          </select>
+          <div class="model" style="display:none;margin:8px 0 12px;font-size:0.9em">
+            <div class="mi"></div>
+            <div style="margin:6px 0"><a class="ml" target="_blank" rel="noopener noreferrer" style="color:var(--primary-color,#03a9f4)">${esc(t.stove_model_link)} ↗</a></div>
+            <div class="mhint" style="font-size:0.85em;color:var(--secondary-text-color);line-height:1.45">${t.stove_model_steps.split(/\s(?=\d\.\s)/).map(esc).join("<br>")}</div>
+            <div class="mhint" style="font-size:0.85em;color:var(--secondary-text-color);font-style:italic;margin-top:6px">${esc(t.stove_model_copyright)}</div>
+          </div>
           <div class="row">
             <button class="primary" data-a="pick">${t.stove_pick}</button>
             <button data-a="remove">${t.stove_remove}</button>
@@ -3436,6 +3477,12 @@ class DrooffFireplusCardEditor extends HTMLElement {
           <div class="pv"><img alt=""><div class="w"></div></div>
         </div>`;
       const input = this._picker.querySelector("input");
+      this._picker.querySelector("select[data-a=model]").addEventListener("change", (ev) => {
+        const m = STOVE_MODELS.find((x) => x.id === ev.target.value);
+        const data = { ...this._form.data, stove_model: m ? m.id : undefined };
+        if (m) Object.assign(data, { draught_optimal_from: -m.pa, draught_optimal_to: -DRAUGHT_LIMIT });
+        this._changed(data);
+      });
       if (!this._onSimDone) {
         this._onSimDone = (ev) => {
           if (!ev.detail || !ev.detail.done || !this._picker) return;
@@ -3471,6 +3518,14 @@ class DrooffFireplusCardEditor extends HTMLElement {
         }
       });
       this.insertBefore(this._picker, this._form || null);
+    }
+    const model = STOVE_MODELS.find((x) => x.id === this._config.stove_model);
+    this._picker.querySelector("select[data-a=model]").value = model ? model.id : "";
+    const mbox = this._picker.querySelector(".model");
+    mbox.style.display = model ? "" : "none";
+    if (model) {
+      mbox.querySelector(".mi").textContent = t.stove_model_info.replace(/\{kw\}/g, model.kw).replace(/\{pa\}/g, model.pa).replace(/\{max\}/g, DRAUGHT_LIMIT);
+      mbox.querySelector(".ml").href = model.url;
     }
     const has = !!this._config.stove_image;
     this._picker.querySelector("[data-a=remove]").style.display = has ? "" : "none";

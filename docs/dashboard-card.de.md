@@ -23,10 +23,11 @@ Eine Dashboard-Card für die Home-Assistant-Integration [Drooff fire+](https://g
 - Temperatur mit Ziel- und Maximaltemperatur, Anheizfortschritt, Luftschieber, Kaminzug
 - **Empfohlene Holzauflage als Holzscheite** (Stapel gespaltener Scheite, ein halbes Scheit wird kleiner gezeigt)
 - **Optional: Bild deines Ofens**, das Feuer erscheint dann in seinem Sichtfenster (Standard ist die Feuerstelle)
+- **Ofenmodell-Auswahl** für alle Drooff-Öfen mit fire+: übernimmt den optimalen Zugbereich und verlinkt die Produktseite mit Anleitung fürs Bild
 - Brennleistung (1–6 bzw. 1–7) und Glutabbrand direkt in der Card bedienbar (`controls: false` schaltet das ab)
 - Einstellungen und Diagnosewerte des fire+: LED an/aus, LED-Helligkeit und Lautstärke (mit Schieberegler), WLAN-Signal, LAN-Verbindung, Betriebszeit
 - **Automatische Erkennung**: Der Card-Editor findet das fire+ Gerät und alle Entitäten und hakt unter „Anzeigen“ alles vor, was dein Gerät liefert. Abwählen blendet den Wert aus. Unter „Entitäten“ steht die erkannte Zuordnung, die sich ändern lässt.
-- **Kaminzug als Zeigerinstrument** (optional): Skala −10 bis 25 Pa, grüner Normbereich passend zur aktuellen Brennleistung (Teillast/Stufe 1: 6 Pa, Volllast/Stufe 6: 12 Pa, dazwischen linear, ± 2 Pa), alles unter „Erweitert: Kaminzug“ einstellbar
+- **Kaminzug als Zeigerinstrument** (optional): Skala von +10 Pa (links) bis −30 Pa (rechts). Die fire+ meldet den Zug als Unterdruck, negative Werte sind also gut. Bereiche: +10 bis 0 rot (Überdruck), 0 bis −12 grau (schwacher Zug), −12 bis −20 dunkelgrün (optimal), −20 bis −30 hellgrün (OK, starker Zug). Alles einstellbar unter „Erweitert: Kaminzug“
 - **Zusätzliche Grafiken** (einzeln wählbar, standardmäßig aus):
   - `temp_history` Temperaturverlauf der letzten Stunden mit Ziellinie (aus der HA-Historie)
   - `timeline` Abbrand-Zeitleiste als farbiges Band mit Legende
@@ -64,14 +65,13 @@ Alles Weitere wird automatisch erkannt.
 | `log_weight` | `0.9` | Gewicht eines Holzscheits in kg (Umrechnung der Holzauflage in Scheite) |
 | `wall` | `chamotte` | Brennraum-Hintergrund: `chamotte` (Schamotteplatten hochkant), `bricks_light` (Mauer hell), `bricks_dark` (Mauer dunkel) |
 | `stove_image` | – | Bild des Ofens (Dateiauswahl im Editor oder URL wie `/local/ofen.png`). Ohne Bild wird die Feuerstelle gezeigt |
+| `stove_model` | – | Drooff-Modell, setzt im Editor den optimalen Zugbereich: `andalo3s`, `andalo3m`, `andalo3l`, `aprica2`, `arola`, `brunello2s`, `brunello2m`, `brunello2l`, `catania`, `forano`, `garda`, `imola`, `livera2m`, `livera2l`, `liverapm`, `liverapl`, `varese3`, `varese3w` |
 | `stove_window` | `{left: 20, top: 20, width: 60, height: 40}` | Lage des Sichtfensters im Bild in Prozent der Breite/Höhe |
 | `stove_window_radius` | `4` | Eckenradius des Sichtfensters in px |
 | `stove_window_debug` | `false` | Zeigt das Sichtfenster als roten Rahmen zum Ausrichten |
 | `draught_display` | `tile` | Kaminzug als `tile` (Kachel) oder `gauge` (Zeigerinstrument) |
-| `draught_min` / `draught_max` | `-10` / `25` | Skala des Gauges in Pa |
-| `draught_part_load` / `draught_part_stage` | `6` / `1` | Soll-Kaminzug in Pa bei Teillast und die zugehörige Stufe |
-| `draught_full_load` / `draught_full_stage` | `12` / `6` | Soll-Kaminzug in Pa bei Volllast und die zugehörige Stufe |
-| `draught_tolerance` | `2` | Breite des grünen Normbereichs ± Pa um den Sollwert |
+| `draught_min` / `draught_max` | `-30` / `10` | Skala des Gauges in Pa (starker Zug rechts, Überdruck links) |
+| `draught_optimal_from` / `draught_optimal_to` | `-12` / `-20` | Optimaler Bereich in Pa (dunkelgrün). Zwischen 0 und `draught_optimal_from` grau, jenseits von `draught_optimal_to` hellgrün, über 0 rot |
 | `graphics` | `[]` | Zusatzgrafiken: `temp_history`, `timeline`, `wood_usage`, `heating_ring`, `air_flap`, `temp_ring` |
 | `history_hours` | `6` | Zeitraum für Temperaturverlauf und Zeitleiste in Stunden |
 | `wood_days` | `7` | Anzahl Tage beim Holzverbrauch |
@@ -108,6 +108,22 @@ stove_window_radius: 6
 ```
 
 Bitte nur Bilder verwenden, die du nutzen darfst; Produktfotos sind in der Regel urheberrechtlich geschützt.
+
+## Ofenmodell
+
+Unter **Ofenbild → Ofenmodell (Drooff)** wählst du dein Drooff-Modell aus (alle Holz-Kaminöfen, die fire+ unterstützen). Die Karte übernimmt dann den optimalen Zugbereich des Modells: vom Mindestförderdruck (bei allen aktuellen Modellen 12 Pa) bis −20 Pa, ab dem Drooff einen Zugbegrenzer vorschreibt. Unter „Erweitert: Kaminzug“ lassen sich die Werte weiter anpassen.
+
+Außerdem zeigt die Karte einen Link zur Produktseite bei Drooff und erklärt, wie das Bild in die Karte kommt:
+
+1. Produktseite öffnen und die gewünschte Ausführung wählen.
+2. Das freigestellte Produktbild (Ofen ohne Hintergrund) mit Rechtsklick → „Bild speichern unter …“ auf deinem Gerät speichern.
+3. Im Karten-Editor **Bild auswählen …** klicken und die Datei wählen. Der Hintergrund wird entfernt und die Scheibe automatisch erkannt.
+
+Die Produktbilder sind urheberrechtlich geschützt (© Drooff). Deshalb lädt die Karte sie nicht selbst herunter und liefert sie nicht mit; bitte nur privat im eigenen Dashboard verwenden. Modellliste und Zugwerte stammen aus Katalog und technischen Informationen von Drooff und können veraltet sein; maßgeblich ist immer die technische Dokumentation deines Ofens.
+
+```yaml
+stove_model: brunello2l
+```
 
 ## Kaminzug als Zeigerinstrument
 
