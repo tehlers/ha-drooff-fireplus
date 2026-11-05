@@ -1076,12 +1076,13 @@ const tr = (hass, cfg) => {
 
 const SIM_EVENT = "drooff-fireplus-simulate";
 const SIM_PHASES = [
-  { status: "HEATING", t0: 60, t1: 360, air: 100, dur: 9 },
-  { status: "REGULAR", t0: 360, t1: 580, air: 45, dur: 9 },
-  { status: "WOOD_REQUIRED", t0: 560, t1: 380, air: 70, dur: 8, wood: 1.8 },
-  { status: "WOOD_URGENTLY_REQUIRED", t0: 380, t1: 280, air: 90, dur: 6, wood: 2.7 },
-  { status: "EMBER_BURNDOWN", t0: 280, t1: 230, air: 100, dur: 8, ember: true },
-  { status: "EMBER_PRESERVATION", t0: 230, t1: 170, air: 0, dur: 8 },
+  /* d0/d1: chimney draught in Pa, negative = draught (the hotter the flue, the stronger) */
+  { status: "HEATING", t0: 60, t1: 360, air: 100, dur: 9, d0: -3, d1: -13 },
+  { status: "REGULAR", t0: 360, t1: 580, air: 45, dur: 9, d0: -13, d1: -17 },
+  { status: "WOOD_REQUIRED", t0: 560, t1: 380, air: 70, dur: 8, wood: 1.8, d0: -17, d1: -13 },
+  { status: "WOOD_URGENTLY_REQUIRED", t0: 380, t1: 280, air: 90, dur: 6, wood: 2.7, d0: -13, d1: -10 },
+  { status: "EMBER_BURNDOWN", t0: 280, t1: 230, air: 100, dur: 8, ember: true, d0: -10, d1: -8 },
+  { status: "EMBER_PRESERVATION", t0: 230, t1: 170, air: 0, dur: 8, d0: -8, d1: -5 },
 ];
 const SIM_CYCLE = SIM_PHASES.reduce((a, ph) => a + ph.dur, 0);
 const clamp = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
@@ -1423,6 +1424,13 @@ class FireRenderer {
   _loop(ts) {
     if (!this.attached || !this.visible) {
       this.running = false;
+      return;
+    }
+    /* 30 fps are plenty for fire; a cold stove only needs a few frames per second */
+    const idle =
+      this.target.i < 0.01 && this.target.e < 0.01 && this.cur.i < 0.01 && this.cur.e < 0.01 && !this.flames.length && !this.sparks.length;
+    if (ts - this.last < (idle ? 250 : 32)) {
+      requestAnimationFrame(this._loop);
       return;
     }
     const dt = Math.min(3, (ts - this.last) / 16.667 || 1);
@@ -2172,7 +2180,21 @@ class DrooffFireplusCard extends HTMLElement {
   }
 
   set hass(hass) {
+    const old = this._hass;
     this._hass = hass;
+    /* HA hands over a new hass object on every state change anywhere; only redraw when ours changed */
+    if (
+      old &&
+      this._built &&
+      !this._sim &&
+      this._entities &&
+      Object.keys(this._entities).length &&
+      old.locale === hass.locale &&
+      old.language === hass.language &&
+      old.themes === hass.themes &&
+      Object.values(this._entities).every((id) => old.states[id] === hass.states[id])
+    )
+      return;
     this._render();
   }
 
@@ -2227,7 +2249,7 @@ class DrooffFireplusCard extends HTMLElement {
       target_temperature: S("target_temperature", 480, { unit_of_measurement: "°C" }),
       heating_progress: S("heating_progress", ph.status === "HEATING" ? Math.round(f * 100) : "unavailable", { unit_of_measurement: "%" }),
       air_slider_position: S("air_slider_position", ph.air, { unit_of_measurement: "%" }),
-      draught: S("draught", (11 + Math.sin(el) * 1.5).toFixed(1), { unit_of_measurement: "Pa" }),
+      draught: S("draught", (ph.d0 + (ph.d1 - ph.d0) * f + Math.sin(el * 1.7) * 0.8).toFixed(1), { unit_of_measurement: "Pa" }),
       weight: S("weight", ph.wood || 0, { unit_of_measurement: "kg" }),
       burn_rate: S("burn_rate", real("burn_rate").state || 3, { min: 1, max: real("burn_rate").attributes.max || 6 }),
       ember_burndown: S("ember_burndown", ph.ember ? "on" : "off"),
@@ -2325,6 +2347,7 @@ class DrooffFireplusCard extends HTMLElement {
   }
 
   connectedCallback() {
+    if (this._io && this._flameBox) this._io.observe(this._flameBox);
     if (this._fire) this._fire.attach();
     if (!this._onSim) {
       this._onSim = (ev) => {
@@ -2338,6 +2361,7 @@ class DrooffFireplusCard extends HTMLElement {
 
   disconnectedCallback() {
     if (this._fire) this._fire.detach();
+    if (this._io) this._io.disconnect();
     window.removeEventListener(SIM_EVENT, this._onSim);
     if (this._sim) {
       this._sim = null;

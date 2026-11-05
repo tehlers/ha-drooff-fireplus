@@ -7,6 +7,7 @@ https://github.com/tehlers/ha-drooff-fireplus
 
 from __future__ import annotations
 
+import hashlib
 import socket
 from datetime import timedelta
 from pathlib import Path
@@ -56,16 +57,11 @@ async def async_setup(
 ) -> bool:
     """Serve the dashboard card and load it in the frontend."""
     if hass.http is not None:
-        await hass.http.async_register_static_paths(
-            [
-                StaticPathConfig(
-                    CARD_URL,
-                    str(Path(__file__).parent / "frontend" / CARD_FILENAME),
-                    cache_headers=False,
-                )
-            ]
-        )
-        add_extra_js_url(hass, f"{CARD_URL}?v={CARD_VERSION}")
+        card = Path(__file__).parent / "frontend" / CARD_FILENAME
+        # the hash changes with every edit of the card, so browsers never keep an old copy
+        digest = await hass.async_add_executor_job(lambda: hashlib.sha256(card.read_bytes()).hexdigest()[:8])
+        await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(card), cache_headers=False)])
+        add_extra_js_url(hass, f"{CARD_URL}?v={CARD_VERSION}-{digest}")
     return True
 
 
@@ -77,6 +73,7 @@ async def async_setup_entry(
     """Set up this integration using UI."""
     coordinator = FireplusDataUpdateCoordinator(
         hass=hass,
+        config_entry=entry,
         update_interval=timedelta(seconds=entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)),
         host=entry.data[CONF_HOST],
     )
