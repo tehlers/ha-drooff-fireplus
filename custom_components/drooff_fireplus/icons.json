@@ -12,6 +12,15 @@
                 "state": {
                     "on": "mdi:ethernet"
                 }
+            },
+            "online_support": {
+                "default": "mdi:remote-desktop"
+            },
+            "auto_update": {
+                "default": "mdi:update"
+            },
+            "draught_warning": {
+                "default": "mdi:weather-windy"
             }
         },
         "number": {
@@ -49,6 +58,17 @@
             },
             "weight": {
                 "default": "mdi:weight-kilogram"
+            },
+            "control_mode": {
+                "default": "mdi:remote",
+                "state": {
+                    "web": "mdi:web",
+                    "panel": "mdi:gesture-tap-button",
+                    "room_controller": "mdi:thermostat"
+                }
+            },
+            "web_app_version": {
+                "default": "mdi:application-cog"
             }
         },
         "switch": {

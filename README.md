@@ -37,9 +37,11 @@ Diagnostics (parsed values and the raw responses of the fire+, host and serial n
 
 | Name             | Type   | Description                                              |
 | ---------------- | ------ | -------------------------------------------------------- |
-| `Burn rate`      | Number | Select burn rate in six stages between "Eco" and "Power" |
+| `Burn rate`      | Number | Select burn rate in six stages between "Eco" and "Power" (only "Eco" and "Power" for stoves with the Blue Angel label) |
 | `Ember burndown` | Switch | Toggle between "Ember preservation" and "Ember burndown" |
 | `LED`            | Switch | Toggle LED (only Drooff fire+ v1)                        |
+
+Like the fire+ web application, the integration refuses changes while the fire+ is not controlled via web: with a remote control all settings are locked, with a room controller or when the panel on the stove is selected the burn rate is locked. See `Control` below.
 
 ### Sensors
 
@@ -70,6 +72,11 @@ Diagnostics (parsed values and the raw responses of the fire+, host and serial n
 | `Operating time`       | Sensor        | Total operating time of the fireplace in s (only Drooff fire+ v2) |
 | `Wifi signal strength` | Sensor        | Strength of the Wifi signal (only Drooff fire+ v2)                |
 | `Ethernet link`        | Binary Sensor | Network is connected via Ethernet (only Drooff fire+ v2)          |
+| `Control`              | Sensor        | Who controls the fire+: `web`, `panel`, `remote_control`, `remote_control_automatic` or `room_controller` (only Drooff fire+ v2) |
+| `Online support`       | Binary Sensor | Remote access for Drooff support is enabled (recent web applications) |
+| `Automatic updates`    | Binary Sensor | The fire+ installs updates automatically (recent web applications) |
+| `Draught warning`      | Binary Sensor | The draught warning of the fire+ is enabled (recent web applications) |
+| `Web app version`      | Sensor        | Version of the fire+ web application (recent web applications)   |
 
 ## Dashboard card
 

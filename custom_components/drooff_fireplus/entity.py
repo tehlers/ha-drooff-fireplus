@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -49,6 +49,14 @@ class FireplusEntity(CoordinatorEntity[FireplusDataUpdateCoordinator]):
 
     async def _async_update_settings(self, **settings: Any) -> None:
         """Write settings to the fire+ and read them back."""
+        data = self.coordinator.data
+        if data is not None and data.control_mode is not None and data.locked_settings & settings.keys():
+            # the fire+ ignores these settings while a remote control, room controller or the panel controls it
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="control_locked",
+                translation_placeholders={"control_mode": data.control_mode.name.lower()},
+            )
         try:
             await self.coordinator.config_entry.runtime_data.client.async_update_settings(**settings)
         except FireplusApiClientError as exception:

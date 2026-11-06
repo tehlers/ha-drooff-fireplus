@@ -45,6 +45,7 @@ class FireplusNumberEntityDescription(NumberEntityDescription):
     setting: str
     available_fn: Callable[[FireplusResponse], bool] = _always
     max_fn: Callable[[FireplusResponse], float] | None = None
+    step_fn: Callable[[FireplusResponse], float] | None = None
 
 
 NUMBERS: tuple[FireplusNumberEntityDescription, ...] = (
@@ -58,6 +59,8 @@ NUMBERS: tuple[FireplusNumberEntityDescription, ...] = (
         setting="burn_rate",
         # firmware 1.x has 7 stages, 2.x has 6
         max_fn=lambda data: 6.0 if data.version >= VERSION_2_0_0 else 7.0,
+        # stoves with the Blue Angel label only offer ECO (1) and POWER (6) in the web app
+        step_fn=lambda data: 5.0 if data.blue_angel else 1.0,
     ),
     FireplusNumberEntityDescription(
         key="brightness",
@@ -123,6 +126,13 @@ class FireplusNumber(FireplusEntity, NumberEntity):
         if self.entity_description.max_fn is not None:
             return self.entity_description.max_fn(self.coordinator.data)
         return super().native_max_value
+
+    @property
+    def native_step(self) -> float | None:
+        """Return the step of the entity."""
+        if self.entity_description.step_fn is not None:
+            return self.entity_description.step_fn(self.coordinator.data)
+        return super().native_step
 
     @property
     def icon(self) -> str | None:

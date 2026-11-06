@@ -69,6 +69,30 @@ BINARY_SENSORS: tuple[FireplusBinarySensorEntityDescription, ...] = (
         available_fn=lambda data: data.ethernet_link is not None,
         supported_fn=lambda data: data.ethernet_link is not None,
     ),
+    FireplusBinarySensorEntityDescription(
+        key="online_support",
+        translation_key="online_support",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: data.online_support,
+        available_fn=lambda data: data.online_support is not None,
+        supported_fn=lambda data: data.online_support is not None,
+    ),
+    FireplusBinarySensorEntityDescription(
+        key="auto_update",
+        translation_key="auto_update",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: data.auto_update,
+        available_fn=lambda data: data.auto_update is not None,
+        supported_fn=lambda data: data.auto_update is not None,
+    ),
+    FireplusBinarySensorEntityDescription(
+        key="draught_warning",
+        translation_key="draught_warning",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: data.draught_warning,
+        available_fn=lambda data: data.draught_warning is not None,
+        supported_fn=lambda data: data.draught_warning is not None,
+    ),
 )
 
 

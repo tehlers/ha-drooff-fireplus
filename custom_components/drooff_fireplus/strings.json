@@ -39,6 +39,15 @@
             },
             "door_open": {
                 "name": "Door"
+            },
+            "online_support": {
+                "name": "Online support"
+            },
+            "auto_update": {
+                "name": "Automatic updates"
+            },
+            "draught_warning": {
+                "name": "Draught warning"
             }
         },
         "number": {
@@ -94,6 +103,19 @@
             },
             "wifi_signal_strength": {
                 "name": "Wifi signal strength"
+            },
+            "control_mode": {
+                "name": "Control",
+                "state": {
+                    "web": "Web",
+                    "panel": "Panel on the stove",
+                    "remote_control": "Remote control",
+                    "remote_control_automatic": "Remote control (automatic)",
+                    "room_controller": "Room controller"
+                }
+            },
+            "web_app_version": {
+                "name": "Web app version"
             }
         },
         "switch": {
@@ -108,6 +130,9 @@
     "exceptions": {
         "update_settings_failed": {
             "message": "Updating the settings of the Drooff fire+ failed: {error}"
+        },
+        "control_locked": {
+            "message": "This setting is locked: the fire+ is not controlled via web right now ({control_mode}). Change it on the remote control, room controller or panel, or switch the web app to web control."
         }
     }
 }

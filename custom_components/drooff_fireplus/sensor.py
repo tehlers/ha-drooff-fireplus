@@ -20,7 +20,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 
-from .api import FireplusError, FireplusOperationStatus
+from .api import FireplusControlMode, FireplusError, FireplusOperationStatus
 from .const import ETHERNET_LINK
 from .entity import FireplusEntity
 
@@ -154,6 +154,24 @@ SENSORS: tuple[FireplusSensorEntityDescription, ...] = (
         value_fn=lambda data: data.wifi_signal_strength,
         available_fn=lambda data: data.wifi_signal_strength is not None,
         supported_fn=lambda data: data.wifi_signal_strength is not None,
+    ),
+    FireplusSensorEntityDescription(
+        key="control_mode",
+        translation_key="control_mode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        device_class=SensorDeviceClass.ENUM,
+        options=[mode.name.lower() for mode in FireplusControlMode],
+        value_fn=lambda data: data.control_mode.name.lower() if data.control_mode else None,
+        available_fn=lambda data: data.control_mode is not None,
+        supported_fn=lambda data: data.control_mode is not None,
+    ),
+    FireplusSensorEntityDescription(
+        key="web_app_version",
+        translation_key="web_app_version",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.web_app_version,
+        available_fn=lambda data: data.web_app_version is not None,
+        supported_fn=lambda data: data.web_app_version is not None,
     ),
 )
 

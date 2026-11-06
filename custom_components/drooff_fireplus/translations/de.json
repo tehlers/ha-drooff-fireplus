@@ -39,6 +39,15 @@
             },
             "door_open": {
                 "name": "Tür"
+            },
+            "online_support": {
+                "name": "Online-Support"
+            },
+            "auto_update": {
+                "name": "Automatische Updates"
+            },
+            "draught_warning": {
+                "name": "Zugwarnung"
             }
         },
         "number": {
@@ -94,6 +103,19 @@
             },
             "wifi_signal_strength": {
                 "name": "WLAN Signalstärke"
+            },
+            "control_mode": {
+                "name": "Bedienung",
+                "state": {
+                    "web": "Web",
+                    "panel": "Panel am Ofen",
+                    "remote_control": "Fernbedienung",
+                    "remote_control_automatic": "Fernbedienung (Automatik)",
+                    "room_controller": "Raumregler"
+                }
+            },
+            "web_app_version": {
+                "name": "Version Webapp"
             }
         },
         "switch": {
@@ -108,6 +130,9 @@
     "exceptions": {
         "update_settings_failed": {
             "message": "Die Einstellungen der Drooff fire+ konnten nicht geändert werden: {error}"
+        },
+        "control_locked": {
+            "message": "Die Einstellung ist gesperrt: Der fire+ wird gerade nicht über das Web bedient ({control_mode}). Ändere sie an Fernbedienung, Raumregler oder Panel oder stelle in der Webapp auf Bedienung über Web um."
         }
     }
 }
