@@ -31,6 +31,9 @@
             },
             "ethernet_link": {
                 "name": "Ethernet link"
+            },
+            "door_open": {
+                "name": "Door"
             }
         },
         "number": {
@@ -95,6 +98,11 @@
             "led": {
                 "name": "LED"
             }
+        }
+    },
+    "exceptions": {
+        "update_settings_failed": {
+            "message": "Updating the settings of the Drooff fire+ failed: {error}"
         }
     }
 }

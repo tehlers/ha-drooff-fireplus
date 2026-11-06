@@ -5,7 +5,12 @@
     "@tehlers"
   ],
   "config_flow": true,
+  "dependencies": [
+    "frontend",
+    "http"
+  ],
   "documentation": "https://github.com/tehlers/ha-drooff-fireplus",
+  "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/tehlers/ha-drooff-fireplus/issues",
   "version": "1.5.0"

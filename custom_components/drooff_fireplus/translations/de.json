@@ -31,6 +31,9 @@
             },
             "ethernet_link": {
                 "name": "Ethernet-Verbindung"
+            },
+            "door_open": {
+                "name": "Tür"
             }
         },
         "number": {
@@ -67,7 +70,7 @@
                 }
             },
             "heating_progress": {
-                "name": "Anheizenfortschritt"
+                "name": "Anheizfortschritt"
             },
             "operation_status": {
                 "name": "Betriebsstatus"
@@ -95,6 +98,11 @@
             "led": {
                 "name": "LED"
             }
+        }
+    },
+    "exceptions": {
+        "update_settings_failed": {
+            "message": "Die Einstellungen der Drooff fire+ konnten nicht geändert werden: {error}"
         }
     }
 }
