@@ -11,7 +11,7 @@ Custom integrations are not graded by Home Assistant; this list documents the st
 | Bronze | appropriate-polling (default 5 s, configurable 1–60 s) | done |
 | Bronze | action-setup, docs-actions | exempt (no custom actions) |
 | Bronze | brands | todo (no logo in home-assistant/brands) |
-| Bronze | config-flow-test-coverage | todo |
+| Bronze | config-flow-test-coverage | done (tests/) |
 | Silver | entity-unavailable, log-when-unavailable, config-entry-unloading | done |
 | Silver | action-exceptions (translated `HomeAssistantError` when a write fails) | done |
 | Silver | parallel-updates (`0` for read-only platforms, `1` for number/switch) | done |
