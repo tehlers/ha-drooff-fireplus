@@ -89,9 +89,9 @@ class FireplusDoorSensor(FireplusEntity, BinarySensorEntity):
         self.device_class = BinarySensorDeviceClass.DOOR
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.door_open is not None
+        return super().available and self.coordinator.data.door_open is not None
 
     @property
     def is_on(self) -> bool:
@@ -124,9 +124,9 @@ class FireplusEthernetLinkSensor(FireplusEntity, BinarySensorEntity):
         self.device_class = BinarySensorDeviceClass.CONNECTIVITY
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.ethernet_link is not None
+        return super().available and self.coordinator.data.ethernet_link is not None
 
     @property
     def is_on(self) -> bool:

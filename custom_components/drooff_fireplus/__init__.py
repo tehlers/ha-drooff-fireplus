@@ -47,6 +47,7 @@ async def async_setup_entry(
     """Set up this integration using UI."""
     coordinator = FireplusDataUpdateCoordinator(
         hass=hass,
+        config_entry=entry,
         update_interval=timedelta(seconds=entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)),
         host=entry.data[CONF_HOST],
     )
