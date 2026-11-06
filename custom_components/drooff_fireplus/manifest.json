@@ -9,6 +9,11 @@
     "frontend",
     "http"
   ],
+  "dhcp": [
+    {
+      "hostname": "fire"
+    }
+  ],
   "documentation": "https://github.com/tehlers/ha-drooff-fireplus",
   "integration_type": "device",
   "iot_class": "local_polling",

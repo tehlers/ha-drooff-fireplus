@@ -19,7 +19,7 @@ Custom integrations are not graded by Home Assistant; this list documents the st
 | Silver | reauthentication-flow | exempt (the fire+ has no authentication) |
 | Gold | devices (manufacturer, model, firmware, serial number) | done |
 | Gold | diagnostics | done |
-| Gold | discovery | todo |
+| Gold | discovery (DHCP, hostname `fire`) | done |
 | Gold | entity-category, entity-device-class, entity-disabled-by-default | done |
 | Gold | entity-translations, exception-translations, icon-translations | done |
 | Gold | reconfiguration-flow | done |

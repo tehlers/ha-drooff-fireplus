@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import ipaddress
 import socket
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, UnitOfTime
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
+if TYPE_CHECKING:
+    from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
 from .api import (
     FireplusApiClient,
@@ -34,6 +38,8 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
     MINOR_VERSION = 1
+
+    _discovered_host: str
 
     def _show_form(
         self, *, host: str, force_ipv4: bool, polling_interval: int, errors: dict[str, str]
@@ -142,9 +148,55 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data=config_data,
         )
 
+    async def async_step_dhcp(self, discovery_info: DhcpServiceInfo) -> config_entries.ConfigFlowResult:
+        """Handle a fire+ found by DHCP (its default hostname is 'fire')."""
+        host = discovery_info.ip
+        serial_number, errors = await self._get_serial_number(host=host, force_ipv4=CONF_FORCE_IPV4_DEFAULT)
+        if errors or not serial_number:
+            return self.async_abort(reason="cannot_connect")
+
+        await self.async_set_unique_id(unique_id=f"{DOMAIN}_{serial_number}")
+        # Follow a changed IP address, but keep host names the user entered
+        for entry in self._async_current_entries(include_ignore=False):
+            if entry.unique_id == self.unique_id and _is_ip_address(entry.data.get(CONF_HOST, "")):
+                self._abort_if_unique_id_configured(updates={CONF_HOST: host})
+        self._abort_if_unique_id_configured()
+
+        self._discovered_host = host
+        self.context["title_placeholders"] = {"host": host}
+        return await self.async_step_discovery_confirm()
+
+    async def async_step_discovery_confirm(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Confirm the setup of a discovered fire+."""
+        if user_input is None:
+            self._set_confirm_only()
+            return self.async_show_form(
+                step_id="discovery_confirm",
+                description_placeholders={"host": self._discovered_host},
+            )
+        return self.async_create_entry(
+            title="Drooff fire+",
+            data={
+                CONF_HOST: self._discovered_host,
+                CONF_FORCE_IPV4: CONF_FORCE_IPV4_DEFAULT,
+                CONF_POLLING_INTERVAL: DEFAULT_POLLING_INTERVAL,
+            },
+        )
+
     async def async_step_reconfigure(
         self,
         user_input: dict | None = None,
     ) -> config_entries.ConfigFlowResult:
         """Handle a flow initialized by the user."""
         return await self.async_step_user(user_input)
+
+
+def _is_ip_address(host: str) -> bool:
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return True

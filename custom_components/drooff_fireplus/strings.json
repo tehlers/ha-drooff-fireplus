@@ -12,6 +12,9 @@
                     "host": "The hostname or IP address of the Drooff fire+ web application. In some cases a domain like '.local' has to be added to the hostname.",
                     "force_ipv4": "In dual-stack networks, it may be necessary to restrict communication to IPv4."
                 }
+            },
+            "discovery_confirm": {
+                "description": "Drooff fire+ found at {host}. Do you want to set it up?"
             }
         },
         "error": {
@@ -21,8 +24,10 @@
         "abort": {
             "already_configured": "This entry is already configured.",
             "reconfigure_successful": "Reconfiguration successful.",
-            "unique_id_mismatch": "Reconfiguration aborted. A device with a different serial number was detected."
-        }
+            "unique_id_mismatch": "Reconfiguration aborted. A device with a different serial number was detected.",
+            "cannot_connect": "Unable to connect to the discovered Drooff fire+."
+        },
+        "flow_title": "{host}"
     },
     "entity": {
         "binary_sensor": {

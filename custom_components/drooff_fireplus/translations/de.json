@@ -12,6 +12,9 @@
                     "host": "Der Hostname oder die IP-Adresse der Drooff fire+ Webanwendung. In manchen Fällen muss eine Domain wie '.local' an den Hostnamen angehängt werden.",
                     "force_ipv4": "In Dual-Stack-Netzwerken kann es erforderlich sein, die Kommunikation auf IPv4 zu beschränken."
                 }
+            },
+            "discovery_confirm": {
+                "description": "Drooff fire+ unter {host} gefunden. Möchtest du sie einrichten?"
             }
         },
         "error": {
@@ -21,8 +24,10 @@
         "abort": {
             "already_configured": "Dieser Eintrag ist bereits konfiguriert.",
             "reconfigure_successful": "Neukonfiguration erfolgreich.",
-            "unique_id_mismatch": "Neukonfiguration abgebrochen. Es wurde ein Gerät mit einer anderen Seriennummer erkannt."
-        }
+            "unique_id_mismatch": "Neukonfiguration abgebrochen. Es wurde ein Gerät mit einer anderen Seriennummer erkannt.",
+            "cannot_connect": "Die gefundene Drooff fire+ ist nicht erreichbar."
+        },
+        "flow_title": "{host}"
     },
     "entity": {
         "binary_sensor": {

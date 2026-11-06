@@ -27,6 +27,10 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 3. Search for "Drooff fire+" and select it.
 4. You will be prompted to enter the hostname used by your Drooff fire+ web application. In the default configuration, this is "fire".
 
+If the fire+ keeps its default hostname "fire", Home Assistant usually discovers it automatically (DHCP) and offers to set it up under `Devices & Services`. When the fire+ was set up with its IP address, a changed IP address is picked up automatically.
+
+Diagnostics (parsed values and the raw responses of the fire+, host and serial number removed) can be downloaded on the device page for bug reports.
+
 ## Entities
 
 ### Controls
