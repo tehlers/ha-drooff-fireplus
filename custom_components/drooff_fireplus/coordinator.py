@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from homeassistant.core import HomeAssistant
 
-    from .api import FireplusResponse
+    from .api import FireplusResponse, FireplusUpdateStatus
     from .data import FireplusConfigEntry
 
 
@@ -60,6 +60,11 @@ class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
         # Since when the door is open while the stove is hot
         self.door_open_since: datetime | None = None
         self.door_open_too_long: bool | None = None
+        # None until read once, False if the fire+ does not report its updates
+        self.update_status: FireplusUpdateStatus | None = None
+        self.update_supported: bool | None = None
+        # Number of enabled sensors that show the update status
+        self.update_sensors = 0
         super().__init__(
             hass,
             logger=LOGGER,
@@ -133,4 +138,21 @@ class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
             self._statistics_store.async_delay_save(self.statistics.as_dict, STATISTICS_SAVE_DELAY)
             self.async_update_listeners()
         elif first:
+            self.async_update_listeners()
+
+    async def async_update_update_status(self, _now: datetime | None = None) -> None:
+        """Read the result of the last software update, if one of its sensors is enabled."""
+        if not self.update_sensors:
+            return
+        try:
+            status = await self.config_entry.runtime_data.client.async_get_update_status()
+        except FireplusApiClientError as exception:
+            if self.update_supported is None:
+                self.update_supported = False
+                self.async_update_listeners()
+            LOGGER.debug("Reading the update status failed: %s", exception)
+            return
+        self.update_supported = True
+        if status != self.update_status:
+            self.update_status = status
             self.async_update_listeners()

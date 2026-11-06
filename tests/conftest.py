@@ -50,6 +50,13 @@ EVENTS = [
 ]
 
 
+# Answers of UpdateErgebniss.php and easupdate.php of a fire+ 2.4.6
+UPDATE = (
+    '\ufeff"2, Es sind keine neuen Updates verf\\u00fcgbar, das System ist auf dem aktuellsten Stand\\n"',
+    '\ufeff"Mittwoch, 03:43 Uhr"',
+)
+
+
 def events_response(events: list[tuple[int, str, str]]) -> str:
     """Encode events like easevents.php."""
     return '\ufeff"' + "".join(f"{time},{door},{phase}," for time, door, phase in events) + '"'
@@ -72,6 +79,8 @@ def mock_fireplus(
     aioclient_mock.get(f"http://{host}/php/easkonfig.php", text=response(configuration or CONFIGURATION_V2_4))
     aioclient_mock.post(f"http://{host}/php/easpanelW.php", text="")
     aioclient_mock.get(f"http://{host}/php/easevents.php", text=events_response(events or []))
+    aioclient_mock.get(f"http://{host}/php/UpdateErgebniss.php", text=UPDATE[0])
+    aioclient_mock.get(f"http://{host}/php/easupdate.php", text=UPDATE[1])
 
 
 @pytest.fixture(autouse=True)

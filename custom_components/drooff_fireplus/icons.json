@@ -99,6 +99,19 @@
                     "not_found": "mdi:alert",
                     "error": "mdi:alert"
                 }
+            },
+            "update_result": {
+                "default": "mdi:update",
+                "state": {
+                    "no_updates": "mdi:check-circle-outline",
+                    "successful": "mdi:check-circle-outline",
+                    "failed": "mdi:alert-circle-outline",
+                    "running": "mdi:progress-download",
+                    "started": "mdi:progress-download"
+                }
+            },
+            "update_schedule": {
+                "default": "mdi:calendar-clock"
             }
         },
         "switch": {

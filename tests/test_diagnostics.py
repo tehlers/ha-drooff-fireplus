@@ -32,3 +32,4 @@ async def test_diagnostics(
     assert diagnostics["data"]["operation_status"] == "REGULAR"
     assert len(diagnostics["raw_responses"]) == 2
     assert "ABC123" not in str(diagnostics)
+    assert diagnostics["update_status"] is None  # its sensors are disabled by default

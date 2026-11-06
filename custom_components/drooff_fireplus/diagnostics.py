@@ -38,6 +38,12 @@ async def async_get_config_entry_diagnostics(
         "raw_responses": _redact_raw(data),
         "events_supported": coordinator.events_supported,
         "statistics": coordinator.statistics.as_dict(),
+        "update_supported": coordinator.update_supported,
+        "update_status": (
+            {**vars(coordinator.update_status), "result": coordinator.update_status.result.name}
+            if coordinator.update_status
+            else None
+        ),
     }
 
 

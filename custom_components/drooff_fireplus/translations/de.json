@@ -146,6 +146,22 @@
                     "cleaning_required": "Reinigen",
                     "error": "Fehler"
                 }
+            },
+            "update_result": {
+                "name": "Letztes Update",
+                "state": {
+                    "not_started": "Nicht gestartet",
+                    "started": "Gestartet",
+                    "no_updates": "Keine Updates vorhanden",
+                    "running": "Läuft",
+                    "successful": "Erfolgreich",
+                    "failed": "Fehlgeschlagen",
+                    "postponed": "Angehalten, bis der Ofen aus ist",
+                    "unknown": "Unbekannt"
+                }
+            },
+            "update_schedule": {
+                "name": "Update-Suche"
             }
         },
         "switch": {

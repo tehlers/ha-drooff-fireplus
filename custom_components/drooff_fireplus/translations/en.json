@@ -146,6 +146,22 @@
                     "cleaning_required": "Cleaning required",
                     "error": "Error"
                 }
+            },
+            "update_result": {
+                "name": "Last update",
+                "state": {
+                    "not_started": "Not started",
+                    "started": "Started",
+                    "no_updates": "No updates available",
+                    "running": "Running",
+                    "successful": "Successful",
+                    "failed": "Failed",
+                    "postponed": "Postponed until the stove is off",
+                    "unknown": "Unknown"
+                }
+            },
+            "update_schedule": {
+                "name": "Update search"
             }
         },
         "switch": {

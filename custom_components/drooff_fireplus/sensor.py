@@ -21,7 +21,13 @@ from homeassistant.const import (
     UnitOfTime,
 )
 
-from .api import FireplusControlMode, FireplusError, FireplusFilterStatus, FireplusOperationStatus
+from .api import (
+    FireplusControlMode,
+    FireplusError,
+    FireplusFilterStatus,
+    FireplusOperationStatus,
+    FireplusUpdateResult,
+)
 from .const import ETHERNET_LINK
 from .entity import FireplusEntity
 
@@ -32,7 +38,7 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
 
-    from .api import FireplusResponse
+    from .api import FireplusResponse, FireplusUpdateStatus
     from .coordinator import FireplusDataUpdateCoordinator
     from .data import FireplusConfigEntry
     from .statistics import FireplusStatistics
@@ -233,6 +239,36 @@ STATISTICS_SENSORS: tuple[FireplusStatisticsSensorEntityDescription, ...] = (
 )
 
 
+@dataclass(frozen=True, kw_only=True)
+class FireplusUpdateSensorEntityDescription(SensorEntityDescription):
+    """Describes a sensor with the software update information of the fire+."""
+
+    value_fn: Callable[[FireplusUpdateStatus], StateType]
+    attributes_fn: Callable[[FireplusUpdateStatus], dict[str, Any]] | None = None
+
+
+UPDATE_SENSORS: tuple[FireplusUpdateSensorEntityDescription, ...] = (
+    FireplusUpdateSensorEntityDescription(
+        key="update_result",
+        translation_key="update_result",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        device_class=SensorDeviceClass.ENUM,
+        options=[result.name.lower() for result in FireplusUpdateResult],
+        value_fn=lambda status: status.result.name.lower(),
+        # the message of the fire+ is German only
+        attributes_fn=lambda status: {"code": status.code, "message": status.message},
+    ),
+    FireplusUpdateSensorEntityDescription(
+        key="update_schedule",
+        translation_key="update_schedule",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda status: status.schedule or None,
+    ),
+)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
     entry: FireplusConfigEntry,
@@ -242,6 +278,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data.coordinator
     async_add_entities(FireplusSensor(coordinator, description) for description in SENSORS)
     async_add_entities(FireplusStatisticsSensor(coordinator, description) for description in STATISTICS_SENSORS)
+    async_add_entities(FireplusUpdateSensor(coordinator, description) for description in UPDATE_SENSORS)
 
 
 class FireplusSensor(FireplusEntity, SensorEntity):
@@ -316,3 +353,48 @@ class FireplusStatisticsSensor(FireplusEntity, SensorEntity):
     def native_value(self) -> StateType | datetime:
         """Return the native value of the sensor."""
         return self.entity_description.value_fn(self.coordinator.statistics)
+
+
+class FireplusUpdateSensor(FireplusEntity, SensorEntity):
+    """Sensor with the software update information of the fire+."""
+
+    entity_description: FireplusUpdateSensorEntityDescription
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+        description: FireplusUpdateSensorEntityDescription,
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, description)
+
+    async def async_added_to_hass(self) -> None:
+        """Read the update status as long as the sensor is enabled."""
+        await super().async_added_to_hass()
+        self.coordinator.update_sensors += 1
+        if self.coordinator.update_status is None:
+            await self.coordinator.async_update_update_status()
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Stop reading the update status when no sensor needs it."""
+        self.coordinator.update_sensors -= 1
+        await super().async_will_remove_from_hass()
+
+    @property
+    def available(self) -> bool:
+        """Return the availability of the sensor."""
+        return super().available and self.coordinator.update_status is not None
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the native value of the sensor."""
+        status = self.coordinator.update_status
+        return self.entity_description.value_fn(status) if status else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return additional attributes."""
+        status = self.coordinator.update_status
+        if self.entity_description.attributes_fn is None or status is None:
+            return None
+        return self.entity_description.attributes_fn(status)

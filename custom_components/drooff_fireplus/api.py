@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import socket
 import time
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any
 
@@ -93,6 +95,12 @@ class FireplusApiClient:
     async def async_get_events(self, since: int) -> str:
         """Get the event log (door and phase changes) since a Unix time, 0 returns the last days."""
         return await self._api_wrapper(method="get", url=f"http://{self._host}/php/easevents.php?id={since}")
+
+    async def async_get_update_status(self) -> FireplusUpdateStatus:
+        """Get the result of the last update and when the fire+ looks for updates."""
+        result = await self._api_wrapper(method="get", url=f"http://{self._host}/php/UpdateErgebniss.php")
+        schedule = await self._api_wrapper(method="get", url=f"http://{self._host}/php/easupdate.php")
+        return FireplusUpdateStatus.parse(result, schedule)
 
     async def async_update_settings(
         self,
@@ -370,6 +378,68 @@ class FireplusControlMode(Enum):
     REMOTE_CONTROL = auto()
     REMOTE_CONTROL_AUTOMATIC = auto()
     ROOM_CONTROLLER = auto()
+
+
+class FireplusUpdateResult(Enum):
+    """Result of the last software update, as shown by the service page of the web app."""
+
+    NOT_STARTED = auto()
+    STARTED = auto()
+    NO_UPDATES = auto()
+    RUNNING = auto()
+    SUCCESSFUL = auto()
+    FAILED = auto()
+    POSTPONED = auto()
+    UNKNOWN = auto()
+
+
+# Codes of php/UpdateErgebniss.php ("<code>, <message>")
+_UPDATE_RESULT_LOOKUP = {
+    0: FireplusUpdateResult.NOT_STARTED,
+    1: FireplusUpdateResult.STARTED,
+    2: FireplusUpdateResult.NO_UPDATES,
+    3: FireplusUpdateResult.RUNNING,
+    4: FireplusUpdateResult.SUCCESSFUL,
+    5: FireplusUpdateResult.FAILED,
+    6: FireplusUpdateResult.POSTPONED,
+}
+
+
+def _decode_text(response: str) -> str:
+    """Decode a text answer of the fire+: a JSON string after a byte order mark."""
+    text = response.lstrip("\ufeff").strip()
+    try:
+        value = json.loads(text)
+    except ValueError:
+        value = text.strip('"')
+    return str(value).strip()
+
+
+@dataclass(frozen=True)
+class FireplusUpdateStatus:
+    """Result of the last software update and the time of the weekly update search."""
+
+    result: FireplusUpdateResult
+    code: int | None
+    message: str
+    schedule: str
+
+    @classmethod
+    def parse(cls, result_response: str, schedule_response: str) -> FireplusUpdateStatus:
+        """Parse the answers of UpdateErgebniss.php and easupdate.php."""
+        code_text, _, message = _decode_text(result_response).partition(",")
+        try:
+            code: int | None = int(code_text)
+        except ValueError:
+            code = None
+        return cls(
+            result=_UPDATE_RESULT_LOOKUP.get(code, FireplusUpdateResult.UNKNOWN)
+            if code is not None
+            else FireplusUpdateResult.UNKNOWN,
+            code=code,
+            message=message.strip(),
+            schedule=_decode_text(schedule_response),
+        )
 
 
 class FireplusFilterStatus(Enum):

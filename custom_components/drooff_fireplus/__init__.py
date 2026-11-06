@@ -138,6 +138,8 @@ async def async_setup_entry(
     await coordinator.async_load_statistics()
     await coordinator.async_update_statistics()
     entry.async_on_unload(async_track_time_interval(hass, coordinator.async_update_statistics, EVENTS_INTERVAL))
+    # result of the last software update, only read while one of its sensors is enabled
+    entry.async_on_unload(async_track_time_interval(hass, coordinator.async_update_update_status, EVENTS_INTERVAL))
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))

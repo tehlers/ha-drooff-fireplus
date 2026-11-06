@@ -93,6 +93,8 @@ On the first start the counters include the events still stored on the fire+ (us
 | `Automatic updates`    | Binary Sensor | The fire+ installs updates automatically (recent web applications) |
 | `Draught warning`      | Binary Sensor | The draught warning of the fire+ is enabled (recent web applications) |
 | `Web app version`      | Sensor        | Version of the fire+ web application (recent web applications)   |
+| `Last update`          | Sensor        | Result of the last software update: `no_updates`, `started`, `running`, `successful`, `failed`, `postponed` (until the stove is off), `not_started` or `unknown`. The message of the fire+ (German) is an attribute. Disabled by default, read once a minute while enabled |
+| `Update search`        | Sensor        | When the fire+ looks for updates every week, e.g. "Mittwoch, 03:43 Uhr". Disabled by default |
 
 ## Dashboard card
 
