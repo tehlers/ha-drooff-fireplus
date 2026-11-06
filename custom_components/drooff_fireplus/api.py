@@ -214,6 +214,11 @@ class FireplusResponse:
 
     __hash__ = None  # type: ignore[assignment]
 
+    @property
+    def raw(self) -> tuple[str, str]:
+        """Return the unparsed responses of the fire+ (panel, configuration)."""
+        return self._raw
+
     def __init_version1(self, panel_values: list[str], configuration_values: list[str]) -> None:
         self.volume = None
         self.ember_burndown = panel_values[11] == "1"

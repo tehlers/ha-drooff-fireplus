@@ -24,6 +24,10 @@ MAX_POLLING_INTERVAL = 60
 
 ETHERNET_LINK = 5
 
+MANUFACTURER = "Drooff"
+
+MODEL = "fire+"
+
 CARD_FILENAME = "drooff-fireplus-card.js"
 
 CARD_URL = f"/{DOMAIN}/{CARD_FILENAME}"

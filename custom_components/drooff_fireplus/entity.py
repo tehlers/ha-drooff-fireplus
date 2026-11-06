@@ -3,23 +3,36 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import FireplusApiClientError
-from .const import DOMAIN
+from .const import DOMAIN, MANUFACTURER, MODEL
 from .coordinator import FireplusDataUpdateCoordinator
+
+if TYPE_CHECKING:
+    from homeassistant.helpers.entity import EntityDescription
 
 
 class FireplusEntity(CoordinatorEntity[FireplusDataUpdateCoordinator]):
     """FireplusEntity class."""
 
-    def __init__(self, coordinator: FireplusDataUpdateCoordinator) -> None:
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: FireplusDataUpdateCoordinator,
+        description: EntityDescription,
+        unique_id_suffix: str | None = None,
+    ) -> None:
         """Initialize."""
         super().__init__(coordinator)
+        self.entity_description = description
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{unique_id_suffix or description.key}"
+        data = coordinator.data
         self._attr_device_info = DeviceInfo(
             identifiers={
                 (
@@ -27,6 +40,10 @@ class FireplusEntity(CoordinatorEntity[FireplusDataUpdateCoordinator]):
                     coordinator.config_entry.entry_id,
                 ),
             },
+            manufacturer=MANUFACTURER,
+            model=MODEL,
+            serial_number=data.serial_number if data else None,
+            sw_version=str(data.version) if data else None,
             configuration_url=f"http://{coordinator.host}",
         )
 
