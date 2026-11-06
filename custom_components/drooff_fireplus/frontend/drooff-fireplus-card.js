@@ -6,7 +6,7 @@
  * next to the values of the fire+ combustion control. Every value can be hidden.
  */
 
-const CARD_VERSION = "1.0.2";
+const CARD_VERSION = "1.0.3";
 const DOMAIN = "drooff_fireplus";
 
 /* translation_key -> entity domain, plus entity_id suffixes as fallback */
@@ -2074,7 +2074,11 @@ ha-card { overflow: hidden; container-type: inline-size; height: 100%; box-sizin
   background: linear-gradient(145deg, #3a3a3a, #1c1c1c); padding: 8px; box-sizing: border-box;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 2px 6px rgba(0,0,0,0.35); }
 .wrap.vertical .stove { width: auto; height: 100%; }
-.stove canvas { display: block; width: 100%; height: 100%; border-radius: 12px; background: #0b0807; }
+/* The canvas is taken out of the layout: its pixel size (2x the CSS size) must never size the stove.
+   Safari counts it as min-content width, the stove then grew with every resize and the page jumped. */
+.stove { min-width: 0; min-height: 0; }
+.stove canvas { position: absolute; top: 8px; left: 8px; width: calc(100% - 16px); height: calc(100% - 16px);
+  display: block; border-radius: 12px; background: #0b0807; }
 .stove .glass { position: absolute; inset: 8px; border-radius: 12px; pointer-events: none;
   background: linear-gradient(125deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 28%, rgba(255,255,255,0) 45%),
               linear-gradient(0deg, rgba(0,0,0,0.25), rgba(0,0,0,0) 12%);
@@ -2087,7 +2091,7 @@ ha-card { overflow: hidden; container-type: inline-size; height: 100%; box-sizin
 .flame-box.has-img { height: auto !important; }
 .wrap.vertical .stove-img { max-width: 260px; margin: 0 auto; }
 .stove-img .win { position: absolute; overflow: hidden; background: #0b0807; }
-.stove-img .win canvas { display: block; width: 100%; height: 100%; }
+.stove-img .win canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 .stove-img .glass { position: absolute; pointer-events: none;
   background: linear-gradient(125deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 28%, rgba(255,255,255,0) 45%);
   box-shadow: inset 0 0 14px rgba(0,0,0,0.8); }
