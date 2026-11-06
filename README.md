@@ -67,6 +67,18 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 | `Wifi signal strength` | Sensor        | Strength of the Wifi signal (only Drooff fire+ v2)                |
 | `Ethernet link`        | Binary Sensor | Network is connected via Ethernet (only Drooff fire+ v2)          |
 
+## Dashboard card
+
+The integration ships a Lovelace card with an animated fire that follows the current combustion state, next to the values and controls of the fire+. The card is registered automatically, no resource has to be added. Edit a dashboard, choose *Add card* and pick **Drooff fire+ Card**, or use YAML:
+
+```yaml
+type: custom:drooff-fireplus-card
+```
+
+The card editor detects the fire+ device and its entities automatically. Every value can be hidden, a picture of your own stove can be used, and optional graphics (temperature history, timeline, wood usage, draught gauge) can be enabled. All options are described in the [card documentation](docs/dashboard-card.md) ([Deutsch](docs/dashboard-card.de.md)).
+
+![Dashboard card](docs/images/overview.png)
+
 ## Disclaimer
 
 > [!IMPORTANT]
