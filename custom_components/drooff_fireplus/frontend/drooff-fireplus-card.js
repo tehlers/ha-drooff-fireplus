@@ -6,7 +6,7 @@
  * next to the values of the fire+ combustion control. Every value can be hidden.
  */
 
-const CARD_VERSION = "1.0.1";
+const CARD_VERSION = "1.0.2";
 const DOMAIN = "drooff_fireplus";
 
 /* translation_key -> entity domain, plus entity_id suffixes as fallback */
@@ -94,6 +94,7 @@ const DEFAULTS = {
   draught_max: 10,
   draught_optimal_from: -12,
   draught_optimal_to: -20,
+  draught_partial_load: false,
   language: "auto", min_temperature: 80, max_temperature: 600, log_weight: 0.9, controls: true, layout: "auto", wall: "chamotte" };
 
 /* find the entities of the integration */
@@ -181,6 +182,7 @@ const I18N = {
     now: "jetzt",
     no_history: "Noch keine Verlaufsdaten.",
     draught_target: "Optimal",
+    draught_partial: "Teillast",
     stage: "Stufe",
     draught_ok: "optimal",
     draught_low: "schwacher Zug",
@@ -207,6 +209,8 @@ const I18N = {
       draught_max: "Skala bis (Pa)",
       draught_optimal_from: "Optimal ab (Pa)",
       draught_optimal_to: "Optimal bis (Pa)",
+      draught_partial_load: "Teillast berücksichtigen (experimentell)",
+      draught_optimal_from_partial: "Optimal ab bei Teillast (Pa)",
       lang_auto: "Automatisch (Benutzersprache)",
       draught_tile: "Kachel",
       draught_gauge: "Zeigerinstrument (Gauge)",
@@ -224,6 +228,7 @@ const I18N = {
       stove_model: "Ofenmodell (Drooff)",
       stove_model_none: "– kein Modell –",
       stove_model_info: "{kw} kW · Mindestförderdruck {pa} Pa. Optimaler Zug −{pa} … −{max} Pa wurde übernommen (änderbar unter „Erweitert: Kaminzug“).",
+      stove_model_partial: " Bei Teillast (fire+ Leistung „4“, Brennstufe 1–3 bzw. 1–4 bei Firmware 1.x) gilt laut Drooff ein Mindestförderdruck von {pp} Pa. Experimentell: Mit „Teillast berücksichtigen“ unter „Erweitert: Kaminzug“ beginnt die Anzeige dann bei −{pp} Pa.",
       stove_model_link: "Produktseite bei Drooff öffnen",
       stove_model_steps: "So kommt das Ofenbild in die Karte: 1. Produktseite öffnen und die gewünschte Ausführung wählen. 2. Das freigestellte Produktbild (Ofen ohne Hintergrund) mit Rechtsklick → „Bild speichern unter …“ auf deinem Gerät speichern. 3. Hier „Bild auswählen …“ klicken und die Datei wählen. Die Karte stellt das Bild frei und erkennt die Scheibe automatisch.",
       stove_model_copyright: "Die Produktbilder sind urheberrechtlich geschützt (© Drooff). Deshalb lädt die Karte sie nicht selbst herunter und liefert sie nicht mit. Bitte nur privat im eigenen Dashboard verwenden.",
@@ -316,6 +321,7 @@ const I18N = {
     now: "now",
     no_history: "No history data yet.",
     draught_target: "Optimal",
+    draught_partial: "partial load",
     stage: "stage",
     draught_ok: "optimal",
     draught_low: "weak draught",
@@ -342,6 +348,8 @@ const I18N = {
       draught_max: "Scale to (Pa)",
       draught_optimal_from: "Optimal from (Pa)",
       draught_optimal_to: "Optimal to (Pa)",
+      draught_partial_load: "Consider partial load (experimental)",
+      draught_optimal_from_partial: "Optimal from at partial load (Pa)",
       lang_auto: "Automatic (user language)",
       draught_tile: "Tile",
       draught_gauge: "Gauge",
@@ -359,6 +367,7 @@ const I18N = {
       stove_model: "Stove model (Drooff)",
       stove_model_none: "– no model –",
       stove_model_info: "{kw} kW · minimum draught {pa} Pa. Optimal draught −{pa} … −{max} Pa was applied (can be changed under “Advanced: draught”).",
+      stove_model_partial: " At partial load (fire+ power “4”, burn rate 1–3, or 1–4 with firmware 1.x) Drooff specifies a minimum draught of {pp} Pa. Experimental: with “Consider partial load” under “Advanced: draught” the gauge then starts at −{pp} Pa.",
       stove_model_link: "Open product page at Drooff",
       stove_model_steps: "How to get the stove picture into the card: 1. Open the product page and choose the variant you have. 2. Right-click the cut-out product picture (stove without background) → “Save image as …” and save it on your device. 3. Click “Choose picture …” here and select the file. The card removes the background and detects the window automatically.",
       stove_model_copyright: "The product pictures are protected by copyright (© Drooff). That is why the card neither downloads nor ships them. Please use them only privately in your own dashboard.",
@@ -449,6 +458,7 @@ const I18N = {
     now: "nu",
     no_history: "Nog geen historische gegevens.",
     draught_target: "Optimaal",
+    draught_partial: "deellast",
     stage: "stand",
     draught_ok: "optimaal",
     draught_low: "zwakke trek",
@@ -552,6 +562,7 @@ const I18N = {
     now: "maintenant",
     no_history: "Pas encore de données d'historique.",
     draught_target: "Optimal",
+    draught_partial: "charge partielle",
     stage: "niveau",
     draught_ok: "optimal",
     draught_low: "tirage faible",
@@ -655,6 +666,7 @@ const I18N = {
     now: "ora",
     no_history: "Nessun dato storico.",
     draught_target: "Ottimale",
+    draught_partial: "carico parziale",
     stage: "livello",
     draught_ok: "ottimale",
     draught_low: "tiraggio debole",
@@ -758,6 +770,7 @@ const I18N = {
     now: "teraz",
     no_history: "Brak danych historycznych.",
     draught_target: "Optymalnie",
+    draught_partial: "obciążenie częściowe",
     stage: "stopień",
     draught_ok: "optymalny",
     draught_low: "słaby ciąg",
@@ -861,6 +874,7 @@ const I18N = {
     now: "nyní",
     no_history: "Zatím žádná historická data.",
     draught_target: "Optimum",
+    draught_partial: "částečný výkon",
     stage: "stupeň",
     draught_ok: "optimální",
     draught_low: "slabý tah",
@@ -964,6 +978,7 @@ const I18N = {
     now: "nu",
     no_history: "Ingen historikdata endnu.",
     draught_target: "Optimalt",
+    draught_partial: "dellast",
     stage: "trin",
     draught_ok: "optimalt",
     draught_low: "svagt træk",
@@ -2631,13 +2646,27 @@ class DrooffFireplusCard extends HTMLElement {
     }
   }
 
+  /* The fire+ API sets "Leistung" 4 (partial load) or 8 (nominal load) for each burn rate:
+     firmware 2.x stages 1-3 = 4, 4-6 = 8; firmware 1.x (7 stages) 1-4 = 4, 5-7 = 8
+     (_BURN_RATE_LOOKUP_V1/V2 in api.py). */
+  _partialLoad() {
+    const br = this._st("burn_rate");
+    const v = br ? Number(br.state) : NaN;
+    if (!Number.isFinite(v)) return false;
+    const stages = Number(br.attributes && br.attributes.max) >= 7 ? 7 : 6;
+    return v <= (stages === 7 ? 4 : 3);
+  }
+
   /* gauge from draught_max (left, overpressure) to draught_min (right, strong draught) */
   _draughtGauge(v, t) {
     const c = this._config;
     const num0 = (x, d) => (Number.isFinite(Number(x)) ? Number(x) : d);
     const max = num0(c.draught_max, DEFAULTS.draught_max);
     const min = num0(c.draught_min, DEFAULTS.draught_min) < max ? num0(c.draught_min, DEFAULTS.draught_min) : max - 1;
-    const o1 = num0(c.draught_optimal_from, DEFAULTS.draught_optimal_from);
+    const pf = c.draught_optimal_from_partial;
+    /* experimental, off by default */
+    const partial = c.draught_partial_load === true && pf != null && pf !== "" && Number.isFinite(Number(pf)) && this._partialLoad();
+    const o1 = partial ? Number(pf) : num0(c.draught_optimal_from, DEFAULTS.draught_optimal_from);
     const o2 = num0(c.draught_optimal_to, DEFAULTS.draught_optimal_to);
     const hi = Math.min(0, Math.max(o1, o2)); /* weak end of the optimum, e.g. -12 */
     const lo = Math.min(o1, o2); /* strong end of the optimum, e.g. -20 */
@@ -2694,7 +2723,7 @@ class DrooffFireplusCard extends HTMLElement {
           <div class="gauge-text">
             <div class="val" style="font-size:1.6em;font-weight:400;color:${col}">${fmt(v)} <small style="font-size:0.55em;color:var(--secondary-text-color)">Pa</small></div>
             <div class="sub">${esc(status)}</div>
-            <div class="sub">${t.draught_target} <span style="white-space:nowrap">${fmt(hi)} … ${fmt(lo)} Pa</span></div>
+            <div class="sub">${t.draught_target}${partial ? ` (${esc(t.draught_partial)})` : ""} <span style="white-space:nowrap">${fmt(hi)} … ${fmt(lo)} Pa</span></div>
           </div>
         </div>
       </div>`;
@@ -3005,30 +3034,36 @@ class DrooffFireplusCard extends HTMLElement {
 const DEFAULT_WINDOW = { left: 20, top: 20, width: 60, height: 40 };
 
 /* Drooff stoves that can be equipped with fire+ (all wood stoves except APRICA 2 Cook and FARINI).
-   [id, name, output kW, minimum draught Pa, product page slug if known].
-   Source: Drooff catalogue / technical information; above 20 Pa a draught limiter is required. */
+   [id, name, output kW, minimum draught Pa at nominal load, at partial load (null = not given), product page slug].
+   "3–6" is a heat output range, "4 / 8" are two rated outputs (ECO / POWER).
+   Source: Drooff "Technische Informationen" / declarations of performance, checked 2026-11-06:
+   ANDALO 3 (01/2025), APRICA 2 (07/2021), AROLA Edition (06/2024), AROLA 2 (10/2025),
+   BRUNELLO 2 (05/2026), CATANIA (05/2026), FORANO (06/2023), GARDA 2 (05/2026), IMOLA (12/2021),
+   LIVERA 2 (12/2024), LIVERA Panorama (07/2021), VARESE 3 (06/2024), VARESE 3 W (09/2024).
+   All documents: above 20 Pa a draught limiter is required. */
 const DROOFF_BASE = "https://www.drooff-kaminofen.de/drooff/de/";
 const DRAUGHT_LIMIT = 20;
 const STOVE_MODELS = [
-  ["andalo3s", "ANDALO 3 S", "3–6", 12],
-  ["andalo3m", "ANDALO 3 M", "3–6", 12],
-  ["andalo3l", "ANDALO 3 L", "3–6", 12],
-  ["aprica2", "APRICA 2 / Trend / Plus / Edition", "3–6", 12],
-  ["arola", "AROLA / Edition", "4–8", 12, "arola.html"],
-  ["brunello2s", "BRUNELLO 2 S", "3–6", 12],
-  ["brunello2m", "BRUNELLO 2 M", "3–6", 12],
-  ["brunello2l", "BRUNELLO 2 L / Groove", "3–6", 12, "brunello-2-l.html"],
-  ["catania", "CATANIA", "3–6", 12],
-  ["forano", "FORANO", "3–6", 12, "forano.html"],
-  ["garda", "GARDA / Plus", "4–8", 12],
-  ["imola", "IMOLA / SP", "4–8", 12],
-  ["livera2m", "LIVERA 2 M", "3–6", 12],
-  ["livera2l", "LIVERA 2 L", "3–6", 12],
-  ["liverapm", "LIVERA Panorama M", "5–8", 12],
-  ["liverapl", "LIVERA Panorama L", "5–8", 12],
-  ["varese3", "VARESE 3", "3–6", 12],
-  ["varese3w", "VARESE 3 W", "7.9–10.5", 12],
-].map(([id, name, kw, pa, slug]) => ({ id, name, kw, pa, url: DROOFF_BASE + (slug || "kaminofen") }));
+  ["andalo3s", "ANDALO 3 S", "3–6", 12, null],
+  ["andalo3m", "ANDALO 3 M", "3–6", 12, null],
+  ["andalo3l", "ANDALO 3 L", "3–6", 12, null],
+  ["aprica2", "APRICA 2 / Trend / Plus / Edition", "3–6", 12, null],
+  ["arola", "AROLA Edition", "4 / 8", 12, null, "arola.html"],
+  ["arola2", "AROLA 2 / Edition", "3–6", 13, 6],
+  ["brunello2s", "BRUNELLO 2 S", "3–6", 12, 6],
+  ["brunello2m", "BRUNELLO 2 M", "3–6", 12, 6],
+  ["brunello2l", "BRUNELLO 2 L / Groove", "3–6", 12, 6, "brunello-2-l.html"],
+  ["catania", "CATANIA", "3–6", 12, 6, "catania.html"],
+  ["forano", "FORANO", "3–6", 12, null, "forano.html"],
+  ["garda", "GARDA 2 / Plus", "3–6", 13, 6, "garda.html"],
+  ["imola", "IMOLA / SP", "4 / 8", 12, null],
+  ["livera2m", "LIVERA 2 M", "3–6", 12, null],
+  ["livera2l", "LIVERA 2 L", "3–6", 12, null],
+  ["liverapm", "LIVERA Panorama M", "5 / 8", 12, null],
+  ["liverapl", "LIVERA Panorama L", "5 / 8", 12, null],
+  ["varese3", "VARESE 3", "3–6", 12, null],
+  ["varese3w", "VARESE 3 W", "7.9 / 10.5", 12, null],
+].map(([id, name, kw, pa, partial, slug]) => ({ id, name, kw, pa, partial, url: DROOFF_BASE + (slug || "kaminofen") }));
 
 const loadImageFile = (file) =>
   new Promise((resolve, reject) => {
@@ -3366,6 +3401,10 @@ class DrooffFireplusCardEditor extends HTMLElement {
               ["draught_optimal_to", -100, 0, 0.5],
             ].map(([name, min, max, step]) => ({ name, selector: { number: { min, max, step, mode: "box" } } })),
           },
+          { name: "draught_partial_load", selector: { boolean: {} } },
+          ...(this._config.draught_partial_load
+            ? [{ name: "draught_optimal_from_partial", selector: { number: { min: -100, max: 0, step: 0.5, mode: "box" } } }]
+            : []),
         ],
       },
       {
@@ -3504,7 +3543,11 @@ class DrooffFireplusCardEditor extends HTMLElement {
       this._picker.querySelector("select[data-a=model]").addEventListener("change", (ev) => {
         const m = STOVE_MODELS.find((x) => x.id === ev.target.value);
         const data = { ...this._form.data, stove_model: m ? m.id : undefined };
-        if (m) Object.assign(data, { draught_optimal_from: -m.pa, draught_optimal_to: -DRAUGHT_LIMIT });
+        if (m) {
+          Object.assign(data, { draught_optimal_from: -m.pa, draught_optimal_to: -DRAUGHT_LIMIT });
+          if (m.partial) data.draught_optimal_from_partial = -m.partial;
+          else delete data.draught_optimal_from_partial;
+        }
         this._changed(data);
       });
       if (!this._onSimDone) {
@@ -3548,7 +3591,9 @@ class DrooffFireplusCardEditor extends HTMLElement {
     const mbox = this._picker.querySelector(".model");
     mbox.style.display = model ? "" : "none";
     if (model) {
-      mbox.querySelector(".mi").textContent = t.stove_model_info.replace(/\{kw\}/g, model.kw).replace(/\{pa\}/g, model.pa).replace(/\{max\}/g, DRAUGHT_LIMIT);
+      mbox.querySelector(".mi").textContent =
+        t.stove_model_info.replace(/\{kw\}/g, model.kw).replace(/\{pa\}/g, model.pa).replace(/\{max\}/g, DRAUGHT_LIMIT) +
+        (model.partial && t.stove_model_partial ? t.stove_model_partial.replace(/\{pp\}/g, model.partial) : "");
       mbox.querySelector(".ml").href = model.url;
     }
     const has = !!this._config.stove_image;

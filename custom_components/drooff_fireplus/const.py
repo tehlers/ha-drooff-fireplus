@@ -28,4 +28,4 @@ CARD_FILENAME = "drooff-fireplus-card.js"
 
 CARD_URL = f"/{DOMAIN}/{CARD_FILENAME}"
 
-CARD_VERSION = "1.0.1"
+CARD_VERSION = "1.0.2"

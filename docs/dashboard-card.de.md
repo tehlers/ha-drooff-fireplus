@@ -72,6 +72,8 @@ Alles Weitere wird automatisch erkannt.
 | `draught_display` | `tile` | Kaminzug als `tile` (Kachel) oder `gauge` (Zeigerinstrument) |
 | `draught_min` / `draught_max` | `-30` / `10` | Skala des Gauges in Pa (starker Zug rechts, Überdruck links) |
 | `draught_optimal_from` / `draught_optimal_to` | `-12` / `-20` | Optimaler Bereich in Pa (dunkelgrün). Zwischen 0 und `draught_optimal_from` grau, jenseits von `draught_optimal_to` hellgrün, über 0 rot |
+| `draught_partial_load` | `false` | **Experimentell.** Bei Teillast (Brennstufe 1–3, bei Firmware 1.x 1–4) beginnt der optimale Bereich bei `draught_optimal_from_partial` |
+| `draught_optimal_from_partial` | – | Beginn des optimalen Bereichs bei Teillast, nur mit `draught_partial_load: true`. Wird bei Auswahl eines Ofenmodells mit Teillastwert gesetzt |
 | `graphics` | `[]` | Zusatzgrafiken: `temp_history`, `timeline`, `wood_usage`, `heating_ring`, `air_flap`, `temp_ring` |
 | `history_hours` | `6` | Zeitraum für Temperaturverlauf und Zeitleiste in Stunden |
 | `wood_days` | `7` | Anzahl Tage beim Holzverbrauch |
@@ -111,7 +113,7 @@ Bitte nur Bilder verwenden, die du nutzen darfst; Produktfotos sind in der Regel
 
 ## Ofenmodell
 
-Unter **Ofenbild → Ofenmodell (Drooff)** wählst du dein Drooff-Modell aus (alle Holz-Kaminöfen, die fire+ unterstützen). Die Karte übernimmt dann den optimalen Zugbereich des Modells: vom Mindestförderdruck (bei allen aktuellen Modellen 12 Pa) bis −20 Pa, ab dem Drooff einen Zugbegrenzer vorschreibt. Unter „Erweitert: Kaminzug“ lassen sich die Werte weiter anpassen.
+Unter **Ofenbild → Ofenmodell (Drooff)** wählst du dein Drooff-Modell aus (alle Holz-Kaminöfen, die fire+ unterstützen). Die Karte übernimmt dann den optimalen Zugbereich des Modells: vom Mindestförderdruck (laut den Technischen Informationen von Drooff 12 Pa, bei AROLA 2 und GARDA 2 13 Pa) bis −20 Pa, ab dem Drooff einen Zugbegrenzer vorschreibt. Für BRUNELLO 2, CATANIA, GARDA 2 und AROLA 2 nennt Drooff bei Teillast nur 6 Pa; mit der experimentellen Option „Teillast berücksichtigen“ (Erweitert, standardmäßig aus) beginnt der optimale Bereich bei diesen Modellen bei Brennstufe 1–3 deshalb schon bei −6 Pa. Dass die Brennstufen 1–3 der Teillast aus den Drooff-Unterlagen entsprechen, ist eine Annahme. Drooff verlangt trotzdem, dass der Schornstein 12 bis 20 Pa Zug liefert. Unter „Erweitert: Kaminzug“ lassen sich die Werte weiter anpassen.
 
 Außerdem zeigt die Karte einen Link zur Produktseite bei Drooff und erklärt, wie das Bild in die Karte kommt:
 

@@ -72,6 +72,8 @@ Everything else is detected automatically.
 | `draught_display` | `tile` | Chimney draught as `tile` or `gauge` |
 | `draught_min` / `draught_max` | `-30` / `10` | Gauge scale in Pa (strong draught on the right, overpressure on the left) |
 | `draught_optimal_from` / `draught_optimal_to` | `-12` / `-20` | Optimal range in Pa (dark green). Between 0 and `draught_optimal_from` is grey, beyond `draught_optimal_to` light green, above 0 red |
+| `draught_partial_load` | `false` | **Experimental.** At partial load (burn rate 1–3, 1–4 with firmware 1.x) the optimal range starts at `draught_optimal_from_partial` |
+| `draught_optimal_from_partial` | – | Start of the optimal range at partial load, only with `draught_partial_load: true`. Set when you choose a stove model with a partial-load value |
 | `graphics` | `[]` | Additional graphics: `temp_history`, `timeline`, `wood_usage`, `heating_ring`, `air_flap`, `temp_ring` |
 | `history_hours` | `6` | Time span of temperature history and timeline in hours |
 | `wood_days` | `7` | Number of days for the wood usage |
@@ -111,7 +113,7 @@ Please only use pictures you are allowed to use; product photos are usually copy
 
 ## Stove model
 
-Under **Stove picture → Stove model (Drooff)** you can choose your Drooff model (all wood stoves that support fire+). The card then applies the optimal draught range of that model: from its minimum draught (12 Pa for all current models) to −20 Pa, above which Drooff requires a draught limiter. You can still change the values under “Advanced: draught”.
+Under **Stove picture → Stove model (Drooff)** you can choose your Drooff model (all wood stoves that support fire+). The card then applies the optimal draught range of that model: from its minimum draught (12 Pa according to Drooff’s technical information, 13 Pa for AROLA 2 and GARDA 2) to −20 Pa, above which Drooff requires a draught limiter. For BRUNELLO 2, CATANIA, GARDA 2 and AROLA 2 Drooff specifies only 6 Pa at partial load, so with the experimental option “Consider partial load” (Advanced, off by default) the optimal range for these models starts at −6 Pa at burn rate 1–3. That burn rates 1–3 match Drooff’s partial load is an assumption. Drooff still requires the chimney to provide 12 to 20 Pa. You can still change the values under “Advanced: draught”.
 
 The card also shows a link to the product page at Drooff and explains how to get the picture into the card:
 
