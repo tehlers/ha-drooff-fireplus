@@ -36,6 +36,8 @@ async def async_get_config_entry_diagnostics(
         "update_interval": str(coordinator.update_interval),
         "data": async_redact_data(values, TO_REDACT),
         "raw_responses": _redact_raw(data),
+        "events_supported": coordinator.events_supported,
+        "statistics": coordinator.statistics.as_dict(),
     }
 
 

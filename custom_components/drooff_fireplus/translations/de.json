@@ -116,6 +116,18 @@
             },
             "web_app_version": {
                 "name": "Version Webapp"
+            },
+            "fires": {
+                "name": "Abbrände"
+            },
+            "reloads": {
+                "name": "Nachlegevorgänge"
+            },
+            "wood_consumption": {
+                "name": "Holzverbrauch (geschätzt)"
+            },
+            "last_reload": {
+                "name": "Zuletzt nachgelegt"
             }
         },
         "switch": {

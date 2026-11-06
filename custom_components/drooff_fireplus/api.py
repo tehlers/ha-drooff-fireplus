@@ -77,6 +77,10 @@ class FireplusApiClient:
             self._configuration_time = now
         return FireplusResponse(panel, self._configuration)
 
+    async def async_get_events(self, since: int) -> str:
+        """Get the event log (door and phase changes) since a Unix time, 0 returns the last days."""
+        return await self._api_wrapper(method="get", url=f"http://{self._host}/php/easevents.php?id={since}")
+
     async def async_update_settings(
         self,
         *,

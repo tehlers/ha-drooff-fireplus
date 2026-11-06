@@ -69,6 +69,18 @@
             },
             "web_app_version": {
                 "default": "mdi:application-cog"
+            },
+            "fires": {
+                "default": "mdi:fire"
+            },
+            "reloads": {
+                "default": "mdi:door-open"
+            },
+            "wood_consumption": {
+                "default": "mdi:pine-tree"
+            },
+            "last_reload": {
+                "default": "mdi:clock-outline"
             }
         },
         "switch": {

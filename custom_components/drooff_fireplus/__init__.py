@@ -19,6 +19,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.start import async_at_started
 from homeassistant.loader import async_get_loaded_integration
 
@@ -34,7 +35,7 @@ from custom_components.drooff_fireplus.const import (
 )
 
 from .api import FireplusApiClient
-from .coordinator import FireplusDataUpdateCoordinator
+from .coordinator import FireplusDataUpdateCoordinator, statistics_store
 from .data import FireplusData
 
 if TYPE_CHECKING:
@@ -44,6 +45,8 @@ if TYPE_CHECKING:
     from .data import FireplusConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
+
+EVENTS_INTERVAL = timedelta(seconds=60)
 
 BLUEPRINTS = Path(__file__).parent / "blueprints"
 
@@ -131,6 +134,11 @@ async def async_setup_entry(
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     await coordinator.async_config_entry_first_refresh()
 
+    # statistics from the event log, read less often than the values
+    await coordinator.async_load_statistics()
+    await coordinator.async_update_statistics()
+    entry.async_on_unload(async_track_time_interval(hass, coordinator.async_update_statistics, EVENTS_INTERVAL))
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
@@ -142,7 +150,16 @@ async def async_unload_entry(
     entry: FireplusConfigEntry,
 ) -> bool:
     """Handle removal of an entry."""
+    await entry.runtime_data.coordinator.async_save_statistics()
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(
+    hass: HomeAssistant,
+    entry: FireplusConfigEntry,
+) -> None:
+    """Delete the stored statistics of a removed entry."""
+    await statistics_store(hass, entry.entry_id).async_remove()
 
 
 async def async_reload_entry(

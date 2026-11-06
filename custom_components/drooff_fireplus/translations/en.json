@@ -116,6 +116,18 @@
             },
             "web_app_version": {
                 "name": "Web app version"
+            },
+            "fires": {
+                "name": "Fires"
+            },
+            "reloads": {
+                "name": "Reloads"
+            },
+            "wood_consumption": {
+                "name": "Wood consumption (estimated)"
+            },
+            "last_reload": {
+                "name": "Last reload"
             }
         },
         "switch": {

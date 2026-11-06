@@ -30,6 +30,31 @@ PANEL_V1 = ["0", "1", "4", "8", "60", "520", "40", "-12.4", "Gruen", "0", "1", "
 CONFIGURATION_V1 = ["1.5.0", "642", "0", "DEF456", "1", "0", "0"]
 
 
+# Event log (time, door, phase) of one fire from a fire+ 2.4.6: heating up, regular operation with
+# door openings, ember preservation, standby. Openings within 10 minutes belong to one reload.
+EVENTS = [
+    (1793957890, "zu", "Anheizen"),
+    (1793963280, "azu", "Anheizen"),
+    (1793964530, "zu", "Regeln"),
+    (1793966090, "auf", "Regeln"),
+    (1793966100, "zu", "Regeln"),
+    (1793968590, "auf", "Regeln"),
+    (1793968600, "zu", "Regeln"),
+    (1793973460, "auf", "Regeln"),
+    (1793973480, "zu", "Regeln"),
+    (1793973780, "azu", "Regeln"),
+    (1793976380, "auf", "Regeln"),
+    (1793976390, "zu", "Regeln"),
+    (1793988070, "zu", "Gluehen"),
+    (1793998690, "zu", "Standby"),
+]
+
+
+def events_response(events: list[tuple[int, str, str]]) -> str:
+    """Encode events like easevents.php."""
+    return '\ufeff"' + "".join(f"{time},{door},{phase}," for time, door, phase in events) + '"'
+
+
 def response(values: list[str]) -> str:
     """Encode values like the fire+ web application does."""
     return '_"' + "\\n".join(values) + '"'
@@ -40,11 +65,13 @@ def mock_fireplus(
     host: str = HOST,
     panel: list[str] | None = None,
     configuration: list[str] | None = None,
+    events: list[tuple[int, str, str]] | None = None,
 ) -> None:
     """Answer the requests of the integration like a fire+."""
     aioclient_mock.get(f"http://{host}/php/easpanel.php", text=response(panel or PANEL_V2_4))
     aioclient_mock.get(f"http://{host}/php/easkonfig.php", text=response(configuration or CONFIGURATION_V2_4))
     aioclient_mock.post(f"http://{host}/php/easpanelW.php", text="")
+    aioclient_mock.get(f"http://{host}/php/easevents.php", text=events_response(events or []))
 
 
 @pytest.fixture(autouse=True)
