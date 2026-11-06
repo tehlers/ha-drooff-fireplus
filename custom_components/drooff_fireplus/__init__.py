@@ -8,6 +8,7 @@ https://github.com/tehlers/ha-drooff-fireplus
 from __future__ import annotations
 
 import hashlib
+import logging
 import socket
 from datetime import timedelta
 from pathlib import Path
@@ -18,6 +19,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.start import async_at_started
 from homeassistant.loader import async_get_loaded_integration
 
 from custom_components.drooff_fireplus.const import (
@@ -41,6 +43,10 @@ if TYPE_CHECKING:
 
     from .data import FireplusConfigEntry
 
+_LOGGER = logging.getLogger(__name__)
+
+BLUEPRINTS = Path(__file__).parent / "blueprints"
+
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
@@ -62,7 +68,40 @@ async def async_setup(
         digest = await hass.async_add_executor_job(lambda: hashlib.sha256(card.read_bytes()).hexdigest()[:8])
         await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(card), cache_headers=False)])
         add_extra_js_url(hass, f"{CARD_URL}?v={CARD_VERSION}-{digest}")
+
+    # after start, so Home Assistant has created the blueprint folders with its own examples first
+    async_at_started(hass, async_install_blueprints)
     return True
+
+
+def _copy_blueprints(hass: HomeAssistant) -> set[str]:
+    """Copy the blueprints of the integration to the configuration, return the domains of updated ones."""
+    updated = set()
+    for source in sorted(BLUEPRINTS.glob("*/*.yaml")):
+        blueprint_domain = source.parent.name
+        target = Path(hass.config.path("blueprints", blueprint_domain, DOMAIN, source.name))
+        content = source.read_bytes()
+        exists = target.is_file()
+        if exists and target.read_bytes() == content:
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+        if exists:
+            updated.add(blueprint_domain)
+        _LOGGER.info("Installed blueprint %s", target)
+    return updated
+
+
+async def async_install_blueprints(hass: HomeAssistant) -> None:
+    """Install or update the blueprints of the integration."""
+    try:
+        updated = await hass.async_add_executor_job(_copy_blueprints, hass)
+    except OSError as err:
+        _LOGGER.warning("Could not install the blueprints: %s", err)
+        return
+    # automations keep the blueprint they were loaded with, a reload picks up the new version
+    if "automation" in updated and hass.services.has_service("automation", "reload"):
+        await hass.services.async_call("automation", "reload")
 
 
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry

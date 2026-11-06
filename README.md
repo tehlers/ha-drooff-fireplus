@@ -83,6 +83,14 @@ The card editor detects the fire+ device and its entities automatically. Every v
 
 ![Dashboard card](docs/images/overview.png)
 
+## Blueprint: wood reminder
+
+The integration installs the automation blueprint **Drooff fire+: Holz nachlegen / Add wood** to `blueprints/automation/drooff_fireplus/` once Home Assistant has started, and updates it with every new version of the integration. Go to *Settings*, *Automations & scenes*, *Blueprints* and create an automation from it.
+
+It reminds you when the fire+ asks for wood. *Wood required* and *wood urgently required* get separate actions, the urgent ones are optional and hidden in their own section. Each kind of reminder can be sent as a message (Pushover, Telegram, mobile app or any other notify action or entity), as an announcement on Amazon Echo devices (Alexa Media Player or Alexa Devices) and as any other actions. Every channel is optional and has its own delay, and nothing is sent once the wood has been added. Details are in the [blueprint documentation](docs/blueprint.md) ([Deutsch](docs/blueprint.de.md)).
+
+The blueprint is labelled in German and English, its default texts follow the selected language (German or English). Local changes to the installed file are overwritten on updates, copy it under another name to customise it.
+
 ## Disclaimer
 
 > [!IMPORTANT]

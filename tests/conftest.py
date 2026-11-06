@@ -53,6 +53,12 @@ def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
 
 
 @pytest.fixture
+def hass_config_dir(hass_tmp_config_dir: str) -> str:
+    """Use a temporary configuration folder, because the integration installs its blueprints there."""
+    return hass_tmp_config_dir
+
+
+@pytest.fixture
 def config_entry() -> MockConfigEntry:
     """Return a config entry for a fire+ with the default host name."""
     return MockConfigEntry(
