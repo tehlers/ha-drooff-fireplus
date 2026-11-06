@@ -28,3 +28,8 @@ format:
 # Apply linting rules with `ruff`
 check:
     ruff check --fix .
+
+# Run the tests (in a separate environment, see requirements_test.txt)
+test:
+    python -m pip install --requirement requirements_test.txt
+    python -m pytest
