@@ -82,6 +82,7 @@ BINARY_SENSORS: tuple[FireplusBinarySensorEntityDescription, ...] = (
     FireplusBinarySensorEntityDescription(
         key="ethernet_link",
         translation_key="ethernet_link",
+        entity_registry_enabled_default=False,
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: data.ethernet_link,
@@ -91,6 +92,7 @@ BINARY_SENSORS: tuple[FireplusBinarySensorEntityDescription, ...] = (
     FireplusBinarySensorEntityDescription(
         key="online_support",
         translation_key="online_support",
+        entity_registry_enabled_default=False,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: data.online_support,
         available_fn=lambda data: data.online_support is not None,
@@ -99,6 +101,7 @@ BINARY_SENSORS: tuple[FireplusBinarySensorEntityDescription, ...] = (
     FireplusBinarySensorEntityDescription(
         key="auto_update",
         translation_key="auto_update",
+        entity_registry_enabled_default=False,
         entity_category=EntityCategory.DIAGNOSTIC,
         is_on_fn=lambda data: data.auto_update,
         available_fn=lambda data: data.auto_update is not None,
@@ -137,7 +140,9 @@ class FireplusBinarySensor(FireplusEntity, BinarySensorEntity):
     ) -> None:
         """Initialize the binary sensor."""
         super().__init__(coordinator, description)
-        self._attr_entity_registry_enabled_default = description.supported_fn(coordinator.data)
+        self._attr_entity_registry_enabled_default = description.entity_registry_enabled_default and (
+            description.supported_fn(coordinator.data)
+        )
 
     @property
     def available(self) -> bool:

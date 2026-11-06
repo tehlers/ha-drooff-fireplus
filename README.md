@@ -81,18 +81,20 @@ On the first start the counters include the events still stored on the fire+ (us
 
 ### Diagnostic
 
+Entities that are rarely needed or that write many values to the database are disabled by default. Enable them on the device page under *Diagnostic*.
+
 | Name                   | Type          | Description                                                       |
 | ---------------------- | ------------- | ----------------------------------------------------------------- |
 | `Error`                | Binary Sensor | Active when an error has been detected                            |
 | `Error message`        | Sensor        | Description of the detected error. Possible values are:<br>- "No error"<br>- "Temperature sensor defective"<br>- "Pressure measurement defective"<br>- "Air slider defective"<br>- "Service mode enabled"<br>- "Chimney draught too low"<br>- "Air slider stuck"<br>- "No chimney draught"<br>- "Wrong motor direction"<br>- "Unknown error"<br><br>**Always consult the official fire+ web application in the event of an error!** |
-| `Operating time`       | Sensor        | Total operating time of the fireplace in s (only Drooff fire+ v2) |
-| `Wifi signal strength` | Sensor        | Strength of the Wifi signal (only Drooff fire+ v2)                |
-| `Ethernet link`        | Binary Sensor | Network is connected via Ethernet (only Drooff fire+ v2)          |
+| `Operating time`       | Sensor        | Total operating time of the fireplace in s (only Drooff fire+ v2). Disabled by default |
+| `Wifi signal strength` | Sensor        | Strength of the Wifi signal (only Drooff fire+ v2). Disabled by default |
+| `Ethernet link`        | Binary Sensor | Network is connected via Ethernet (only Drooff fire+ v2). Disabled by default |
 | `Control`              | Sensor        | Who controls the fire+: `web`, `panel`, `remote_control`, `remote_control_automatic` or `room_controller` (only Drooff fire+ v2) |
-| `Online support`       | Binary Sensor | Remote access for Drooff support is enabled (recent web applications) |
-| `Automatic updates`    | Binary Sensor | The fire+ installs updates automatically (recent web applications) |
+| `Online support`       | Binary Sensor | Remote access for Drooff support is enabled (recent web applications). Disabled by default |
+| `Automatic updates`    | Binary Sensor | The fire+ installs updates automatically (recent web applications). Disabled by default |
 | `Draught warning`      | Binary Sensor | The draught warning of the fire+ is enabled (recent web applications) |
-| `Web app version`      | Sensor        | Version of the fire+ web application (recent web applications)   |
+| `Web app version`      | Sensor        | Version of the fire+ web application (recent web applications). Disabled by default |
 | `Last update`          | Sensor        | Result of the last software update: `no_updates`, `started`, `running`, `successful`, `failed`, `postponed` (until the stove is off), `not_started` or `unknown`. The message of the fire+ (German) is an attribute. Disabled by default, read once a minute while enabled |
 | `Update search`        | Sensor        | When the fire+ looks for updates every week, e.g. "Mittwoch, 03:43 Uhr". Disabled by default |
 

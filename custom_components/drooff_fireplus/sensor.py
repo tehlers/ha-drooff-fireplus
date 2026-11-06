@@ -108,6 +108,7 @@ SENSORS: tuple[FireplusSensorEntityDescription, ...] = (
     FireplusSensorEntityDescription(
         key="operating_time",
         translation_key="operating_time",
+        entity_registry_enabled_default=False,
         entity_category=EntityCategory.DIAGNOSTIC,
         device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -157,6 +158,7 @@ SENSORS: tuple[FireplusSensorEntityDescription, ...] = (
     FireplusSensorEntityDescription(
         key="wifi_signal_strength",
         translation_key="wifi_signal_strength",
+        entity_registry_enabled_default=False,
         entity_category=EntityCategory.DIAGNOSTIC,
         suggested_display_precision=0,
         value_fn=lambda data: data.wifi_signal_strength,
@@ -187,6 +189,7 @@ SENSORS: tuple[FireplusSensorEntityDescription, ...] = (
     FireplusSensorEntityDescription(
         key="web_app_version",
         translation_key="web_app_version",
+        entity_registry_enabled_default=False,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.web_app_version,
         available_fn=lambda data: data.web_app_version is not None,
@@ -293,7 +296,9 @@ class FireplusSensor(FireplusEntity, SensorEntity):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, description, description.unique_id_suffix)
-        self._attr_entity_registry_enabled_default = description.supported_fn(coordinator.data)
+        self._attr_entity_registry_enabled_default = description.entity_registry_enabled_default and (
+            description.supported_fn(coordinator.data)
+        )
 
     @property
     def available(self) -> bool:

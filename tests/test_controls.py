@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import entity_registry as er
 
 from .conftest import PANEL_V2_4, mock_fireplus, setup_integration
 from .test_entities import entity_id
@@ -43,6 +44,7 @@ async def set_number(hass: HomeAssistant, config_entry: MockConfigEntry, key: st
     )
 
 
+@pytest.mark.usefixtures("entity_registry_enabled_by_default")
 async def test_configuration_of_newer_web_app(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, config_entry: MockConfigEntry
 ) -> None:
@@ -137,3 +139,25 @@ async def test_betrieb_1_is_the_lowest_stage(
     mock_fireplus(aioclient_mock, panel=panel(i2="1", i3=leistung))
     await setup_integration(hass, config_entry)
     assert hass.states.get(entity_id(hass, config_entry, "number.burn_rate")).state == burn_rate
+
+
+async def test_rarely_needed_entities_disabled(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, config_entry: MockConfigEntry
+) -> None:
+    """Network, operating time and device settings have to be enabled, errors and control are shown."""
+    mock_fireplus(aioclient_mock, configuration=CONFIGURATION_V2_4_6)
+    await setup_integration(hass, config_entry)
+    registry = er.async_get(hass)
+    disabled = [
+        "sensor.operating_time",
+        "sensor.wifi_signal_strength",
+        "sensor.web_app_version",
+        "binary_sensor.ethernet_link",
+        "binary_sensor.online_support",
+        "binary_sensor.auto_update",
+    ]
+    for suffix in disabled:
+        assert registry.async_get(entity_id(hass, config_entry, suffix)).disabled_by is not None, suffix
+    enabled = ("binary_sensor.error", "sensor.error_message", "sensor.control_mode", "binary_sensor.draught_warning")
+    for suffix in enabled:
+        assert registry.async_get(entity_id(hass, config_entry, suffix)).disabled_by is None, suffix

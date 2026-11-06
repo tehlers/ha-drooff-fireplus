@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import PropertyMock, patch
 
 import pytest
 from homeassistant.helpers import entity_registry as er
@@ -14,22 +13,9 @@ from .conftest import UPDATE, mock_fireplus, setup_integration
 from .test_entities import entity_id
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
-
     from homeassistant.core import HomeAssistant
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
-
-
-@pytest.fixture
-def entity_registry_enabled_by_default() -> Generator[None]:
-    """Enable all entities, also those that are disabled by default."""
-    with patch(
-        "homeassistant.helpers.entity.Entity.entity_registry_enabled_default",
-        return_value=True,
-        new_callable=PropertyMock,
-    ):
-        yield
 
 
 async def test_update_sensors_disabled_by_default(

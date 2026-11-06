@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import PropertyMock, patch
 
 import pytest
 from homeassistant.const import CONF_HOST
@@ -11,6 +12,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.drooff_fireplus.const import CONF_FORCE_IPV4, CONF_POLLING_INTERVAL, DOMAIN
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from homeassistant.core import HomeAssistant
     from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
@@ -86,6 +89,17 @@ def mock_fireplus(
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
     """Enable custom integrations in all tests."""
+
+
+@pytest.fixture
+def entity_registry_enabled_by_default() -> Generator[None]:
+    """Enable all entities, also those that are disabled by default."""
+    with patch(
+        "homeassistant.helpers.entity.Entity.entity_registry_enabled_default",
+        return_value=True,
+        new_callable=PropertyMock,
+    ):
+        yield
 
 
 @pytest.fixture

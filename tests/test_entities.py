@@ -35,6 +35,18 @@ def entity_id(hass: HomeAssistant, config_entry: MockConfigEntry, suffix: str) -
     return result
 
 
+@pytest.mark.usefixtures("entity_registry_enabled_by_default")
+async def test_network_values(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, config_entry: MockConfigEntry
+) -> None:
+    """The network entities (disabled by default) show the connection of the fire+."""
+    mock_fireplus(aioclient_mock)
+    await setup_integration(hass, config_entry)
+    assert hass.states.get(entity_id(hass, config_entry, "sensor.wifi_signal_strength")).state == "3"
+    assert hass.states.get(entity_id(hass, config_entry, "binary_sensor.ethernet_link")).state == "off"
+    assert hass.states.get(entity_id(hass, config_entry, "sensor.operating_time")).state == "12345"
+
+
 async def test_values(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, config_entry: MockConfigEntry) -> None:
     """Values of a fire+ 2.4 are mapped to the entities."""
     mock_fireplus(aioclient_mock)
@@ -51,11 +63,9 @@ async def test_values(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, 
         "sensor.error_message": "none",
         "sensor.target_temperature": "480",
         "sensor.weight": "1.5",
-        "sensor.wifi_signal_strength": "3",
         "sensor.heating_progress": "unavailable",
         "binary_sensor.door_open": "off",
         "binary_sensor.error": "off",
-        "binary_sensor.ethernet_link": "off",
         "number.burn_rate": "3",
         "number.brightness": "60",
         "number.volume": "30",
