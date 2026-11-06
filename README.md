@@ -27,6 +27,10 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 3. Search for "Drooff fire+" and select it.
 4. You will be prompted to enter the hostname used by your Drooff fire+ web application. In the default configuration, this is "fire".
 
+If the fire+ keeps its default hostname "fire", Home Assistant usually discovers it automatically (DHCP) and offers to set it up under `Devices & Services`. When the fire+ was set up with its IP address, a changed IP address is picked up automatically.
+
+Diagnostics (parsed values and the raw responses of the fire+, host and serial number removed) can be downloaded on the device page for bug reports.
+
 ## Entities
 
 ### Controls
@@ -66,6 +70,18 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 | `Operating time`       | Sensor        | Total operating time of the fireplace in s (only Drooff fire+ v2) |
 | `Wifi signal strength` | Sensor        | Strength of the Wifi signal (only Drooff fire+ v2)                |
 | `Ethernet link`        | Binary Sensor | Network is connected via Ethernet (only Drooff fire+ v2)          |
+
+## Dashboard card
+
+The integration ships a Lovelace card with an animated fire that follows the current combustion state, next to the values and controls of the fire+. The card is registered automatically, no resource has to be added. Edit a dashboard, choose *Add card* and pick **Drooff fire+ Card**, or use YAML:
+
+```yaml
+type: custom:drooff-fireplus-card
+```
+
+The card editor detects the fire+ device and its entities automatically. Every value can be hidden, a picture of your own stove can be used, and optional graphics (temperature history, timeline, wood usage, draught gauge) can be enabled. All options are described in the [card documentation](docs/dashboard-card.md) ([Deutsch](docs/dashboard-card.de.md)).
+
+![Dashboard card](docs/images/overview.png)
 
 ## Disclaimer
 

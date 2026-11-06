@@ -1,0 +1,69 @@
+{
+    "entity": {
+        "binary_sensor": {
+            "error": {
+                "default": "mdi:alert"
+            },
+            "door_open": {
+                "default": "mdi:door"
+            },
+            "ethernet_link": {
+                "default": "mdi:ethernet-off",
+                "state": {
+                    "on": "mdi:ethernet"
+                }
+            }
+        },
+        "number": {
+            "brightness": {
+                "default": "mdi:led-strip"
+            },
+            "burn_rate": {
+                "default": "mdi:fire"
+            }
+        },
+        "sensor": {
+            "air_slider_position": {
+                "default": "mdi:tune"
+            },
+            "draught": {
+                "default": "mdi:gauge"
+            },
+            "error_message": {
+                "default": "mdi:alert"
+            },
+            "heating_progress": {
+                "default": "mdi:progress-helper"
+            },
+            "operating_time": {
+                "default": "mdi:history"
+            },
+            "operation_status": {
+                "default": "mdi:fireplace"
+            },
+            "target_temperature": {
+                "default": "mdi:gauge"
+            },
+            "temperature": {
+                "default": "mdi:gauge"
+            },
+            "weight": {
+                "default": "mdi:weight-kilogram"
+            }
+        },
+        "switch": {
+            "ember_burndown": {
+                "default": "mdi:toggle-switch-off",
+                "state": {
+                    "on": "mdi:toggle-switch"
+                }
+            },
+            "led": {
+                "default": "mdi:toggle-switch-off",
+                "state": {
+                    "on": "mdi:toggle-switch"
+                }
+            }
+        }
+    }
+}

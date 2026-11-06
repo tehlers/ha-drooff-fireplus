@@ -25,14 +25,23 @@ class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
     config_entry: FireplusConfigEntry
     host: str
 
-    def __init__(self, hass: HomeAssistant, update_interval: timedelta, host: str) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        config_entry: FireplusConfigEntry,
+        update_interval: timedelta,
+        host: str,
+    ) -> None:
         """Initialize the FireplusDataUpdateCoordinator."""
         self.host = host
         super().__init__(
             hass,
             logger=LOGGER,
             name=DOMAIN,
+            config_entry=config_entry,
             update_interval=update_interval,
+            # entities are only written when the fire+ reports something new
+            always_update=False,
         )
 
     async def _async_update_data(self) -> Any:
