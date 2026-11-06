@@ -39,10 +39,7 @@
                 "default": "mdi:history"
             },
             "operation_status": {
-                "default": "mdi:fireplace",
-                "state": {
-                    "STANDBY": "mdi:fireplace-off"
-                }
+                "default": "mdi:fireplace"
             },
             "target_temperature": {
                 "default": "mdi:gauge"

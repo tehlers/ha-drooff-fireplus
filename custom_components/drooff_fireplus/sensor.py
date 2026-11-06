@@ -201,7 +201,12 @@ class FireplusSensor(FireplusEntity, SensorEntity):
 
     @property
     def icon(self) -> str | None:
-        """Return the Wi-Fi icon by signal bars, all other icons come from icons.json."""
+        """Return the icons that depend on the state, all other icons come from icons.json."""
+        if self.entity_description.key == "operation_status":
+            # icons.json only accepts lower-case states, operation_status keeps upper-case ones
+            if self.coordinator.data.operation_status == FireplusOperationStatus.STANDBY:
+                return "mdi:fireplace-off"
+            return super().icon
         if self.entity_description.key != "wifi_signal_strength":
             return super().icon
         bars = self.coordinator.data.wifi_signal_strength
