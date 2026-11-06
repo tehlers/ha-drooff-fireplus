@@ -1,0 +1,119 @@
+{
+    "entity": {
+        "binary_sensor": {
+            "error": {
+                "default": "mdi:alert"
+            },
+            "door_open": {
+                "default": "mdi:door"
+            },
+            "ethernet_link": {
+                "default": "mdi:ethernet-off",
+                "state": {
+                    "on": "mdi:ethernet"
+                }
+            },
+            "online_support": {
+                "default": "mdi:remote-desktop"
+            },
+            "auto_update": {
+                "default": "mdi:update"
+            },
+            "draught_warning": {
+                "default": "mdi:weather-windy"
+            },
+            "door_open_too_long": {
+                "default": "mdi:door-open",
+                "state": {
+                    "off": "mdi:door"
+                }
+            },
+            "filter_problem": {
+                "default": "mdi:air-filter"
+            }
+        },
+        "number": {
+            "brightness": {
+                "default": "mdi:led-strip"
+            },
+            "burn_rate": {
+                "default": "mdi:fire"
+            }
+        },
+        "sensor": {
+            "air_slider_position": {
+                "default": "mdi:tune"
+            },
+            "draught": {
+                "default": "mdi:gauge"
+            },
+            "error_message": {
+                "default": "mdi:alert"
+            },
+            "heating_progress": {
+                "default": "mdi:progress-helper"
+            },
+            "operating_time": {
+                "default": "mdi:history"
+            },
+            "operation_status": {
+                "default": "mdi:fireplace"
+            },
+            "target_temperature": {
+                "default": "mdi:gauge"
+            },
+            "temperature": {
+                "default": "mdi:gauge"
+            },
+            "weight": {
+                "default": "mdi:weight-kilogram"
+            },
+            "control_mode": {
+                "default": "mdi:remote",
+                "state": {
+                    "web": "mdi:web",
+                    "panel": "mdi:gesture-tap-button",
+                    "room_controller": "mdi:thermostat"
+                }
+            },
+            "web_app_version": {
+                "default": "mdi:application-cog"
+            },
+            "fires": {
+                "default": "mdi:fire"
+            },
+            "reloads": {
+                "default": "mdi:door-open"
+            },
+            "wood_consumption": {
+                "default": "mdi:pine-tree"
+            },
+            "last_reload": {
+                "default": "mdi:clock-outline"
+            },
+            "filter_status": {
+                "default": "mdi:air-filter",
+                "state": {
+                    "cleaning_required": "mdi:spray-bottle",
+                    "driver_error": "mdi:alert",
+                    "not_found": "mdi:alert",
+                    "error": "mdi:alert"
+                }
+            }
+        },
+        "switch": {
+            "ember_burndown": {
+                "default": "mdi:toggle-switch-off",
+                "state": {
+                    "on": "mdi:toggle-switch"
+                }
+            },
+            "led": {
+                "default": "mdi:toggle-switch-off",
+                "state": {
+                    "on": "mdi:toggle-switch"
+                }
+            }
+        }
+    }
+}

@@ -12,6 +12,9 @@
                     "host": "The hostname or IP address of the Drooff fire+ web application. In some cases a domain like '.local' has to be added to the hostname.",
                     "force_ipv4": "In dual-stack networks, it may be necessary to restrict communication to IPv4."
                 }
+            },
+            "discovery_confirm": {
+                "description": "Drooff fire+ found at {host}. Do you want to set it up?"
             }
         },
         "error": {
@@ -21,8 +24,10 @@
         "abort": {
             "already_configured": "This entry is already configured.",
             "reconfigure_successful": "Reconfiguration successful.",
-            "unique_id_mismatch": "Reconfiguration aborted. A device with a different serial number was detected."
-        }
+            "unique_id_mismatch": "Reconfiguration aborted. A device with a different serial number was detected.",
+            "cannot_connect": "Unable to connect to the discovered Drooff fire+."
+        },
+        "flow_title": "{host}"
     },
     "entity": {
         "binary_sensor": {
@@ -31,6 +36,24 @@
             },
             "ethernet_link": {
                 "name": "Ethernet link"
+            },
+            "door_open": {
+                "name": "Door"
+            },
+            "online_support": {
+                "name": "Online support"
+            },
+            "auto_update": {
+                "name": "Automatic updates"
+            },
+            "draught_warning": {
+                "name": "Draught warning"
+            },
+            "door_open_too_long": {
+                "name": "Door open too long"
+            },
+            "filter_problem": {
+                "name": "Filter problem"
             }
         },
         "number": {
@@ -86,6 +109,43 @@
             },
             "wifi_signal_strength": {
                 "name": "Wifi signal strength"
+            },
+            "control_mode": {
+                "name": "Control",
+                "state": {
+                    "web": "Web",
+                    "panel": "Panel on the stove",
+                    "remote_control": "Remote control",
+                    "remote_control_automatic": "Remote control (automatic)",
+                    "room_controller": "Room controller"
+                }
+            },
+            "web_app_version": {
+                "name": "Web app version"
+            },
+            "fires": {
+                "name": "Fires"
+            },
+            "reloads": {
+                "name": "Reloads"
+            },
+            "wood_consumption": {
+                "name": "Wood consumption (estimated)"
+            },
+            "last_reload": {
+                "name": "Last reload"
+            },
+            "filter_status": {
+                "name": "Filter status",
+                "state": {
+                    "driver_error": "Driver error",
+                    "not_found": "Filter not found",
+                    "present": "Filter present",
+                    "inactive": "Inactive",
+                    "active": "Active",
+                    "cleaning_required": "Cleaning required",
+                    "error": "Error"
+                }
             }
         },
         "switch": {
@@ -95,6 +155,14 @@
             "led": {
                 "name": "LED"
             }
+        }
+    },
+    "exceptions": {
+        "update_settings_failed": {
+            "message": "Updating the settings of the Drooff fire+ failed: {error}"
+        },
+        "control_locked": {
+            "message": "This setting is locked: the fire+ is not controlled via web right now ({control_mode}). Change it on the remote control, room controller or panel, or switch the web app to web control."
         }
     }
 }
