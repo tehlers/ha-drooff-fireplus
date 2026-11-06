@@ -1,0 +1,61 @@
+# Beispiel: eigene Dashboard-Ansicht für den Kaminofen
+# (Dashboard bearbeiten > Raw-Konfigurationseditor, unter "views:" einfügen)
+- title: Kaminofen
+  path: kaminofen
+  icon: mdi:fireplace
+  type: sections
+  sections:
+    - type: grid
+      cards:
+        - type: custom:drooff-fireplus-card
+          title: Kaminofen
+          language: auto      # auto | de | en
+          # Hintergrund: chamotte (Standard) | bricks_light | bricks_dark
+          wall: chamotte
+          # Flammengröße: unterhalb min_temperature keine Flamme, ab max_temperature volle Flamme
+          min_temperature: 80
+          max_temperature: 600
+          # Gewicht eines Holzscheits für die Scheite-Darstellung der Holzauflage
+          log_weight: 0.9
+          # Optional: Bild deines Ofens, Feuer erscheint im Sichtfenster (siehe README)
+          # stove_image: /local/brunello.png
+          # stove_window: { left: 22, top: 18, width: 56, height: 34 }
+          # stove_window_debug: true
+          # Brennleistung und Glutabbrand direkt in der Card bedienen
+          controls: true
+          # Zusatzgrafiken (optional): temp_history, timeline, wood_usage, heating_ring, air_flap, temp_ring
+          graphics:
+            - temp_history
+            - timeline
+          history_hours: 6
+          # Kaminzug als Zeigerinstrument: +10 (Überdruck) … -30 Pa
+          draught_display: gauge   # tile | gauge
+          # draught_min: -30
+          # draught_max: 10
+          # draught_optimal_from: -12
+          # draught_optimal_to: -20
+          layout: auto        # auto | horizontal | vertical
+          # alles, was nicht angezeigt werden soll:
+          # (im Card-Editor unter "Anzeigen" einfach abwählen)
+          hide:
+            - operating_time
+            - brightness
+            - volume
+            - wifi
+            - ethernet
+            # - led
+            # - flame
+            # - name
+            # - status
+            # - temperature
+            # - target_temperature
+            # - max_temperature
+            # - heating_progress
+            # - burn_rate
+            # - air_slider
+            # - draught
+            # - wood_load
+            # - wood_logs
+            # - door
+            # - ember_burndown
+            # - error
