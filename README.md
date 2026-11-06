@@ -27,6 +27,10 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 3. Search for "Drooff fire+" and select it.
 4. You will be prompted to enter the hostname used by your Drooff fire+ web application. In the default configuration, this is "fire".
 
+If the fire+ keeps its default hostname "fire", Home Assistant usually discovers it automatically (DHCP) and offers to set it up under `Devices & Services`. When the fire+ was set up with its IP address, a changed IP address is picked up automatically.
+
+Diagnostics (parsed values and the raw responses of the fire+, host and serial number removed) can be downloaded on the device page for bug reports.
+
 ## Entities
 
 ### Controls
@@ -66,6 +70,26 @@ A custom integration for [Home Assistant](https://www.home-assistant.io/) for th
 | `Operating time`       | Sensor        | Total operating time of the fireplace in s (only Drooff fire+ v2) |
 | `Wifi signal strength` | Sensor        | Strength of the Wifi signal (only Drooff fire+ v2)                |
 | `Ethernet link`        | Binary Sensor | Network is connected via Ethernet (only Drooff fire+ v2)          |
+
+## Dashboard card
+
+The integration ships a Lovelace card with an animated fire that follows the current combustion state, next to the values and controls of the fire+. The card is registered automatically, no resource has to be added. Edit a dashboard, choose *Add card* and pick **Drooff fire+ Card**, or use YAML:
+
+```yaml
+type: custom:drooff-fireplus-card
+```
+
+The card editor detects the fire+ device and its entities automatically. Every value can be hidden, a picture of your own stove can be used, and optional graphics (temperature history, timeline, wood usage, draught gauge) can be enabled. All options are described in the [card documentation](docs/dashboard-card.md) ([Deutsch](docs/dashboard-card.de.md)).
+
+![Dashboard card](docs/images/overview.png)
+
+## Blueprint: wood reminder
+
+The integration installs the automation blueprint **Drooff fire+: Holz nachlegen / Add wood** to `blueprints/automation/drooff_fireplus/` once Home Assistant has started, and updates it with every new version of the integration. Go to *Settings*, *Automations & scenes*, *Blueprints* and create an automation from it.
+
+It reminds you when the fire+ asks for wood. *Wood required* and *wood urgently required* get separate actions, the urgent ones are optional and hidden in their own section. Each kind of reminder can be sent as a message (Pushover, Telegram, mobile app or any other notify action or entity), as an announcement on Amazon Echo devices (Alexa Media Player or Alexa Devices) and as any other actions. Every channel is optional and has its own delay, and nothing is sent once the wood has been added. Details are in the [blueprint documentation](docs/blueprint.md) ([Deutsch](docs/blueprint.de.md)).
+
+The blueprint is labelled in German and English, its default texts follow the selected language (German or English). Local changes to the installed file are overwritten on updates, copy it under another name to customise it.
 
 ## Disclaimer
 
