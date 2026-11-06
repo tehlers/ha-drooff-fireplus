@@ -1,0 +1,43 @@
+# Example: own dashboard view for the stove
+# (Edit dashboard > Raw configuration editor, paste below "views:")
+- title: Fireplace
+  path: fireplace
+  icon: mdi:fireplace
+  type: sections
+  sections:
+    - type: grid
+      cards:
+        - type: custom:drooff-fireplus-card
+          title: Fireplace
+          language: auto      # auto | de | en | nl | fr | it | pl | cs | da | own code
+          # chamber background: chamotte (default) | bricks_light | bricks_dark
+          wall: chamotte
+          # flame size: no flame below min_temperature, full flame from max_temperature
+          min_temperature: 80
+          max_temperature: 600
+          # weight of one log for the wood load graphic
+          log_weight: 0.9
+          # change burn rate, ember burndown, LED ... directly in the card
+          controls: true
+          # additional graphics: temp_history, timeline, wood_usage, heating_ring, air_flap, temp_ring
+          graphics:
+            - temp_history
+            - timeline
+          history_hours: 6
+          # chimney draught as gauge: +10 (overpressure) … -30 Pa
+          draught_display: gauge   # tile | gauge
+          # draught_min: -30
+          # draught_max: 10
+          # draught_optimal_from: -12
+          # draught_optimal_to: -20
+          # optional: picture of your stove, the fire appears in its window
+          # stove_image: /local/stove.png
+          # stove_window: { left: 22, top: 18, width: 56, height: 34 }
+          layout: auto        # auto | horizontal | vertical
+          # hidden elements (untick them under "Show" in the card editor)
+          hide:
+            - operating_time
+            - brightness
+            - volume
+            - wifi
+            - ethernet
