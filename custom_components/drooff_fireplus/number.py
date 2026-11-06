@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import TYPE_CHECKING
 
 from homeassistant.components.number import (
@@ -12,6 +11,7 @@ from homeassistant.components.number import (
 )
 from homeassistant.const import PERCENTAGE, EntityCategory
 
+from .api import VERSION_2_0_0
 from .entity import FireplusEntity
 
 if TYPE_CHECKING:
@@ -66,10 +66,7 @@ class FireplusBrightness(FireplusEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(brightness=int(value))
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
-        await self.coordinator.async_request_refresh()
+        await self._async_update_settings(brightness=int(value))
 
 
 class FireplusVolume(FireplusEntity, NumberEntity):
@@ -100,10 +97,7 @@ class FireplusVolume(FireplusEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(volume=int(value))
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
-        await self.coordinator.async_request_refresh()
+        await self._async_update_settings(volume=int(value))
 
     @property
     def icon(self) -> str:
@@ -158,11 +152,8 @@ class FireplusBurnRate(FireplusEntity, NumberEntity):
     @property
     def native_max_value(self) -> float | None:
         """Return the maximal native value of the entity."""
-        return 7.0 if self.coordinator.data.version == 1 else 6.0
+        return 6.0 if self.coordinator.data.version >= VERSION_2_0_0 else 7.0
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(burn_rate=int(value))
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
-        await self.coordinator.async_request_refresh()
+        await self._async_update_settings(burn_rate=int(value))

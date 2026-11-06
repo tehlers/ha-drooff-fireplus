@@ -221,7 +221,7 @@ class FireplusResponse:
         self.led = panel_values[10] == "1"
         self.burn_rate = _get_burn_rate_v1(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = None
-        self.heating_progress = (int(panel_values[12]) / int(configuration_values[6])) * 100
+        self.heating_progress = _percentage(int(panel_values[12]), int(configuration_values[6]))
         self.door_open = None
         self.weight = None
         self.target_temperature = None
@@ -235,7 +235,7 @@ class FireplusResponse:
         self.led = None
         self.burn_rate = _get_burn_rate_v2(int(panel_values[2]), int(panel_values[3]))
         self.operating_time = int(configuration_values[7])
-        self.heating_progress = (int(panel_values[11]) / int(configuration_values[6])) * 100
+        self.heating_progress = _percentage(int(panel_values[11]), int(configuration_values[6]))
         self.door_open = None
         self.weight = None
         self.target_temperature = None
@@ -250,6 +250,10 @@ class FireplusResponse:
         network = int(panel_values[20])
         self.ethernet_link = network == ETHERNET_LINK
         self.wifi_signal_strength = network if network > 0 and network < ETHERNET_LINK else None
+
+
+def _percentage(value: int, total: int) -> float:
+    return value / total * 100 if total else 0.0
 
 
 class FireplusOperationStatus(Enum):

@@ -344,7 +344,6 @@ class FireplusWifiSignalStrengthSensor(FireplusEntity, SensorEntity):
             icon="mdi:wifi-off",
             entity_category=EntityCategory.DIAGNOSTIC,
         )
-        self.device_class = SensorDeviceClass.SIGNAL_STRENGTH
         self.suggested_display_precision = 0
 
     @property

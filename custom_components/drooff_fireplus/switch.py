@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
@@ -57,17 +56,11 @@ class FireplusEmberBurndownSwitch(FireplusEntity, SwitchEntity):
 
     async def async_turn_on(self, **_: Any) -> None:
         """Activate ember burndown."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(ember_burndown=True)
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
-        await self.coordinator.async_request_refresh()
+        await self._async_update_settings(ember_burndown=True)
 
     async def async_turn_off(self, **_: Any) -> None:
         """Activate ember preservation."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(ember_burndown=False)
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
-        await self.coordinator.async_request_refresh()
+        await self._async_update_settings(ember_burndown=False)
 
 
 class FireplusLedSwitch(FireplusEntity, SwitchEntity):
@@ -94,17 +87,11 @@ class FireplusLedSwitch(FireplusEntity, SwitchEntity):
 
     async def async_turn_on(self, **_: Any) -> None:
         """Activate led."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(led=True)
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
-        await self.coordinator.async_request_refresh()
+        await self._async_update_settings(led=True)
 
     async def async_turn_off(self, **_: Any) -> None:
         """Deactivate led."""
-        await self.coordinator.config_entry.runtime_data.client.async_update_settings(led=False)
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
-        await self.coordinator.async_request_refresh()
+        await self._async_update_settings(led=False)
 
     @property
     def available(self) -> bool:
