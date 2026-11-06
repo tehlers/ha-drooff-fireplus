@@ -12,7 +12,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.const import EntityCategory
 
-from .api import FireplusError
+from .api import FILTER_PROBLEMS, FireplusError
 from .entity import FireplusEntity
 
 if TYPE_CHECKING:
@@ -38,6 +38,8 @@ class FireplusBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Describes a Drooff fire+ binary sensor."""
 
     is_on_fn: Callable[[FireplusResponse], bool | None]
+    # State kept by the coordinator instead of a value of the fire+
+    coordinator_is_on_fn: Callable[[FireplusDataUpdateCoordinator], bool | None] | None = None
     available_fn: Callable[[FireplusResponse], bool] = _always
     supported_fn: Callable[[FireplusResponse], bool] = _always
     attributes_fn: Callable[[FireplusResponse], dict[str, Any]] | None = None
@@ -59,6 +61,23 @@ BINARY_SENSORS: tuple[FireplusBinarySensorEntityDescription, ...] = (
         is_on_fn=lambda data: data.door_open,
         available_fn=lambda data: data.door_open is not None,
         supported_fn=lambda data: data.door_open is not None,
+    ),
+    FireplusBinarySensorEntityDescription(
+        key="door_open_too_long",
+        translation_key="door_open_too_long",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        is_on_fn=lambda _: None,
+        coordinator_is_on_fn=lambda coordinator: coordinator.door_open_too_long,
+        available_fn=lambda data: data.door_open is not None,
+        supported_fn=lambda data: data.door_open is not None,
+    ),
+    FireplusBinarySensorEntityDescription(
+        key="filter_problem",
+        translation_key="filter_problem",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        is_on_fn=lambda data: data.filter_status in FILTER_PROBLEMS if data.filter_status else None,
+        available_fn=lambda data: data.filter_status is not None,
+        supported_fn=lambda data: data.blue_angel,
     ),
     FireplusBinarySensorEntityDescription(
         key="ethernet_link",
@@ -128,6 +147,8 @@ class FireplusBinarySensor(FireplusEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool | None:
         """Return the state of the binary sensor."""
+        if self.entity_description.coordinator_is_on_fn is not None:
+            return self.entity_description.coordinator_is_on_fn(self.coordinator)
         return self.entity_description.is_on_fn(self.coordinator.data)
 
     @property

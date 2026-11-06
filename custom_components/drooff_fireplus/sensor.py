@@ -21,7 +21,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 
-from .api import FireplusControlMode, FireplusError, FireplusOperationStatus
+from .api import FireplusControlMode, FireplusError, FireplusFilterStatus, FireplusOperationStatus
 from .const import ETHERNET_LINK
 from .entity import FireplusEntity
 
@@ -166,6 +166,17 @@ SENSORS: tuple[FireplusSensorEntityDescription, ...] = (
         value_fn=lambda data: data.control_mode.name.lower() if data.control_mode else None,
         available_fn=lambda data: data.control_mode is not None,
         supported_fn=lambda data: data.control_mode is not None,
+    ),
+    FireplusSensorEntityDescription(
+        key="filter_status",
+        translation_key="filter_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=[status.name.lower() for status in FireplusFilterStatus],
+        value_fn=lambda data: data.filter_status.name.lower() if data.filter_status else None,
+        available_fn=lambda data: data.filter_status is not None,
+        # only stoves with the Blue Angel label have an OekoSolve filter
+        supported_fn=lambda data: data.blue_angel,
+        attributes_fn=lambda data: {"filter_code": data.filter_code},
     ),
     FireplusSensorEntityDescription(
         key="web_app_version",

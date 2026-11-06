@@ -55,6 +55,9 @@ Like the fire+ web application, the integration refuses changes while the fire+ 
 | `Target temperature`      | Sensor | Target Temperature inside the combustion chamber in °C        |
 | `Recommended wood load`   | Sensor | Recommended amount of wood to add in kg (only recent devices) |
 | `Door`                    | Sensor | Door contact switch indicator                                 |
+| `Door open too long`      | Binary Sensor | Problem when the door is open for more than 5 minutes while the temperature is above 40 °C, like the warning of the web app (only recent devices) |
+| `Filter status`           | Sensor | Status of the OekoSolve particle filter: `driver_error`, `not_found`, `present`, `inactive`, `active`, `cleaning_required` or `error` (only stoves with the Blue Angel label) |
+| `Filter problem`          | Binary Sensor | Problem when the web app shows the filter status in red: driver error, filter not found, cleaning required or another error (only stoves with the Blue Angel label) |
 
 ### Statistics
 

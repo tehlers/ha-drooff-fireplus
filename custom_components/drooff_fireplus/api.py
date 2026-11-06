@@ -61,6 +61,8 @@ class FireplusApiClient:
         self._session = session
         self._configuration: str | None = None
         self._configuration_time = 0.0
+        self._filter: str | None = None
+        self._filter_time = 0.0
 
     async def async_get_data(self, *, fresh: bool = False) -> Any:
         """Get data from the API."""
@@ -75,7 +77,18 @@ class FireplusApiClient:
                 url=f"http://{self._host}/php/easkonfig.php",
             )
             self._configuration_time = now
-        return FireplusResponse(panel, self._configuration)
+        data = FireplusResponse(panel, self._configuration)
+        if data.blue_angel:
+            # only stoves with the Blue Angel label have an OekoSolve filter
+            if fresh or self._filter is None or now - self._filter_time > CONFIGURATION_MAX_AGE:
+                self._filter_time = now
+                try:
+                    self._filter = await self._api_wrapper(method="get", url=f"http://{self._host}/php/oeko.php")
+                except FireplusApiClientError:
+                    # the other values are still valid, the filter status is unknown until the next try
+                    self._filter = None
+            data = FireplusResponse(panel, self._configuration, self._filter)
+        return data
 
     async def async_get_events(self, since: int) -> str:
         """Get the event log (door and phase changes) since a Unix time, 0 returns the last days."""
@@ -190,10 +203,19 @@ class FireplusResponse:
     online_support: bool | None
     draught_warning: bool | None
     web_app_version: str | None
+    filter_status: FireplusFilterStatus | None
+    filter_code: int | None
 
-    def __init__(self, panel_response: str, configuration_response: str) -> None:
+    def __init__(
+        self,
+        panel_response: str,
+        configuration_response: str,
+        filter_response: str | None = None,
+    ) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
         self._raw = (panel_response, configuration_response)
+        if filter_response is not None:
+            self._raw = (*self._raw, filter_response)
         try:
             panel_values = panel_response[2:-1].split("\\n")
             configuration_values = configuration_response[2:-1].split("\\n")
@@ -231,6 +253,7 @@ class FireplusResponse:
             raise FireplusApiClientInvalidResponseError(
                 msg,
             ) from exception
+        self.__init_filter(filter_response)
 
     def __eq__(self, other: object) -> bool:
         """Responses are equal if the fire+ returned exactly the same data."""
@@ -239,9 +262,22 @@ class FireplusResponse:
     __hash__ = None  # type: ignore[assignment]
 
     @property
-    def raw(self) -> tuple[str, str]:
-        """Return the unparsed responses of the fire+ (panel, configuration)."""
+    def raw(self) -> tuple[str, ...]:
+        """Return the unparsed responses of the fire+ (panel, configuration and filter, if any)."""
         return self._raw
+
+    def __init_filter(self, filter_response: str | None) -> None:
+        self.filter_code = None
+        self.filter_status = None
+        if filter_response is None or not self.blue_angel:
+            return
+        try:
+            self.filter_code = int(filter_response[2:-1].split("\\n")[0])
+        except ValueError:
+            # an unreadable filter status must not stop the other values
+            self.filter_status = FireplusFilterStatus.ERROR
+        else:
+            self.filter_status = _FILTER_STATUS_LOOKUP.get(self.filter_code, FireplusFilterStatus.ERROR)
 
     def __init_configuration_extras(self, configuration_values: list[str]) -> None:
         # Only known from web app 2.1.8 (firmware 2.4.6), which sends 11 values
@@ -334,6 +370,39 @@ class FireplusControlMode(Enum):
     REMOTE_CONTROL = auto()
     REMOTE_CONTROL_AUTOMATIC = auto()
     ROOM_CONTROLLER = auto()
+
+
+class FireplusFilterStatus(Enum):
+    """Status of the OekoSolve particle filter of stoves with the Blue Angel label."""
+
+    DRIVER_ERROR = auto()
+    NOT_FOUND = auto()
+    PRESENT = auto()
+    INACTIVE = auto()
+    ACTIVE = auto()
+    CLEANING_REQUIRED = auto()
+    ERROR = auto()
+
+
+# Answers of php/oeko.php as shown by the web app, other values are shown as "Filter Fehler <code>"
+_FILTER_STATUS_LOOKUP = {
+    0: FireplusFilterStatus.DRIVER_ERROR,
+    1: FireplusFilterStatus.NOT_FOUND,
+    2: FireplusFilterStatus.PRESENT,
+    3: FireplusFilterStatus.INACTIVE,
+    4: FireplusFilterStatus.ACTIVE,
+    5: FireplusFilterStatus.CLEANING_REQUIRED,
+}
+
+# Filter states the web app shows in red
+FILTER_PROBLEMS = frozenset(
+    {
+        FireplusFilterStatus.DRIVER_ERROR,
+        FireplusFilterStatus.NOT_FOUND,
+        FireplusFilterStatus.CLEANING_REQUIRED,
+        FireplusFilterStatus.ERROR,
+    }
+)
 
 
 class FireplusOperationStatus(Enum):

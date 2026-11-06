@@ -3,26 +3,33 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import FireplusApiClientError
 from .const import DOMAIN, LOGGER, UPDATE_FAILED_MSG
 from .statistics import FireplusStatistics, parse_events
 
 if TYPE_CHECKING:
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     from homeassistant.core import HomeAssistant
 
+    from .api import FireplusResponse
     from .data import FireplusConfigEntry
 
 
 STATISTICS_STORAGE_VERSION = 1
 # Delay before the statistics are written to disk (s)
 STATISTICS_SAVE_DELAY = 30
+
+# Like the web app: warn when the door is open longer than 5 minutes while the stove is hotter than 40 °C
+DOOR_OPEN_TEMPERATURE = 40
+DOOR_OPEN_TOO_LONG = timedelta(minutes=5)
 
 
 def statistics_store(hass: HomeAssistant, entry_id: str) -> Store[dict]:
@@ -50,6 +57,9 @@ class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
         # None until the event log was read once, False if the fire+ has none
         self.events_supported: bool | None = None
         self._statistics_store: Store[dict] = statistics_store(hass, config_entry.entry_id)
+        # Since when the door is open while the stove is hot
+        self.door_open_since: datetime | None = None
+        self.door_open_too_long: bool | None = None
         super().__init__(
             hass,
             logger=LOGGER,
@@ -67,15 +77,35 @@ class FireplusDataUpdateCoordinator(DataUpdateCoordinator):
 
         while retries < max_retries:
             try:
-                return await self.config_entry.runtime_data.client.async_get_data()
+                data = await self.config_entry.runtime_data.client.async_get_data()
             except FireplusApiClientError as exception:
                 retries += 1
                 if retries < max_retries:
                     await asyncio.sleep(1)
                 else:
                     raise UpdateFailed(exception) from exception
+            else:
+                self._track_door(data)
+                return data
 
         raise UpdateFailed(UPDATE_FAILED_MSG)
+
+    def _track_door(self, data: FireplusResponse) -> None:
+        """Track how long the door has been open while the stove is hot."""
+        if data.door_open is None:
+            too_long = None
+        else:
+            if data.door_open and data.temperature > DOOR_OPEN_TEMPERATURE:
+                if self.door_open_since is None:
+                    self.door_open_since = dt_util.utcnow()
+            else:
+                self.door_open_since = None
+            too_long = self.door_open_since is not None and dt_util.utcnow() - self.door_open_since > DOOR_OPEN_TOO_LONG
+        if too_long != self.door_open_too_long:
+            self.door_open_too_long = too_long
+            # identical responses of the fire+ do not update the entities, so do it here
+            if self.data is not None and data == self.data:
+                self.async_update_listeners()
 
     async def async_load_statistics(self) -> None:
         """Restore the statistics of the last run."""

@@ -21,6 +21,15 @@
             },
             "draught_warning": {
                 "default": "mdi:weather-windy"
+            },
+            "door_open_too_long": {
+                "default": "mdi:door-open",
+                "state": {
+                    "off": "mdi:door"
+                }
+            },
+            "filter_problem": {
+                "default": "mdi:air-filter"
             }
         },
         "number": {
@@ -81,6 +90,15 @@
             },
             "last_reload": {
                 "default": "mdi:clock-outline"
+            },
+            "filter_status": {
+                "default": "mdi:air-filter",
+                "state": {
+                    "cleaning_required": "mdi:spray-bottle",
+                    "driver_error": "mdi:alert",
+                    "not_found": "mdi:alert",
+                    "error": "mdi:alert"
+                }
             }
         },
         "switch": {

@@ -48,6 +48,12 @@
             },
             "draught_warning": {
                 "name": "Zugwarnung"
+            },
+            "door_open_too_long": {
+                "name": "Tür zu lange offen"
+            },
+            "filter_problem": {
+                "name": "Filterproblem"
             }
         },
         "number": {
@@ -128,6 +134,18 @@
             },
             "last_reload": {
                 "name": "Zuletzt nachgelegt"
+            },
+            "filter_status": {
+                "name": "Filterstatus",
+                "state": {
+                    "driver_error": "Treiberfehler",
+                    "not_found": "Filter nicht gefunden",
+                    "present": "Filter vorhanden",
+                    "inactive": "Inaktiv",
+                    "active": "Aktiv",
+                    "cleaning_required": "Reinigen",
+                    "error": "Fehler"
+                }
             }
         },
         "switch": {
