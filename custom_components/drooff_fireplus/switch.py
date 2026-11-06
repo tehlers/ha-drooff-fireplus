@@ -107,9 +107,9 @@ class FireplusLedSwitch(FireplusEntity, SwitchEntity):
         await self.coordinator.async_request_refresh()
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the switch."""
-        return self.coordinator.data.led is not None
+        return super().available and self.coordinator.data.led is not None
 
     @property
     def entity_registry_enabled_default(self) -> bool:

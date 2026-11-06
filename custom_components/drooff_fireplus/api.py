@@ -2,18 +2,23 @@
 
 from __future__ import annotations
 
+import asyncio
 import socket
+import time
 from enum import Enum, auto
 from typing import Any
 
 import aiohttp
-import async_timeout
 from awesomeversion import AwesomeVersion
 
 from .const import ETHERNET_LINK
 
 VERSION_2_0_0 = AwesomeVersion("2.0.0")
 VERSION_2_4_0 = AwesomeVersion("2.4.0")
+
+# The configuration (version, max. temperature, operating time, ...) changes rarely,
+# so it is only requested again after this many seconds.
+CONFIGURATION_MAX_AGE = 60
 
 
 class FireplusApiClientError(Exception):
@@ -43,19 +48,23 @@ class FireplusApiClient:
         """Drooff fire+ API Client."""
         self._host = host
         self._session = session
+        self._configuration: str | None = None
+        self._configuration_time = 0.0
 
-    async def async_get_data(self) -> Any:
+    async def async_get_data(self, *, fresh: bool = False) -> Any:
         """Get data from the API."""
-        return FireplusResponse(
-            await self._api_wrapper(
-                method="get",
-                url=f"http://{self._host}/php/easpanel.php",
-            ),
-            await self._api_wrapper(
+        panel = await self._api_wrapper(
+            method="get",
+            url=f"http://{self._host}/php/easpanel.php",
+        )
+        now = time.monotonic()
+        if fresh or self._configuration is None or now - self._configuration_time > CONFIGURATION_MAX_AGE:
+            self._configuration = await self._api_wrapper(
                 method="get",
                 url=f"http://{self._host}/php/easkonfig.php",
-            ),
-        )
+            )
+            self._configuration_time = now
+        return FireplusResponse(panel, self._configuration)
 
     async def async_update_settings(
         self,
@@ -67,7 +76,7 @@ class FireplusApiClient:
         led: bool | None = None,
     ) -> None:
         """Update settings of Drooff fire+."""
-        current_data = await self.async_get_data()
+        current_data = await self.async_get_data(fresh=True)
 
         if current_data.version >= VERSION_2_0_0:
             burn_rate_values = _get_values_for_burn_rate_v2(
@@ -107,7 +116,7 @@ class FireplusApiClient:
     ) -> Any:
         """Get information from the API."""
         try:
-            async with async_timeout.timeout(10):
+            async with asyncio.timeout(10):
                 response = await self._session.request(
                     method=method,
                     url=url,
@@ -163,6 +172,7 @@ class FireplusResponse:
 
     def __init__(self, panel_response: str, configuration_response: str) -> None:
         """Metrics and data retrieved from the Drooff fire+ API."""
+        self._raw = (panel_response, configuration_response)
         try:
             panel_values = panel_response[2:-1].split("\\n")
             configuration_values = configuration_response[2:-1].split("\\n")
@@ -197,6 +207,12 @@ class FireplusResponse:
             raise FireplusApiClientInvalidResponseError(
                 msg,
             ) from exception
+
+    def __eq__(self, other: object) -> bool:
+        """Responses are equal if the fire+ returned exactly the same data."""
+        return isinstance(other, FireplusResponse) and self._raw == other._raw
+
+    __hash__ = None  # type: ignore[assignment]
 
     def __init_version1(self, panel_values: list[str], configuration_values: list[str]) -> None:
         self.volume = None

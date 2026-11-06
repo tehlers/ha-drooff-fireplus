@@ -119,9 +119,9 @@ class FireplusVolume(FireplusEntity, NumberEntity):
         return "mdi:volume-high"
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.volume is not None
+        return super().available and self.coordinator.data.volume is not None
 
     @property
     def entity_registry_enabled_default(self) -> bool:
