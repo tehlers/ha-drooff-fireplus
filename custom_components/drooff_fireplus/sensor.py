@@ -69,6 +69,7 @@ class FireplusTemperatureSensor(FireplusEntity, SensorEntity):
         self.device_class = SensorDeviceClass.TEMPERATURE
         self.native_unit_of_measurement = UnitOfTemperature.CELSIUS
         self.suggested_display_precision = 0
+        self.state_class = SensorStateClass.MEASUREMENT
 
     @property
     def native_value(self) -> int | None:
@@ -97,11 +98,12 @@ class FireplusChimneyDraughtSensor(FireplusEntity, SensorEntity):
         self.device_class = SensorDeviceClass.PRESSURE
         self.native_unit_of_measurement = UnitOfPressure.PA
         self.suggested_display_precision = 1
+        self.state_class = SensorStateClass.MEASUREMENT
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.chimney_draught_available
+        return super().available and self.coordinator.data.chimney_draught_available
 
     @property
     def native_value(self) -> float | None:
@@ -124,6 +126,7 @@ class FireplusAirSliderPositionSensor(FireplusEntity, SensorEntity):
         )
         self.native_unit_of_measurement = PERCENTAGE
         self.suggested_display_precision = 0
+        self.state_class = SensorStateClass.MEASUREMENT
 
     @property
     def native_value(self) -> float | None:
@@ -189,9 +192,9 @@ class FireplusOperatingTimeSensor(FireplusEntity, SensorEntity):
         return self.coordinator.data.operating_time
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.operating_time is not None
+        return super().available and self.coordinator.data.operating_time is not None
 
     @property
     def entity_registry_enabled_default(self) -> bool:
@@ -216,9 +219,9 @@ class FireplusHeatingProgressSensor(FireplusEntity, SensorEntity):
         self.suggested_display_precision = 0
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.operation_status == FireplusOperationStatus.HEATING
+        return super().available and self.coordinator.data.operation_status == FireplusOperationStatus.HEATING
 
     @property
     def native_value(self) -> float | None:
@@ -281,9 +284,9 @@ class FireplusTargetTemperatureSensor(FireplusEntity, SensorEntity):
         return self.coordinator.data.target_temperature
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.target_temperature is not None
+        return super().available and self.coordinator.data.target_temperature is not None
 
     @property
     def entity_registry_enabled_default(self) -> bool:
@@ -309,9 +312,9 @@ class FireplusWeightSensor(FireplusEntity, SensorEntity):
         self.suggested_display_precision = 1
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.weight is not None and self.coordinator.data.weight > 0.0
+        return super().available and (self.coordinator.data.weight is not None and self.coordinator.data.weight > 0.0)
 
     @property
     def native_value(self) -> int | None:
@@ -341,13 +344,12 @@ class FireplusWifiSignalStrengthSensor(FireplusEntity, SensorEntity):
             icon="mdi:wifi-off",
             entity_category=EntityCategory.DIAGNOSTIC,
         )
-        self.device_class = SensorDeviceClass.SIGNAL_STRENGTH
         self.suggested_display_precision = 0
 
     @property
-    def available(self) -> bool | None:
+    def available(self) -> bool:
         """Return the availability of the sensor."""
-        return self.coordinator.data.wifi_signal_strength is not None
+        return super().available and self.coordinator.data.wifi_signal_strength is not None
 
     @property
     def entity_registry_enabled_default(self) -> bool:
