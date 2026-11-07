@@ -50,7 +50,7 @@ Like the fire+ web application, the integration refuses changes while the fire+ 
 | `Air slider position`     | Sensor | Position of the air slider in percent                         |
 | `Draught`                 | Sensor | Chimney draught in Pa                                         |
 | `Heating progress`        | Sensor | Heating progress in percent (only available while `HEATING`)  |
-| `Operation status`        | Sensor | Operation status of the fireplace. Possible values are:<br>- `STANDBY`<br>- `REGULAR`<br>- `HEATING`<br>- `WOOD_REQUIRED`<br>- `WOOD_URGENTLY_REQUIRED`<br>- `EMBER_PRESERVATION`<br>- `EMBER_BURNDOWN`<br>- `ERROR`<br>- `UNKNOWN` |
+| `Operation status`        | Sensor | Operation status of the fireplace, shown in the language of Home Assistant. The states (for automations) are:<br>- `standby`<br>- `regular`<br>- `heating`<br>- `wood_required`<br>- `wood_urgently_required`<br>- `ember_preservation`<br>- `ember_burndown`<br>- `error`<br>- `unknown`<br><br>Up to version 1.5 the states were upper-case (`REGULAR`, …). Automations and scripts that compare them have to be changed to the lower-case states. |
 | `Temperature`             | Sensor | Temperature inside the combustion chamber in °C               |
 | `Target temperature`      | Sensor | Target Temperature inside the combustion chamber in °C        |
 | `Recommended wood load`   | Sensor | Recommended amount of wood to add in kg (only recent devices) |

@@ -102,8 +102,8 @@ SENSORS: tuple[FireplusSensorEntityDescription, ...] = (
         key="operation_status",
         translation_key="operation_status",
         device_class=SensorDeviceClass.ENUM,
-        options=[status.name for status in FireplusOperationStatus],
-        value_fn=lambda data: data.operation_status.name,
+        options=[status.name.lower() for status in FireplusOperationStatus],
+        value_fn=lambda data: data.operation_status.name.lower(),
     ),
     FireplusSensorEntityDescription(
         key="operating_time",
@@ -320,11 +320,6 @@ class FireplusSensor(FireplusEntity, SensorEntity):
     @property
     def icon(self) -> str | None:
         """Return the icons that depend on the state, all other icons come from icons.json."""
-        if self.entity_description.key == "operation_status":
-            # icons.json only accepts lower-case states, operation_status keeps upper-case ones
-            if self.coordinator.data.operation_status == FireplusOperationStatus.STANDBY:
-                return "mdi:fireplace-off"
-            return super().icon
         if self.entity_description.key != "wifi_signal_strength":
             return super().icon
         bars = self.coordinator.data.wifi_signal_strength

@@ -93,7 +93,18 @@
                 "name": "Heating progress"
             },
             "operation_status": {
-                "name": "Operation status"
+                "name": "Operation status",
+                "state": {
+                    "standby": "Standby",
+                    "regular": "Regular operation",
+                    "heating": "Heating up",
+                    "wood_required": "Wood required",
+                    "wood_urgently_required": "Wood urgently required",
+                    "ember_preservation": "Ember preservation",
+                    "ember_burndown": "Ember burndown",
+                    "error": "Error",
+                    "unknown": "Unknown"
+                }
             },
             "operating_time": {
                 "name": "Operating time"

@@ -57,7 +57,7 @@ def notify(action: str, **data: Any) -> list[dict[str, Any]]:
 async def setup_automation(hass: HomeAssistant, inputs: dict[str, Any]) -> None:
     """Install the blueprint and create an automation from it."""
     await async_install_blueprints(hass)
-    hass.states.async_set(STATUS, "REGULAR")
+    hass.states.async_set(STATUS, "regular")
     assert await async_setup_component(
         hass,
         "automation",
@@ -93,7 +93,7 @@ async def test_default_is_a_home_assistant_notification(hass: HomeAssistant) -> 
     """By default a Home Assistant notification is created."""
     persistent = async_mock_service(hass, "notify", "persistent_notification")
     await setup_automation(hass, {})
-    await set_status(hass, "WOOD_REQUIRED")
+    await set_status(hass, "wood_required")
     assert [call.data for call in persistent] == [{"title": "Kaminofen", "message": "Bitte Holz nachlegen."}]
 
 
@@ -101,7 +101,7 @@ async def test_all_channels_can_be_empty(hass: HomeAssistant, caplog: pytest.Log
     """Every channel is optional."""
     persistent = async_mock_service(hass, "notify", "persistent_notification")
     await setup_automation(hass, {"notify_actions": []})
-    await set_status(hass, "WOOD_REQUIRED")
+    await set_status(hass, "wood_required")
     await wait(hass, 1)
     assert persistent == []
     assert "Error" not in caplog.text
@@ -123,7 +123,7 @@ async def test_each_channel_after_its_delay(hass: HomeAssistant) -> None:
             "custom_delay": {"minutes": 10},
         },
     )
-    await set_status(hass, "WOOD_REQUIRED")
+    await set_status(hass, "wood_required")
     assert len(pushover) == 1
     assert pushover[0].data == {"title": "Kaminofen", "message": "Bitte Holz nachlegen.", "data": {"priority": 1}}
     assert alexa == []
@@ -144,7 +144,7 @@ async def test_urgent_uses_normal_actions_until_enabled(hass: HomeAssistant) -> 
     await setup_automation(
         hass, {"notify_actions": notify("notify.pushover"), "urgent_notify_actions": notify("notify.pushover")}
     )
-    await set_status(hass, "WOOD_URGENTLY_REQUIRED")
+    await set_status(hass, "wood_urgently_required")
     assert [call.data["message"] for call in pushover] == ["Dringend Holz nachlegen!"]
 
 
@@ -164,11 +164,11 @@ async def test_urgent_actions(hass: HomeAssistant) -> None:
             "urgent_custom_actions": [{"action": "siren.turn_on", "data": {"entity_id": "siren.hall"}}],
         },
     )
-    await set_status(hass, "WOOD_REQUIRED")
+    await set_status(hass, "wood_required")
     assert len(phone) == 1
     assert len(lights) == 1
 
-    await set_status(hass, "WOOD_URGENTLY_REQUIRED")
+    await set_status(hass, "wood_urgently_required")
     assert [call.data for call in pushover] == [
         {"title": "Kaminofen", "message": "Dringend Holz nachlegen!", "data": {"priority": 2}}
     ]
@@ -177,12 +177,12 @@ async def test_urgent_actions(hass: HomeAssistant) -> None:
     assert len(lights) == 1
 
 
-@pytest.mark.parametrize("new_status", ["REGULAR", "unavailable"])
+@pytest.mark.parametrize("new_status", ["regular", "unavailable"])
 async def test_no_reminder_once_wood_was_added(hass: HomeAssistant, new_status: str) -> None:
     """A pending reminder is dropped when wood is no longer required."""
     phone = async_mock_service(hass, "notify", "mobile_app_phone")
     await setup_automation(hass, {"notify_actions": notify("notify.mobile_app_phone"), "notify_delay": {"minutes": 10}})
-    await set_status(hass, "WOOD_REQUIRED")
+    await set_status(hass, "wood_required")
     await set_status(hass, new_status)
     await wait(hass, 10)
     assert phone == []
@@ -206,7 +206,7 @@ async def test_notify_entities_and_wood_load(hass: HomeAssistant) -> None:
             "alexa_notify_entities": ["notify.kitchen_announce"],
         },
     )
-    await set_status(hass, "WOOD_REQUIRED")
+    await set_status(hass, "wood_required")
     assert sorted((str(call.data["entity_id"]), call.data["message"]) for call in send_message) == [
         ("['notify.kitchen_announce']", "Bitte Holz nachlegen. (1.5 kg)"),
         ("['notify.phone']", "Bitte Holz nachlegen. (1.5 kg)"),
@@ -227,8 +227,8 @@ async def test_english_and_own_texts(hass: HomeAssistant) -> None:
             "urgent_message": "Wood, quickly!",
         },
     )
-    await set_status(hass, "WOOD_REQUIRED")
-    await set_status(hass, "WOOD_URGENTLY_REQUIRED")
+    await set_status(hass, "wood_required")
+    await set_status(hass, "wood_urgently_required")
     assert [(call.data["title"], call.data["message"]) for call in pushover] == [
         ("Fireplace", "Please add wood."),
         ("Stove", "Wood, quickly!"),

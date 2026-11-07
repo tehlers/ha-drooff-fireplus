@@ -59,7 +59,7 @@ async def test_values(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, 
     expected = {
         "sensor.draught": "-12.4",
         "sensor.air_slider": "40.0",
-        "sensor.operation_status": "REGULAR",
+        "sensor.operation_status": "regular",
         "sensor.error_message": "none",
         "sensor.target_temperature": "480",
         "sensor.weight": "1.5",
@@ -101,7 +101,7 @@ async def test_wood_urgently_required(
     mock_fireplus(aioclient_mock, panel=panel)
     await setup_integration(hass, config_entry)
     state = hass.states.get(entity_id(hass, config_entry, "sensor.operation_status"))
-    assert state.state == "WOOD_URGENTLY_REQUIRED"
+    assert state.state == "wood_urgently_required"
 
 
 async def test_set_burn_rate(

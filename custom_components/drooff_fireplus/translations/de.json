@@ -93,7 +93,18 @@
                 "name": "Anheizfortschritt"
             },
             "operation_status": {
-                "name": "Betriebsstatus"
+                "name": "Betriebsstatus",
+                "state": {
+                    "standby": "Standby",
+                    "regular": "Regelbetrieb",
+                    "heating": "Anheizen",
+                    "wood_required": "Holz nachlegen",
+                    "wood_urgently_required": "Dringend Holz nachlegen",
+                    "ember_preservation": "Gluterhaltung",
+                    "ember_burndown": "Glutabbrand",
+                    "error": "Fehler",
+                    "unknown": "Unbekannt"
+                }
             },
             "operating_time": {
                 "name": "Betriebszeit"

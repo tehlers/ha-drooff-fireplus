@@ -6,7 +6,7 @@
  * next to the values of the fire+ combustion control. Every value can be hidden.
  */
 
-const CARD_VERSION = "1.0.4";
+const CARD_VERSION = "1.0.5";
 const DOMAIN = "drooff_fireplus";
 
 /* translation_key -> entity domain, plus entity_id suffixes as fallback */
@@ -1059,6 +1059,9 @@ const STATUS_COLOR = {
   ERROR: "#e53935",
   UNKNOWN: "#8a8a8a",
 };
+
+/* the integration reports lower-case states since 1.6 (translatable), older versions upper-case ones */
+const normStatus = (s) => (typeof s === "string" && STATUS_COLOR[s.toUpperCase()] ? s.toUpperCase() : s);
 
 /* card language: configured one, otherwise the user's language */
 const lang = (hass, cfg) => {
@@ -2465,7 +2468,7 @@ class DrooffFireplusCard extends HTMLElement {
     }
 
     const statusObj = this._st("operation_status");
-    const status = usable(statusObj) ? statusObj.state : "UNKNOWN";
+    const status = usable(statusObj) ? normStatus(statusObj.state) : "UNKNOWN";
     const tempObj = this._st("temperature");
     const temp = num(tempObj);
     const fx = this._intensity(status, temp);
@@ -2788,7 +2791,7 @@ class DrooffFireplusCard extends HTMLElement {
           .map((r) => {
             const s = r.s !== undefined ? r.s : r.state;
             const t = r.lu !== undefined ? r.lu * 1000 : Date.parse(r.last_updated || r.last_changed);
-            return [t, s];
+            return [t, key === "operation_status" ? normStatus(s) : s];
           })
           .filter(([t]) => Number.isFinite(t))
           .sort((a, b) => a[0] - b[0]);
@@ -2865,7 +2868,7 @@ class DrooffFireplusCard extends HTMLElement {
     const t0 = now - hours * 3600 * 1000;
     const st = h ? [...h.status] : [];
     const curS = this._st("operation_status");
-    if (usable(curS)) st.push([now, curS.state]);
+    if (usable(curS)) st.push([now, normStatus(curS.state)]);
     const before = st.filter(([x]) => x < t0).pop();
     const win = st.filter(([x]) => x >= t0);
     if (before) win.unshift([t0, before[1]]);

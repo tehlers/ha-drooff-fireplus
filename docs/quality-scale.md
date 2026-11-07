@@ -28,5 +28,6 @@ Custom integrations are not graded by Home Assistant; this list documents the st
 | Platinum | async-dependency, inject-websession | done |
 | Platinum | strict-typing | todo |
 
-The `operation_status` sensor keeps its upper-case states (`REGULAR`, `HEATING`, …) for
-compatibility with existing automations; Home Assistant only translates lower-case states.
+The `operation_status` sensor reports lower-case states (`regular`, `heating`, …) so Home
+Assistant translates them. Up to version 1.5 they were upper-case; automations comparing them
+have to be updated (the blueprint of the integration already uses the new states).

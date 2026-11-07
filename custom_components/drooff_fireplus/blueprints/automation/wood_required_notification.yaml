@@ -277,14 +277,14 @@ mode: restart
 triggers:
   - trigger: state
     entity_id: !input status_sensor
-    to: WOOD_REQUIRED
+    to: wood_required
     not_from:
       - unavailable
       - unknown
     id: required
   - trigger: state
     entity_id: !input status_sensor
-    to: WOOD_URGENTLY_REQUIRED
+    to: wood_urgently_required
     not_from:
       - unavailable
       - unknown
@@ -293,11 +293,11 @@ triggers:
   - trigger: state
     entity_id: !input status_sensor
     from:
-      - WOOD_REQUIRED
-      - WOOD_URGENTLY_REQUIRED
+      - wood_required
+      - wood_urgently_required
     not_to:
-      - WOOD_REQUIRED
-      - WOOD_URGENTLY_REQUIRED
+      - wood_required
+      - wood_urgently_required
     id: done
 
 variables:

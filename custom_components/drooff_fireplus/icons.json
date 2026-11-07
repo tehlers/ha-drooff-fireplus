@@ -57,7 +57,13 @@
                 "default": "mdi:history"
             },
             "operation_status": {
-                "default": "mdi:fireplace"
+                "default": "mdi:fireplace",
+                "state": {
+                    "standby": "mdi:fireplace-off",
+                    "wood_required": "mdi:fire-alert",
+                    "wood_urgently_required": "mdi:fire-alert",
+                    "error": "mdi:alert-circle"
+                }
             },
             "target_temperature": {
                 "default": "mdi:gauge"
