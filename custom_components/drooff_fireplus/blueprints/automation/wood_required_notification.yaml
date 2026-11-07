@@ -1,0 +1,402 @@
+blueprint:
+  name: "Drooff fire+: Holz nachlegen / Add wood"
+  description: >-
+    **Deutsch:** Erinnert, wenn der fire+ nach Holz verlangt. Für "Holz
+    nachlegen" und "Dringend Holz nachlegen" lassen sich getrennte Aktionen
+    einstellen: Nachrichten (Pushover, Telegram, Handy-App und andere
+    Notify-Aktionen), Ansagen auf Amazon-Echo-Geräten und weitere Aktionen.
+    Alle Kanäle sind optional und haben eine eigene Verzögerung. Ein Kanal
+    meldet sich nur, wenn der Zustand nach der Verzögerung noch besteht.
+    Solange die Aktionen für "Dringend" nicht eingeschaltet sind, gelten dort
+    die Aktionen für "Holz nachlegen". Die Sprache bestimmt die Standardtexte.
+
+
+    **English:** Reminds you when the fire+ asks for wood. "Wood required" and
+    "wood urgently required" can have separate actions: messages (Pushover,
+    Telegram, mobile app and other notify actions), announcements on Amazon
+    Echo devices and other actions. Every channel is optional and has its own
+    delay. A channel only fires if the status still holds after its delay.
+    Until the urgent actions are switched on, the actions for "wood required"
+    are used. The language selects the default texts.
+
+
+    Die Integration installiert und aktualisiert diese Datei, Änderungen werden
+    überschrieben. / The integration installs and updates this file, changes
+    are overwritten.
+  domain: automation
+  source_url: https://github.com/tehlers/ha-drooff-fireplus/blob/main/custom_components/drooff_fireplus/blueprints/automation/wood_required_notification.yaml
+  author: Drooff fire+ integration
+  homeassistant:
+    min_version: "2026.3.0"
+  input:
+    language:
+      name: Sprache / Language
+      description: Sprache der Standardtexte. / Language of the default texts.
+      default: de
+      selector:
+        select:
+          options:
+            - label: Deutsch
+              value: de
+            - label: English
+              value: en
+    status_sensor:
+      name: Betriebsstatus / Operation status
+      description: Der Sensor "Betriebsstatus" des fire+. / The "Operation status" sensor of the fire+.
+      selector:
+        entity:
+          filter:
+            - integration: drooff_fireplus
+              domain: sensor
+    wood_load_sensor:
+      name: Empfohlene Holzauflage / Recommended wood load (optional)
+      description: >-
+        Wenn gesetzt, wird die Menge in kg an die Nachricht angehängt.
+        / If set, the amount in kg is appended to the message.
+      default: ""
+      selector:
+        entity:
+          filter:
+            - integration: drooff_fireplus
+              domain: sensor
+    section:
+      name: Aktion bei Holz nachlegen / Action when wood is required
+      icon: mdi:fireplace
+      description: >-
+        Was passiert bei "Holz nachlegen". / What happens when the fire+ asks for wood.
+      collapsed: false
+      input:
+        title:
+          name: Titel / Title
+          description: >-
+            Leer = Standardtext der gewählten Sprache. Nicht für Echo-Ansagen.
+            / Empty = default text of the selected language. Not used for Echo announcements.
+          default: ""
+          selector:
+            text:
+        message:
+          name: Nachricht / Message
+          description: Leer = Standardtext der gewählten Sprache. / Empty = default text of the selected language.
+          default: ""
+          selector:
+            text:
+              multiline: true
+        notify_actions:
+          name: "Nachricht: Aktionen / Message: actions"
+          description: >-
+            Vorbelegt ist eine Benachrichtigung in Home Assistant. Ersetze oder
+            ergänze sie z. B. durch "Benachrichtigungen: Pushover" (notify.pushover)
+            oder notify.mobile_app_… und lass title "{{ title }}" und
+            message "{{ text }}" stehen. Alle Felder der Aktion (z. B. Priorität
+            und Ton bei Pushover unter data) lassen sich im Editor setzen.
+            / Preset is a Home Assistant notification. Replace or extend it, e.g.
+            with notify.pushover or notify.mobile_app_…, and keep title
+            "{{ title }}" and message "{{ text }}".
+          default:
+            - action: notify.persistent_notification
+              data:
+                title: "{{ title }}"
+                message: "{{ text }}"
+          selector:
+            action: {}
+        notify_delay:
+          name: "Nachricht: Verzögerung / Message: delay"
+          default:
+            minutes: 0
+          selector:
+            duration:
+        alexa_media_players:
+          name: "Echo: Geräte (Alexa Media Player) / devices (Alexa Media Player)"
+          default: []
+          selector:
+            entity:
+              filter:
+                - integration: alexa_media
+                  domain: media_player
+              multiple: true
+        alexa_media_type:
+          name: "Echo: Art (Alexa Media Player) / type (Alexa Media Player)"
+          description: Ansage mit Gong oder nur TTS. / Announcement with chime or TTS only.
+          default: announce
+          selector:
+            select:
+              options:
+                - label: Ansage / Announce
+                  value: announce
+                - label: TTS
+                  value: tts
+        alexa_notify_entities:
+          name: "Echo: Notify-Entitäten (Alexa Devices) / notify entities (Alexa Devices)"
+          description: z. B. / e.g. notify.kitchen_announce, notify.kitchen_speak
+          default: []
+          selector:
+            entity:
+              filter:
+                - integration: alexa_devices
+                  domain: notify
+              multiple: true
+        echo_message:
+          name: "Echo: Ansagetext / announcement"
+          description: Leer = Nachricht. / Empty = message.
+          default: ""
+          selector:
+            text:
+        echo_delay:
+          name: "Echo: Verzögerung / delay"
+          default:
+            minutes: 0
+          selector:
+            duration:
+        custom_actions:
+          name: Weitere Aktionen / Other actions
+          description: >-
+            Beliebige Aktionen, die Variablen "title" und "text" enthalten Titel und Nachricht.
+            / Any actions, the variables "title" and "text" hold title and message.
+          default: []
+          selector:
+            action:
+        custom_delay:
+          name: "Weitere Aktionen: Verzögerung / Other actions: delay"
+          default:
+            minutes: 0
+          selector:
+            duration:
+    urgent_section:
+      name: Aktion bei Dringend Holz nachlegen / Action when wood is urgently required
+      icon: mdi:fire-alert
+      description: >-
+        Was passiert bei "Dringend Holz nachlegen". / What happens when the fire+ urgently asks for wood.
+      collapsed: true
+      input:
+        urgent_enabled:
+          name: Eigene Aktionen bei "Dringend" verwenden / Use own actions when urgent
+          description: >-
+            Aus = es gelten die Aktionen für "Holz nachlegen".
+            / Off = the actions for "wood required" are used.
+          default: false
+          selector:
+            boolean:
+        urgent_title:
+          name: Titel / Title
+          description: >-
+            Leer = Standardtext der gewählten Sprache. Nicht für Echo-Ansagen.
+            / Empty = default text of the selected language. Not used for Echo announcements.
+          default: ""
+          selector:
+            text:
+        urgent_message:
+          name: Nachricht / Message
+          description: Leer = Standardtext der gewählten Sprache. / Empty = default text of the selected language.
+          default: ""
+          selector:
+            text:
+              multiline: true
+        urgent_notify_actions:
+          name: "Nachricht: Aktionen / Message: actions"
+          description: >-
+            Vorbelegt ist eine Benachrichtigung in Home Assistant. Ersetze oder
+            ergänze sie z. B. durch "Benachrichtigungen: Pushover" (notify.pushover)
+            oder notify.mobile_app_… und lass title "{{ title }}" und
+            message "{{ text }}" stehen. Alle Felder der Aktion (z. B. Priorität
+            und Ton bei Pushover unter data) lassen sich im Editor setzen.
+            / Preset is a Home Assistant notification. Replace or extend it, e.g.
+            with notify.pushover or notify.mobile_app_…, and keep title
+            "{{ title }}" and message "{{ text }}".
+          default:
+            - action: notify.persistent_notification
+              data:
+                title: "{{ title }}"
+                message: "{{ text }}"
+          selector:
+            action: {}
+        urgent_notify_delay:
+          name: "Nachricht: Verzögerung / Message: delay"
+          default:
+            minutes: 0
+          selector:
+            duration:
+        urgent_alexa_media_players:
+          name: "Echo: Geräte (Alexa Media Player) / devices (Alexa Media Player)"
+          default: []
+          selector:
+            entity:
+              filter:
+                - integration: alexa_media
+                  domain: media_player
+              multiple: true
+        urgent_alexa_media_type:
+          name: "Echo: Art (Alexa Media Player) / type (Alexa Media Player)"
+          description: Ansage mit Gong oder nur TTS. / Announcement with chime or TTS only.
+          default: announce
+          selector:
+            select:
+              options:
+                - label: Ansage / Announce
+                  value: announce
+                - label: TTS
+                  value: tts
+        urgent_alexa_notify_entities:
+          name: "Echo: Notify-Entitäten (Alexa Devices) / notify entities (Alexa Devices)"
+          description: z. B. / e.g. notify.kitchen_announce, notify.kitchen_speak
+          default: []
+          selector:
+            entity:
+              filter:
+                - integration: alexa_devices
+                  domain: notify
+              multiple: true
+        urgent_echo_message:
+          name: "Echo: Ansagetext / announcement"
+          description: Leer = Nachricht. / Empty = message.
+          default: ""
+          selector:
+            text:
+        urgent_echo_delay:
+          name: "Echo: Verzögerung / delay"
+          default:
+            minutes: 0
+          selector:
+            duration:
+        urgent_custom_actions:
+          name: Weitere Aktionen / Other actions
+          description: >-
+            Beliebige Aktionen, die Variablen "title" und "text" enthalten Titel und Nachricht.
+            / Any actions, the variables "title" and "text" hold title and message.
+          default: []
+          selector:
+            action:
+        urgent_custom_delay:
+          name: "Weitere Aktionen: Verzögerung / Other actions: delay"
+          default:
+            minutes: 0
+          selector:
+            duration:
+
+mode: restart
+
+triggers:
+  - trigger: state
+    entity_id: !input status_sensor
+    to: wood_required
+    not_from:
+      - unavailable
+      - unknown
+    id: required
+  - trigger: state
+    entity_id: !input status_sensor
+    to: wood_urgently_required
+    not_from:
+      - unavailable
+      - unknown
+    id: urgent
+  # A new run cancels the pending reminders, so nothing is sent once wood was added
+  - trigger: state
+    entity_id: !input status_sensor
+    from:
+      - wood_required
+      - wood_urgently_required
+    not_to:
+      - wood_required
+      - wood_urgently_required
+    id: done
+
+variables:
+  language: !input language
+  sensor: !input status_sensor
+  wood_load_sensor: !input wood_load_sensor
+  urgent_enabled: !input urgent_enabled
+  defaults:
+    de:
+      title: Kaminofen
+      required: Bitte Holz nachlegen.
+      urgent: Dringend Holz nachlegen!
+    en:
+      title: Fireplace
+      required: Please add wood.
+      urgent: Add wood now!
+  normal:
+    title: !input title
+    message: !input message
+    notify_delay: !input notify_delay
+    alexa_media_players: !input alexa_media_players
+    alexa_media_type: !input alexa_media_type
+    alexa_notify_entities: !input alexa_notify_entities
+    echo_message: !input echo_message
+    echo_delay: !input echo_delay
+    custom_delay: !input custom_delay
+  urgent:
+    title: !input urgent_title
+    message: !input urgent_message
+    notify_delay: !input urgent_notify_delay
+    alexa_media_players: !input urgent_alexa_media_players
+    alexa_media_type: !input urgent_alexa_media_type
+    alexa_notify_entities: !input urgent_alexa_notify_entities
+    echo_message: !input urgent_echo_message
+    echo_delay: !input urgent_echo_delay
+    custom_delay: !input urgent_custom_delay
+
+actions:
+  - condition: template
+    value_template: "{{ trigger.id in ['required', 'urgent'] }}"
+  - variables:
+      use_urgent: "{{ trigger.id == 'urgent' and urgent_enabled }}"
+      c: "{{ urgent if use_urgent else normal }}"
+      texts: "{{ defaults[language] if language in defaults else defaults.en }}"
+      status: "{{ trigger.to_state.state }}"
+      title: "{{ c.title if c.title | length > 0 else texts.title }}"
+      message: "{{ c.message if c.message | length > 0 else texts[trigger.id] }}"
+      wood_load: "{{ states(wood_load_sensor) | float(0) if wood_load_sensor else 0 }}"
+      text: >-
+        {%- if wood_load > 0 -%}
+        {{ message }} ({{ wood_load | round(1) }} kg)
+        {%- else -%}
+        {{ message }}
+        {%- endif -%}
+      echo_text: "{{ c.echo_message if c.echo_message | length > 0 else text }}"
+  - parallel:
+      # actions can not be stored in variables, so both lists are used directly
+      - sequence:
+          - delay: "{{ c.notify_delay }}"
+          - condition: template
+            value_template: "{{ states(sensor) == status }}"
+          - if:
+              - condition: template
+                value_template: "{{ use_urgent }}"
+            then: !input urgent_notify_actions
+            else: !input notify_actions
+      - sequence:
+          - condition: template
+            value_template: "{{ (c.alexa_media_players + c.alexa_notify_entities) | length > 0 }}"
+          - delay: "{{ c.echo_delay }}"
+          - condition: template
+            value_template: "{{ states(sensor) == status }}"
+          - if:
+              - condition: template
+                value_template: "{{ c.alexa_media_players | length > 0 }}"
+            then:
+              - action: notify.alexa_media
+                continue_on_error: true
+                data:
+                  target: "{{ c.alexa_media_players }}"
+                  message: "{{ echo_text }}"
+                  data:
+                    type: "{{ c.alexa_media_type }}"
+          - if:
+              - condition: template
+                value_template: "{{ c.alexa_notify_entities | length > 0 }}"
+            then:
+              - action: notify.send_message
+                continue_on_error: true
+                target:
+                  entity_id: "{{ c.alexa_notify_entities }}"
+                data:
+                  message: "{{ echo_text }}"
+      - sequence:
+          - delay: "{{ c.custom_delay }}"
+          - condition: template
+            value_template: "{{ states(sensor) == status }}"
+          - if:
+              - condition: template
+                value_template: "{{ use_urgent }}"
+            then: !input urgent_custom_actions
+            else: !input custom_actions
