@@ -72,6 +72,7 @@ Alles Weitere wird automatisch erkannt.
 | `draught_display` | `tile` | Kaminzug als `tile` (Kachel) oder `gauge` (Zeigerinstrument) |
 | `draught_min` / `draught_max` | `-30` / `10` | Skala des Gauges in Pa (starker Zug rechts, Überdruck links) |
 | `draught_optimal_from` / `draught_optimal_to` | `-12` / `-20` | Optimaler Bereich in Pa (dunkelgrün). Zwischen 0 und `draught_optimal_from` grau, jenseits von `draught_optimal_to` hellgrün, über 0 rot |
+| `draught_show_optimal` | `false` | Zeigt den optimalen Bereich als kleinen, dezenten Text unter dem aktuellen Zug (nur beim Zeigerinstrument) |
 | `draught_partial_load` | `false` | **Experimentell.** Bei Teillast (Brennstufe 1–3, bei Firmware 1.x 1–4) beginnt der optimale Bereich bei `draught_optimal_from_partial` |
 | `draught_optimal_from_partial` | – | Beginn des optimalen Bereichs bei Teillast, nur mit `draught_partial_load: true`. Wird bei Auswahl eines Ofenmodells mit Teillastwert gesetzt |
 | `graphics` | `[]` | Zusatzgrafiken: `temp_history`, `timeline`, `wood_usage`, `heating_ring`, `air_flap`, `temp_ring` |

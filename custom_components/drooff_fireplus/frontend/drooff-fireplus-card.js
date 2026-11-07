@@ -6,7 +6,7 @@
  * next to the values of the fire+ combustion control. Every value can be hidden.
  */
 
-const CARD_VERSION = "1.0.5";
+const CARD_VERSION = "1.0.6";
 const DOMAIN = "drooff_fireplus";
 
 /* translation_key -> entity domain, plus entity_id suffixes as fallback */
@@ -104,6 +104,7 @@ const DEFAULTS = {
   draught_optimal_from: -12,
   draught_optimal_to: -20,
   draught_partial_load: false,
+  draught_show_optimal: false,
   language: "auto", min_temperature: 80, max_temperature: 600, log_weight: 0.9, controls: true, layout: "auto", wall: "chamotte" };
 
 /* find the entities of the integration */
@@ -218,6 +219,7 @@ const I18N = {
       draught_max: "Skala bis (Pa)",
       draught_optimal_from: "Optimal ab (Pa)",
       draught_optimal_to: "Optimal bis (Pa)",
+      draught_show_optimal: "Optimalen Bereich als Text anzeigen",
       draught_partial_load: "Teillast berücksichtigen (experimentell)",
       draught_optimal_from_partial: "Optimal ab bei Teillast (Pa)",
       lang_auto: "Automatisch (Benutzersprache)",
@@ -357,6 +359,7 @@ const I18N = {
       draught_max: "Scale to (Pa)",
       draught_optimal_from: "Optimal from (Pa)",
       draught_optimal_to: "Optimal to (Pa)",
+      draught_show_optimal: "Show the optimal range as text",
       draught_partial_load: "Consider partial load (experimental)",
       draught_optimal_from_partial: "Optimal from at partial load (Pa)",
       lang_auto: "Automatic (user language)",
@@ -2114,6 +2117,8 @@ ha-card { overflow: hidden; container-type: inline-size; height: 100%; box-sizin
 .gauge { width: 130px; flex: 0 0 auto; }
 .gauge-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .gauge-text .sub { color: var(--secondary-text-color); font-size: 0.85em; }
+/* optimal range: a quiet hint, clearly below the current value and its rating */
+.gauge-text .hint { color: var(--secondary-text-color); font-size: 0.68em; opacity: 0.6; margin-top: 6px; font-weight: 300; }
 .spark { width: 100%; height: 70px; display: block; }
 .axis { display: flex; justify-content: space-between; font-size: 0.72em; color: var(--secondary-text-color); }
 .sub2 { font-size: 0.8em; color: var(--secondary-text-color); }
@@ -2746,7 +2751,11 @@ class DrooffFireplusCard extends HTMLElement {
           <div class="gauge-text">
             <div class="val" style="font-size:1.6em;font-weight:400;color:${col}">${fmt(v)} <small style="font-size:0.55em;color:var(--secondary-text-color)">Pa</small></div>
             <div class="sub">${esc(status)}</div>
-            <div class="sub">${t.draught_target}${partial ? ` (${esc(t.draught_partial)})` : ""} <span style="white-space:nowrap">${fmt(hi)} … ${fmt(lo)} Pa</span></div>
+            ${
+              c.draught_show_optimal === true
+                ? `<div class="hint">${t.draught_target}${partial ? ` (${esc(t.draught_partial)})` : ""} <span style="white-space:nowrap">${fmt(hi)} … ${fmt(lo)} Pa</span></div>`
+                : ""
+            }
           </div>
         </div>
       </div>`;
@@ -3424,6 +3433,7 @@ class DrooffFireplusCardEditor extends HTMLElement {
               ["draught_optimal_to", -100, 0, 0.5],
             ].map(([name, min, max, step]) => ({ name, selector: { number: { min, max, step, mode: "box" } } })),
           },
+          { name: "draught_show_optimal", selector: { boolean: {} } },
           { name: "draught_partial_load", selector: { boolean: {} } },
           ...(this._config.draught_partial_load
             ? [{ name: "draught_optimal_from_partial", selector: { number: { min: -100, max: 0, step: 0.5, mode: "box" } } }]

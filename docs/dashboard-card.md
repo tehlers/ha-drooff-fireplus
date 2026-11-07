@@ -72,6 +72,7 @@ Everything else is detected automatically.
 | `draught_display` | `tile` | Chimney draught as `tile` or `gauge` |
 | `draught_min` / `draught_max` | `-30` / `10` | Gauge scale in Pa (strong draught on the right, overpressure on the left) |
 | `draught_optimal_from` / `draught_optimal_to` | `-12` / `-20` | Optimal range in Pa (dark green). Between 0 and `draught_optimal_from` is grey, beyond `draught_optimal_to` light green, above 0 red |
+| `draught_show_optimal` | `false` | Shows the optimal range as a small, muted text below the current draught (gauge only) |
 | `draught_partial_load` | `false` | **Experimental.** At partial load (burn rate 1–3, 1–4 with firmware 1.x) the optimal range starts at `draught_optimal_from_partial` |
 | `draught_optimal_from_partial` | – | Start of the optimal range at partial load, only with `draught_partial_load: true`. Set when you choose a stove model with a partial-load value |
 | `graphics` | `[]` | Additional graphics: `temp_history`, `timeline`, `wood_usage`, `heating_ring`, `air_flap`, `temp_ring` |
