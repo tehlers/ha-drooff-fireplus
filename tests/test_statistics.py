@@ -88,3 +88,20 @@ async def test_without_event_log(
     assert hass.states.get(entity_id(hass, config_entry, "sensor.temperature")).state == "520"
     assert entity_id(hass, config_entry, "sensor.reloads")
     assert hass.states.get(entity_id(hass, config_entry, "sensor.reloads")) is None
+
+
+def test_wood_without_load_is_booked_later() -> None:
+    """On the first start in standby the fire+ reports no wood load: it is added once one is known."""
+    statistics = FireplusStatistics()
+    statistics.process(parse_events(events_response(EVENTS)), 0.0)
+    assert (statistics.fires, statistics.reloads, statistics.wood, statistics.wood_pending) == (1, 4, 0.0, 5)
+    assert statistics.process([], 1.5)
+    assert (statistics.wood, statistics.wood_pending) == (7.5, 0)
+
+
+def test_last_known_wood_load_is_used() -> None:
+    """While the fire+ reports no wood load, the last known one is used."""
+    statistics = FireplusStatistics()
+    statistics.process([FireplusEvent(1, "zu", "Anheizen"), FireplusEvent(2, "zu", "Regeln")], 2.0)
+    statistics.process([FireplusEvent(700, "auf", "Regeln")], None)
+    assert (statistics.fires, statistics.reloads, statistics.wood) == (1, 1, 4.0)

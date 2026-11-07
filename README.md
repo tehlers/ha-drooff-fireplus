@@ -67,10 +67,10 @@ The integration reads the event log of the fire+ (door openings and phases, `php
 | ------------------------------ | ------ | ----------- |
 | `Fires`                        | Sensor | Fires: heating up followed by regular operation (heating up that ends in standby is not counted) |
 | `Reloads`                      | Sensor | Door openings during regular operation; openings within 10 minutes count once |
-| `Wood consumption (estimated)` | Sensor | Recommended wood load at every fire and reload, in kg. An estimate, the fire+ does not weigh the wood (only recent devices) |
+| `Wood consumption (estimated)` | Sensor | Recommended wood load at every fire and reload, in kg. An estimate, the fire+ does not weigh the wood; while it recommends no load (for example in standby), the last known one is used (only recent devices) |
 | `Last reload`                  | Sensor | Time of the last reload |
 
-On the first start the counters include the events still stored on the fire+ (usually the last days). Older firmware without event log leaves these sensors unavailable.
+On the first start the counters include the events still stored on the fire+ (usually the last days). If the fire+ recommends no wood load at that time, the wood of these events is added as soon as it does. Older firmware without event log leaves these sensors unavailable.
 
 ### Configuration
 

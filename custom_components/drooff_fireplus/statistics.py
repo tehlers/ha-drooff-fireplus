@@ -45,6 +45,10 @@ class FireplusStatistics:
     last_reload: int | None = None
     last_opened: int | None = None
     phase: str | None = None
+    # last recommended wood load above 0 (kg), used while the fire+ reports none (for example in standby)
+    wood_load: float | None = None
+    # fires and reloads counted while no wood load was known yet, booked once one is reported
+    wood_pending: int = 0
 
     @classmethod
     def from_dict(cls, data: dict | None) -> FireplusStatistics:
@@ -62,20 +66,26 @@ class FireplusStatistics:
 
         A fire starts when the phase changes from heating up to regular operation. A reload is
         a door opening during regular operation; openings within RELOAD_GAP count once. The
-        wood is estimated: the recommended wood load of the fire+ for every fire and reload.
+        wood is estimated: the recommended wood load of the fire+ for every fire and reload. The
+        load is the current one; while the fire+ reports none, the last known one is used.
         """
         changed = False
-        load = wood_load if wood_load and wood_load > 0 else 0.0
+        if wood_load and wood_load > 0:
+            self.wood_load = wood_load
+            if self.wood_pending:
+                self.wood += self.wood_pending * wood_load
+                self.wood_pending = 0
+                changed = True
         for event in sorted(events, key=lambda event: event.time):
             if event.time <= self.last_event:
                 continue
             if event.phase == PHASE_REGULAR and self.phase == PHASE_HEATING:
                 self.fires += 1
-                self.wood += load
+                self._add_wood()
             if event.phase == PHASE_REGULAR and event.door in DOOR_OPENED:
                 if self.last_opened is None or event.time - self.last_opened > RELOAD_GAP:
                     self.reloads += 1
-                    self.wood += load
+                    self._add_wood()
                     self.last_reload = event.time
                 self.last_opened = event.time
             self.phase = event.phase
@@ -83,3 +93,9 @@ class FireplusStatistics:
             changed = True
         self.wood = round(self.wood, 2)
         return changed
+
+    def _add_wood(self) -> None:
+        if self.wood_load:
+            self.wood += self.wood_load
+        else:
+            self.wood_pending += 1
