@@ -11,8 +11,10 @@ from homeassistant.components.number import (
     NumberMode,
 )
 from homeassistant.const import PERCENTAGE, EntityCategory
+from homeassistant.exceptions import ServiceValidationError
 
 from .api import VERSION_2_0_0
+from .const import DOMAIN
 from .entity import FireplusEntity
 
 if TYPE_CHECKING:
@@ -27,6 +29,9 @@ if TYPE_CHECKING:
 
 # The fire+ accepts only one settings write at a time
 PARALLEL_UPDATES = 1
+
+# Burn rates the web app offers for stoves with the Blue Angel label: ECO and POWER
+BLUE_ANGEL_BURN_RATES = (1, 6)
 
 LOW_VOLUME = 30
 MEDIUM_VOLUME = 70
@@ -150,4 +155,17 @@ class FireplusNumber(FireplusEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
+        data = self.coordinator.data
+        if (
+            self.entity_description.key == "burn_rate"
+            and data is not None
+            and data.blue_angel
+            and int(value) not in BLUE_ANGEL_BURN_RATES
+        ):
+            # Home Assistant only checks minimum and maximum, not the step
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="burn_rate_blue_angel",
+                translation_placeholders={"value": str(int(value))},
+            )
         await self._async_update_settings(**{self.entity_description.setting: int(value)})

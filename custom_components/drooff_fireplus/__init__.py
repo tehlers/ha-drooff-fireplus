@@ -141,8 +141,8 @@ async def async_setup_entry(
     # result of the last software update, only read while one of its sensors is enabled
     entry.async_on_unload(async_track_time_interval(hass, coordinator.async_update_update_status, EVENTS_INTERVAL))
 
+    # reconfiguration and a new IP address from DHCP reload the entry themselves
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     return True
 
@@ -162,11 +162,3 @@ async def async_remove_entry(
 ) -> None:
     """Delete the stored statistics of a removed entry."""
     await statistics_store(hass, entry.entry_id).async_remove()
-
-
-async def async_reload_entry(
-    hass: HomeAssistant,
-    entry: FireplusConfigEntry,
-) -> None:
-    """Reload config entry."""
-    await hass.config_entries.async_reload(entry.entry_id)

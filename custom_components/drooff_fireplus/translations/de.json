@@ -179,6 +179,9 @@
         },
         "control_locked": {
             "message": "Die Einstellung ist gesperrt: Der fire+ wird gerade nicht über das Web bedient ({control_mode}). Ändere sie an Fernbedienung, Raumregler oder Panel oder stelle in der Webapp auf Bedienung über Web um."
+        },
+        "burn_rate_blue_angel": {
+            "message": "Öfen mit Blauem Engel bieten nur Brennleistung 1 (Eco) und 6 (Power), nicht {value}."
         }
     }
 }

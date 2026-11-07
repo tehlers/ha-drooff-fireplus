@@ -6,7 +6,7 @@
  * next to the values of the fire+ combustion control. Every value can be hidden.
  */
 
-const CARD_VERSION = "1.0.3";
+const CARD_VERSION = "1.0.4";
 const DOMAIN = "drooff_fireplus";
 
 /* translation_key -> entity domain, plus entity_id suffixes as fallback */
@@ -29,6 +29,15 @@ const KEYS = {
   volume: { domain: "number", suffix: ["volume", "lautstarke", "lautstaerke"] },
   wifi_signal_strength: { domain: "sensor", suffix: ["wifi_signal_strength", "wlan_signalstarke"] },
   ethernet_link: { domain: "binary_sensor", suffix: ["ethernet_link", "ethernet_verbindung"] },
+  control_mode: { domain: "sensor", suffix: ["control_mode", "bedienung"] },
+};
+
+/* settings the fire+ ignores while it is not controlled via web (like the integration) */
+const LOCKED = {
+  remote_control: ["burn_rate", "brightness", "volume", "ember_burndown"],
+  remote_control_automatic: ["burn_rate", "brightness", "volume", "ember_burndown"],
+  room_controller: ["burn_rate"],
+  panel: ["burn_rate"],
 };
 
 /* Values that can be hidden via `hide:` */
@@ -2239,6 +2248,11 @@ class DrooffFireplusCard extends HTMLElement {
     return r.entities;
   }
 
+  _locked(setting) {
+    const mode = this._st("control_mode");
+    return !!(mode && (LOCKED[mode.state] || []).includes(setting));
+  }
+
   _st(key) {
     if (this._simCache && key in this._simCache) return this._simCache[key];
     const id = this._entities && this._entities[key];
@@ -2530,9 +2544,11 @@ class DrooffFireplusCard extends HTMLElement {
       const cur = Math.round(num(br));
       const min = Math.round(parseFloat(br.attributes.min) || 1);
       const max = Math.round(parseFloat(br.attributes.max) || 6);
-      const ctl = cfg.controls !== false;
+      // stoves with the Blue Angel label only offer Eco and Power (step 5)
+      const step = Math.max(1, Math.round(parseFloat(br.attributes.step) || 1));
+      const ctl = cfg.controls !== false && !this._locked("burn_rate");
       let btns = "";
-      for (let s = min; s <= max; s++) {
+      for (let s = min; s <= max; s += step) {
         btns += `<button data-act="burn" data-v="${s}" class="${s <= cur ? "on" : ""} ${s === cur ? "cur" : ""}"
           ${ctl ? "" : "disabled"} title="${s}">${s}</button>`;
       }
@@ -2590,7 +2606,7 @@ class DrooffFireplusCard extends HTMLElement {
     const eb = this._st("ember_burndown");
     if (this._show("ember_burndown") && usable(eb)) {
       const on = eb.state === "on";
-      const ctl = cfg.controls !== false;
+      const ctl = cfg.controls !== false && !this._locked("ember_burndown");
       tiles.push(`
         <div class="tile ${ctl ? "click" : ""}" ${ctl ? 'data-act="ember"' : ""}>
           <span class="label">${t.ember}</span>
@@ -2622,7 +2638,7 @@ class DrooffFireplusCard extends HTMLElement {
         <div class="tile">
           <span class="label">${t[key]}</span>
           <span class="val"><ha-icon icon="${icn}"></ha-icon>${v} %</span>
-          ${ctl ? `<input type="range" min="${parseFloat(st.attributes.min) || 0}" max="${parseFloat(st.attributes.max) || 100}" step="${step}" value="${v}" data-range="${key}">` : ""}
+          ${ctl && !this._locked(key) ? `<input type="range" min="${parseFloat(st.attributes.min) || 0}" max="${parseFloat(st.attributes.max) || 100}" step="${step}" value="${v}" data-range="${key}">` : ""}
         </div>`);
     }
     const eth = this._st("ethernet_link");

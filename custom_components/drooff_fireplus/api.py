@@ -30,6 +30,9 @@ REMOTE_CONTROL_MANUAL = 0
 REMOTE_CONTROL_AUTOMATIC = 1
 ROOM_CONTROLLER = 3
 
+# Time the fire+ needs before it reports written settings (s)
+SETTINGS_DELAY = 1
+
 # Bit in panel value 13 that marks a stove with the Blue Angel label (and an OekoSolve filter)
 BLUE_ANGEL_FLAG = 2
 
@@ -65,6 +68,8 @@ class FireplusApiClient:
         self._configuration_time = 0.0
         self._filter: str | None = None
         self._filter_time = 0.0
+        # Every write sends all settings, so writes must not overlap (see async_update_settings)
+        self._write_lock = asyncio.Lock()
 
     async def async_get_data(self, *, fresh: bool = False) -> Any:
         """Get data from the API."""
@@ -111,7 +116,33 @@ class FireplusApiClient:
         burn_rate: int | None = None,
         led: bool | None = None,
     ) -> None:
-        """Update settings of Drooff fire+."""
+        """
+        Update settings of Drooff fire+.
+
+        The fire+ only accepts all settings at once, so the current ones are read first. Writes
+        are serialized and wait until the fire+ reports the new values; otherwise a second write
+        (for example burn rate and ember burndown in one automation) would read the old values
+        and undo the first one.
+        """
+        async with self._write_lock:
+            await self._async_write_settings(
+                brightness=brightness,
+                volume=volume,
+                ember_burndown=ember_burndown,
+                burn_rate=burn_rate,
+                led=led,
+            )
+            await asyncio.sleep(SETTINGS_DELAY)
+
+    async def _async_write_settings(
+        self,
+        *,
+        brightness: int | None,
+        volume: int | None,
+        ember_burndown: bool | None,
+        burn_rate: int | None,
+        led: bool | None,
+    ) -> None:
         current_data = await self.async_get_data(fresh=True)
 
         if current_data.version >= VERSION_2_0_0:

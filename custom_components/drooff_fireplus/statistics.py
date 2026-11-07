@@ -25,7 +25,7 @@ class FireplusEvent:
 
 def parse_events(response: str) -> list[FireplusEvent]:
     """Parse the response of easevents.php: '"time,door,phase,time,door,phase,"'."""
-    values = response.lstrip("﻿").strip().strip('"').split(",")
+    values = response.lstrip("\ufeff").strip().strip('"').split(",")
     events = []
     for index in range(0, len(values) - 2, 3):
         time, door, phase = values[index : index + 3]

@@ -81,7 +81,8 @@ class FireplusFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             response = await client.async_get_data()
         except FireplusApiClientCommunicationError as exception:
-            LOGGER.error(exception)
+            # also a normal case for DHCP: another device may be called "fire"
+            LOGGER.debug("Cannot connect to %s: %s", host, exception)
             errors["base"] = "connection"
         except FireplusApiClientError as exception:
             LOGGER.exception(exception)

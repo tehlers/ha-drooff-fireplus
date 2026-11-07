@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
@@ -65,6 +64,5 @@ class FireplusEntity(CoordinatorEntity[FireplusDataUpdateCoordinator]):
                 translation_key="update_settings_failed",
                 translation_placeholders={"error": str(exception)},
             ) from exception
-        # Give fire+ time to update value
-        await asyncio.sleep(1)
+        # the client waits until the fire+ reports the new value
         await self.coordinator.async_request_refresh()

@@ -24,7 +24,7 @@ Eine Dashboard-Card für die Home-Assistant-Integration [Drooff fire+](https://g
 - **Empfohlene Holzauflage als Holzscheite** (Stapel gespaltener Scheite, ein halbes Scheit wird kleiner gezeigt)
 - **Optional: Bild deines Ofens**, das Feuer erscheint dann in seinem Sichtfenster (Standard ist die Feuerstelle)
 - **Ofenmodell-Auswahl** für alle Drooff-Öfen mit fire+: übernimmt den optimalen Zugbereich und verlinkt die Produktseite mit Anleitung fürs Bild
-- Brennleistung (1–6 bzw. 1–7) und Glutabbrand direkt in der Card bedienbar (`controls: false` schaltet das ab)
+- Brennleistung (1–6 bzw. 1–7, bei Öfen mit Blauem Engel nur Eco und Power) und Glutabbrand direkt in der Card bedienbar (`controls: false` schaltet das ab). Wie in der fire+ Webapp sind die Bedienelemente gesperrt, solange Fernbedienung, Raumregler oder Panel den fire+ steuern
 - Einstellungen und Diagnosewerte des fire+: LED an/aus, LED-Helligkeit und Lautstärke (mit Schieberegler), WLAN-Signal, LAN-Verbindung, Betriebszeit
 - **Automatische Erkennung**: Der Card-Editor findet das fire+ Gerät und alle Entitäten und hakt unter „Anzeigen“ alles vor, was dein Gerät liefert. Abwählen blendet den Wert aus. Unter „Entitäten“ steht die erkannte Zuordnung, die sich ändern lässt.
 - **Kaminzug als Zeigerinstrument** (optional): Skala von +10 Pa (links) bis −30 Pa (rechts). Die fire+ meldet den Zug als Unterdruck, negative Werte sind also gut. Bereiche: +10 bis 0 rot (Überdruck), 0 bis −12 grau (schwacher Zug), −12 bis −20 dunkelgrün (optimal), −20 bis −30 hellgrün (OK, starker Zug). Alles einstellbar unter „Erweitert: Kaminzug“

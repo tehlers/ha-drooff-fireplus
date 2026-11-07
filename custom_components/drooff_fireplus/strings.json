@@ -179,6 +179,9 @@
         },
         "control_locked": {
             "message": "This setting is locked: the fire+ is not controlled via web right now ({control_mode}). Change it on the remote control, room controller or panel, or switch the web app to web control."
+        },
+        "burn_rate_blue_angel": {
+            "message": "Stoves with the Blue Angel label only offer burn rate 1 (Eco) and 6 (Power), not {value}."
         }
     }
 }

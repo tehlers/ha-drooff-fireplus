@@ -24,7 +24,7 @@ A Lovelace dashboard card for the Home Assistant integration [Drooff fire+](http
 - **Recommended wood load shown as logs** (stack of split logs, half a log is drawn smaller)
 - **Optional: a picture of your stove** – the fire is then shown inside its window (default is the open fireplace)
 - **Stove model selection** for all Drooff fire+ stoves: applies the optimal draught range and links to the product page with instructions for the picture
-- Burn rate (1–6 or 1–7) and ember burndown can be changed directly in the card (`controls: false` turns this off)
+- Burn rate (1–6 or 1–7, only Eco and Power on stoves with the Blue Angel label) and ember burndown can be changed directly in the card (`controls: false` turns this off). Like the fire+ web app, controls are locked while a remote control, room controller or the panel controls the fire+
 - Settings and diagnostics of the fire+: LED on/off, LED brightness and volume (with slider), Wi-Fi signal, Ethernet link, operating time
 - **Automatic detection**: the card editor finds the fire+ device and all of its entities and preselects everything your device provides under “Show”. Unticking hides the value. The detected entities are listed under “Entities” and can be changed.
 - **Chimney draught as gauge** (optional): scale from +10 Pa (left) to −30 Pa (right). The fire+ reports the draught as negative pressure, so negative values are good. Zones: +10 to 0 red (overpressure), 0 to −12 grey (weak draught), −12 to −20 dark green (optimal), −20 to −30 light green (OK, strong draught). Everything adjustable under “Advanced: draught”
