@@ -19,7 +19,8 @@ Eine Dashboard-Card für die Home-Assistant-Integration [Drooff fire+](https://g
   - *Gluterhaltung*: dunkelrot, langsam atmendes Glutbett ohne Flammen
   - *Glutabbrand*: hell glühendes Glutbett mit kleinen Flämmchen und Funken
 - Tür offen: gestrichelter, pulsierender Rahmen um die Scheibe
-- Betriebsstatus als farbiges Badge, Fehlermeldung als Banner
+- Betriebsstatus als farbiges Badge
+- Alarmanzeige, nur sichtbar, wenn etwas nicht stimmt: Fehler des fire+ (die Zugwarner-Fehler „Kaminzug zu gering“ und „Kein Kaminzug“ als **Zugwarnung** gekennzeichnet), Tür zu lange offen, Problem mit dem Feinstaubfilter
 - Temperatur mit Ziel- und Maximaltemperatur, Anheizfortschritt, Luftschieber, Kaminzug
 - **Empfohlene Holzauflage als Holzscheite** (Stapel gespaltener Scheite, ein halbes Scheit wird kleiner gezeigt)
 - **Optional: Bild deines Ofens**, das Feuer erscheint dann in seinem Sichtfenster (Standard ist die Feuerstelle)
@@ -87,7 +88,7 @@ Alles Weitere wird automatisch erkannt.
 
 Ohne `hide` sind LED-Helligkeit, Lautstärke, WLAN und LAN ausgeblendet, alles andere ist sichtbar; `hide: []` zeigt alles. Werte für `hide`: `flame`, `name`, `status`, `temperature`, `target_temperature`, `max_temperature`, `heating_progress`, `burn_rate`, `air_slider`, `draught`, `wood_load`, `wood_logs` (nur die Scheite-Grafik), `door`, `ember_burndown`, `error`, `operating_time`, `led`, `brightness`, `volume`, `wifi`, `ethernet`.
 
-Schlüssel für `entities`: `operation_status`, `temperature`, `target_temperature`, `heating_progress`, `air_slider_position`, `draught`, `weight`, `error_message`, `operating_time`, `burn_rate`, `ember_burndown`, `error`, `door_open`, `led`, `brightness`, `volume`, `wifi_signal_strength`, `ethernet_link`.
+Schlüssel für `entities`: `operation_status`, `temperature`, `target_temperature`, `heating_progress`, `air_slider_position`, `draught`, `weight`, `error_message`, `operating_time`, `burn_rate`, `ember_burndown`, `error`, `door_open`, `led`, `brightness`, `volume`, `wifi_signal_strength`, `ethernet_link`, `control_mode`, `door_open_too_long`, `filter_problem`, `filter_status`.
 
 Werte, die der Ofen nicht liefert (z. B. Holzauflage bei älteren Geräten, Anheizfortschritt außerhalb des Anheizens), werden automatisch ausgeblendet.
 

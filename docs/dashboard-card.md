@@ -19,7 +19,8 @@ A Lovelace dashboard card for the Home Assistant integration [Drooff fire+](http
   - *Ember preservation*: dark red, slowly breathing ember bed without flames
   - *Ember burndown*: bright glowing embers with small flames and sparks
 - Door open: dashed, pulsing frame around the window
-- Operation status as coloured badge, error message as banner
+- Operation status as coloured badge
+- Alarm banner, only visible while something is wrong: errors of the fire+ (draught warning errors "chimney draught too low" and "no chimney draught" marked as such), door open too long, particle filter problem
 - Temperature with target and maximum, heating progress, air slider, chimney draught
 - **Recommended wood load shown as logs** (stack of split logs, half a log is drawn smaller)
 - **Optional: a picture of your stove** – the fire is then shown inside its window (default is the open fireplace)
@@ -87,7 +88,7 @@ Everything else is detected automatically.
 
 Without `hide`, LED brightness, volume, Wi-Fi and Ethernet are hidden and everything else is shown; `hide: []` shows everything. Values for `hide`: `flame`, `name`, `status`, `temperature`, `target_temperature`, `max_temperature`, `heating_progress`, `burn_rate`, `air_slider`, `draught`, `wood_load`, `wood_logs` (only the log graphic), `door`, `ember_burndown`, `error`, `operating_time`, `led`, `brightness`, `volume`, `wifi`, `ethernet`.
 
-Keys for `entities`: `operation_status`, `temperature`, `target_temperature`, `heating_progress`, `air_slider_position`, `draught`, `weight`, `error_message`, `operating_time`, `burn_rate`, `ember_burndown`, `error`, `door_open`, `led`, `brightness`, `volume`, `wifi_signal_strength`, `ethernet_link`.
+Keys for `entities`: `operation_status`, `temperature`, `target_temperature`, `heating_progress`, `air_slider_position`, `draught`, `weight`, `error_message`, `operating_time`, `burn_rate`, `ember_burndown`, `error`, `door_open`, `led`, `brightness`, `volume`, `wifi_signal_strength`, `ethernet_link`, `control_mode`, `door_open_too_long`, `filter_problem`, `filter_status`.
 
 Values your stove does not provide (e.g. wood load on older devices, heating progress outside of heating up) are hidden automatically.
 

@@ -6,7 +6,7 @@
  * next to the values of the fire+ combustion control. Every value can be hidden.
  */
 
-const CARD_VERSION = "1.0.6";
+const CARD_VERSION = "1.0.7";
 const DOMAIN = "drooff_fireplus";
 
 /* translation_key -> entity domain, plus entity_id suffixes as fallback */
@@ -30,7 +30,13 @@ const KEYS = {
   wifi_signal_strength: { domain: "sensor", suffix: ["wifi_signal_strength", "wlan_signalstarke"] },
   ethernet_link: { domain: "binary_sensor", suffix: ["ethernet_link", "ethernet_verbindung"] },
   control_mode: { domain: "sensor", suffix: ["control_mode", "bedienung"] },
+  door_open_too_long: { domain: "binary_sensor", suffix: ["door_open_too_long", "tur_zu_lange_offen"] },
+  filter_problem: { domain: "binary_sensor", suffix: ["filter_problem", "filterproblem"] },
+  filter_status: { domain: "sensor", suffix: ["filter_status", "filterstatus"] },
 };
+
+/* errors of the fire+ that come from its draught warning */
+const DRAUGHT_ERRORS = ["chimney_draught_too_low", "no_chimney_draught"];
 
 /* settings the fire+ ignores while it is not controlled via web (like the integration) */
 const LOCKED = {
@@ -199,6 +205,9 @@ const I18N = {
     draught_high: "OK (starker Zug)",
     draught_negative: "Überdruck",
     error: "Fehler",
+    draught_alarm: "Zugwarnung",
+    door_too_long: "Tür seit über 5 Minuten offen, bitte schließen",
+    filter: "Feinstaubfilter",
     not_found: "Keine Drooff fire+ Entitäten gefunden. Bitte `device` oder `entities` konfigurieren.",
     editor: {
       graphics: "Zusätzliche Grafiken",
@@ -339,6 +348,9 @@ const I18N = {
     draught_high: "OK (strong draught)",
     draught_negative: "overpressure",
     error: "Error",
+    draught_alarm: "Draught warning",
+    door_too_long: "Door open for more than 5 minutes, please close it",
+    filter: "Particle filter",
     not_found: "No Drooff fire+ entities found. Please configure `device` or `entities`.",
     editor: {
       graphics: "Additional graphics",
@@ -477,6 +489,9 @@ const I18N = {
     draught_high: "OK (sterke trek)",
     draught_negative: "overdruk",
     error: "Fout",
+    draught_alarm: "Trekwaarschuwing",
+    door_too_long: "Deur langer dan 5 minuten open, graag sluiten",
+    filter: "Fijnstoffilter",
     not_found: "Geen Drooff fire+ entiteiten gevonden. Stel `device` of `entities` in.",
     editor: {
       title: "Titel (leeg = apparaatnaam)",
@@ -581,6 +596,9 @@ const I18N = {
     draught_high: "OK (tirage fort)",
     draught_negative: "surpression",
     error: "Erreur",
+    draught_alarm: "Alerte de tirage",
+    door_too_long: "Porte ouverte depuis plus de 5 minutes, veuillez la fermer",
+    filter: "Filtre à particules",
     not_found: "Aucune entité Drooff fire+ trouvée. Veuillez configurer `device` ou `entities`.",
     editor: {
       title: "Titre (vide = nom de l'appareil)",
@@ -685,6 +703,9 @@ const I18N = {
     draught_high: "OK (tiraggio forte)",
     draught_negative: "sovrapressione",
     error: "Errore",
+    draught_alarm: "Allarme tiraggio",
+    door_too_long: "Sportello aperto da più di 5 minuti, chiuderlo",
+    filter: "Filtro antiparticolato",
     not_found: "Nessuna entità Drooff fire+ trovata. Configurare `device` o `entities`.",
     editor: {
       title: "Titolo (vuoto = nome del dispositivo)",
@@ -789,6 +810,9 @@ const I18N = {
     draught_high: "OK (silny ciąg)",
     draught_negative: "nadciśnienie",
     error: "Błąd",
+    draught_alarm: "Ostrzeżenie o ciągu",
+    door_too_long: "Drzwi otwarte ponad 5 minut, proszę zamknąć",
+    filter: "Filtr pyłów",
     not_found: "Nie znaleziono encji Drooff fire+. Skonfiguruj `device` lub `entities`.",
     editor: {
       title: "Tytuł (pusty = nazwa urządzenia)",
@@ -893,6 +917,9 @@ const I18N = {
     draught_high: "OK (silný tah)",
     draught_negative: "přetlak",
     error: "Chyba",
+    draught_alarm: "Varování tahu",
+    door_too_long: "Dvířka otevřena déle než 5 minut, zavřete je",
+    filter: "Filtr prachových částic",
     not_found: "Nenalezeny žádné entity Drooff fire+. Nastavte `device` nebo `entities`.",
     editor: {
       title: "Název (prázdné = název zařízení)",
@@ -997,6 +1024,9 @@ const I18N = {
     draught_high: "OK (kraftigt træk)",
     draught_negative: "overtryk",
     error: "Fejl",
+    draught_alarm: "Trækadvarsel",
+    door_too_long: "Lågen har været åben i over 5 minutter, luk den",
+    filter: "Partikelfilter",
     not_found: "Ingen Drooff fire+ enheder fundet. Angiv `device` eller `entities`.",
     editor: {
       title: "Titel (tom = enhedsnavn)",
@@ -2186,6 +2216,9 @@ ha-card { overflow: hidden; container-type: inline-size; height: 100%; box-sizin
 .switch.led.on { background: var(--primary-color, #03a9f4); }
 .tile input[type=range] { width: 100%; margin: 4px 0 0; accent-color: var(--primary-color, #03a9f4); }
 .switch.on::after { left: 16px; }
+.alarms { display: flex; flex-direction: column; gap: 6px; }
+.error .what { font-weight: 700; margin-right: 4px; }
+.error.blink ha-icon { animation: blink 1s steps(2, start) infinite; }
 .error { background: rgba(229, 57, 53, 0.15); color: var(--error-color, #e53935); border-radius: 10px; padding: 8px 10px; font-weight: 500;
   display: flex; gap: 8px; align-items: center; }
 .missing { padding: 16px; color: var(--secondary-text-color); }
@@ -2510,11 +2543,31 @@ class DrooffFireplusCard extends HTMLElement {
     }
     if (headBits.length) parts.push(`<div class="head">${headBits.join("")}</div>`);
 
-    /* error */
-    const errObj = this._st("error");
-    if (this._show("error") && errObj && errObj.state === "on") {
-      const msg = this._fmt(this._st("error_message")) || t.error;
-      parts.push(`<div class="error"><ha-icon icon="mdi:alert"></ha-icon>${esc(msg)}</div>`);
+    /* alarms: only shown while something is wrong */
+    if (this._show("error")) {
+      const on = (key) => {
+        const st = this._st(key);
+        return !!(st && st.state === "on");
+      };
+      const alarms = [];
+      if (on("error")) {
+        const em = this._st("error_message");
+        const msg = this._fmt(em) || t.error;
+        const draught = !!(em && DRAUGHT_ERRORS.includes(em.state));
+        alarms.push([draught ? "mdi:weather-windy" : "mdi:alert", draught ? t.draught_alarm : "", msg]);
+      }
+      if (on("door_open_too_long")) alarms.push(["mdi:door-open", "", t.door_too_long]);
+      if (on("filter_problem")) alarms.push(["mdi:air-filter", t.filter, this._fmt(this._st("filter_status")) || t.error]);
+      if (alarms.length) {
+        parts.push(
+          `<div class="alarms">${alarms
+            .map(
+              ([icon, what, msg]) =>
+                `<div class="error blink"><ha-icon icon="${icon}"></ha-icon><span>${what ? `<span class="what">${esc(what)}:</span>` : ""}${esc(msg)}</span></div>`
+            )
+            .join("")}</div>`
+        );
+      }
     }
 
     /* temperature */
